@@ -245,18 +245,26 @@ def parse_rss(xml: str) -> tuple[str, list[dict]]:
     return name, out
 
 
-_REL = re.compile(r"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago", re.I)
-_UNIT_DAYS = {"second": 0, "minute": 0, "hour": 0, "day": 1, "week": 7, "month": 30, "year": 365}
+# Handles both "3 weeks ago" and YouTube's compact "3w ago" / "9mo ago" / "1y ago".
+_REL = re.compile(r"(\d+)\s*(seconds?|secs?|s|minutes?|mins?|mo|months?|m|hours?|hrs?|h|"
+                  r"days?|d|weeks?|wks?|w|years?|yrs?|y)\b\.?\s*ago", re.I)
+
+
+def _unit_days(u: str) -> int:
+    u = u.lower()
+    if u.startswith("mo"):
+        return 30
+    return {"s": 0, "m": 0, "h": 0, "d": 1, "w": 7, "y": 365}[u[0]]
 
 
 PUB_SAMPLES: list = []
 
 
 def rel_to_iso(text: str) -> str:
-    if len(PUB_SAMPLES) < 25:
-        PUB_SAMPLES.append(text)
+    if not _REL.search(text or "") and len(PUB_SAMPLES) < 25:
+        PUB_SAMPLES.append(text)  # unparsed date strings, surfaced in build_report.json
     m = _REL.search(text or "")
-    days = int(m.group(1)) * _UNIT_DAYS[m.group(2).lower()] if m else 0
+    days = int(m.group(1)) * _unit_days(m.group(2)) if m else 0
     return (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
 
@@ -324,11 +332,6 @@ def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
                     "desc": "", "approx_date": True})
-    if len(PUB_SAMPLES) < 30:
-        for lv in list(_walk(data, "lockupViewModel"))[:1]:
-            PUB_SAMPLES.append(json.dumps(lv.get("metadata", {}), ensure_ascii=False)[:1500])
-        for r in list(_walk(data, "videoRenderer"))[:1]:
-            PUB_SAMPLES.append(json.dumps({k: r.get(k) for k in ("publishedTimeText", "lengthText")}, ensure_ascii=False))
     if not out:
         raise ValueError("no videos found on page")
     return name, out[:30]
