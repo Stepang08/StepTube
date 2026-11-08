@@ -249,7 +249,12 @@ _REL = re.compile(r"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago", r
 _UNIT_DAYS = {"second": 0, "minute": 0, "hour": 0, "day": 1, "week": 7, "month": 30, "year": 365}
 
 
+PUB_SAMPLES: list = []
+
+
 def rel_to_iso(text: str) -> str:
+    if len(PUB_SAMPLES) < 25:
+        PUB_SAMPLES.append(text)
     m = _REL.search(text or "")
     days = int(m.group(1)) * _UNIT_DAYS[m.group(2).lower()] if m else 0
     return (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
@@ -319,6 +324,11 @@ def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
                     "desc": "", "approx_date": True})
+    if len(PUB_SAMPLES) < 30:
+        for lv in list(_walk(data, "lockupViewModel"))[:1]:
+            PUB_SAMPLES.append(json.dumps(lv.get("metadata", {}), ensure_ascii=False)[:1500])
+        for r in list(_walk(data, "videoRenderer"))[:1]:
+            PUB_SAMPLES.append(json.dumps({k: r.get(k) for k in ("publishedTimeText", "lengthText")}, ensure_ascii=False))
     if not out:
         raise ValueError("no videos found on page")
     return name, out[:30]
@@ -538,6 +548,7 @@ def main() -> int:
     VIDEOS_JSON.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     IDS_JSON.write_text(json.dumps(dict(sorted(ids_cache.items())), indent=1))
     report["total"] = len(videos)
+    report["pub_samples"] = PUB_SAMPLES
     REPORT_JSON.write_text(json.dumps(report, indent=1))
     print(f"✓ {len(videos)} videos ({report['new']} new) from {len(out['channels'])} channels; "
           f"dropped {report['dropped']}; unresolved: {report['unresolved'] or 'none'}")
