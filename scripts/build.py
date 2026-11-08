@@ -48,6 +48,7 @@ NS = {
     "media": "http://search.yahoo.com/mrss/",
 }
 
+TITLES_VERSION = 2       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
@@ -63,9 +64,13 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 _no_redirect_opener = urllib.request.build_opener(NoRedirect)
 
 
-def http_get(url: str, timeout: float = 20, retries: int = 3) -> str:
+def _accept_lang(hl: str) -> str:
+    return "en-US,en;q=0.8" if hl == "en" else f"{hl},{hl}-RU;q=0.9,en;q=0.5" if hl == "ru" else f"{hl},en;q=0.5"
+
+
+def http_get(url: str, timeout: float = 20, retries: int = 3, hl: str = "en") -> str:
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Cookie": COOKIE,
-                                               "Accept-Language": "en-US,en;q=0.8"})
+                                               "Accept-Language": _accept_lang(hl)})
     last: Exception | None = None
     for i in range(retries):
         try:
@@ -389,13 +394,13 @@ def _continuation(node) -> str | None:
     return None
 
 
-def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
+def http_post_json(url: str, payload: dict, retries: int = 3, hl: str = "en") -> dict:
     body = json.dumps(payload).encode()
     last: Exception | None = None
     for i in range(retries):
         req = urllib.request.Request(url, data=body, method="POST", headers={
             "User-Agent": UA, "Cookie": COOKIE, "Content-Type": "application/json",
-            "Origin": "https://www.youtube.com", "Accept-Language": "en-US,en;q=0.8"})
+            "Origin": "https://www.youtube.com", "Accept-Language": _accept_lang(hl)})
         try:
             with urllib.request.urlopen(req, timeout=25) as r:
                 return json.loads(r.read().decode("utf-8", "replace"))
@@ -432,7 +437,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
     incomplete rather than following an unrelated token."""
     # hl = the channel's own language: with any other UI language YouTube
     # machine-translates titles (Russian lectures would come back in English).
-    page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl={hl}&gl=US")
+    page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl={hl}&gl=US", hl=hl)
     data = _initial_data(page)
     name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
             or next(iter(_walk(data, "pageTitle")), ""))
@@ -455,7 +460,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
         params = tab.get("endpoint", {}).get("browseEndpoint", {}).get("params")
         if params:
             try:
-                grid = http_post_json(endpoint, {"context": ctx, "browseId": channel_id, "params": params})
+                grid = http_post_json(endpoint, {"context": ctx, "browseId": channel_id, "params": params}, hl=hl)
                 dbg["tab"] = "videos-tab-browsed"
             except Exception as e:  # noqa: BLE001
                 dbg["tab_error"] = str(e)[:200]
@@ -478,7 +483,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
     while token and fetched < pages and len(out) < MAX_PER_CHANNEL:
         time.sleep(0.4)  # be gentle
         try:
-            resp = http_post_json(endpoint, {"context": ctx, "continuation": token})
+            resp = http_post_json(endpoint, {"context": ctx, "continuation": token}, hl=hl)
         except Exception as e:  # noqa: BLE001
             dbg["post_error"] = str(e)[:300]
             break
@@ -615,6 +620,8 @@ def main() -> int:
         b = backfill.get(c["key"])
         if not b or b.get("cid") != c["cid"] or b.get("hl", "en") != c["hl"]:
             return True
+        if c["hl"] != "en" and b.get("tv", 1) < TITLES_VERSION:  # fetched before titles were fixed
+            return True
         # Re-fetch channels that were cut off by a smaller cap than today's.
         return b.get("cap", 0) < MAX_PER_CHANNEL and b.get("n", 0) >= b.get("cap", 0)
 
@@ -642,7 +649,7 @@ def main() -> int:
         with cf.ThreadPoolExecutor(args.workers) as ex:
             for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
                 if archived:
-                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"]}
+                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"], "tv": TITLES_VERSION}
                     report["archived"].append(f"{key}: {len(res[1])}")
                     print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):
@@ -652,9 +659,23 @@ def main() -> int:
                     feeds[key] = res
 
     # ---- channel avatars (so the Channels page shows who each one really is) --
-    if not args.offline and AVATARS:
+    if not args.offline:
         AVATAR_DIR.mkdir(parents=True, exist_ok=True)
-        for cid, url in AVATARS.items():
+
+        def avatar_url(cid):
+            if cid in AVATARS:
+                return cid, AVATARS[cid]
+            try:
+                d = _initial_data(http_get(f"https://www.youtube.com/channel/{cid}?hl=en", retries=2))
+                th = d.get("metadata", {}).get("channelMetadataRenderer", {}).get("avatar", {}).get("thumbnails") or []
+                return cid, th[0]["url"] if th else None
+            except Exception:  # noqa: BLE001
+                return cid, None
+
+        need = [c["cid"] for c in chans if c.get("cid") and not (AVATAR_DIR / f"{c['cid']}.jpg").exists()]
+        with cf.ThreadPoolExecutor(args.workers) as ex:
+            found = {cid: url for cid, url in ex.map(avatar_url, need) if url}
+        for cid, url in found.items():
             f = AVATAR_DIR / f"{cid}.jpg"
             if f.exists():
                 continue
