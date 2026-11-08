@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "site" / "data"
 VIDEOS_JSON = DATA / "videos.json"
 IDS_JSON = DATA / "channel_ids.json"
+BACKFILL_JSON = DATA / "backfill.json"   # channels whose full archive was already fetched
 REPORT_JSON = DATA / "build_report.json"
 
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -295,14 +296,10 @@ def _initial_data(page: str) -> dict:
     return json.JSONDecoder().raw_decode(page, m.end())[0]
 
 
-def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
-    """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
-    separate tab, so they never appear here)."""
-    data = _initial_data(http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl=en&gl=US"))
-    name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
-            or next(iter(_walk(data, "pageTitle")), ""))
+def _parse_video_items(node) -> list[dict]:
+    """Pull video entries out of any chunk of ytInitialData / browse response."""
     out, seen = [], set()
-    for r in _walk(data, "videoRenderer"):
+    for r in _walk(node, "videoRenderer"):
         vid = r.get("videoId")
         if not vid or vid in seen:
             continue
@@ -320,7 +317,7 @@ def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
             "desc": _txt(r.get("descriptionSnippet")),
             "approx_date": True,
         })
-    for lv in _walk(data, "lockupViewModel"):  # newer layout
+    for lv in _walk(node, "lockupViewModel"):  # newer layout
         vid = lv.get("contentId")
         if not vid or vid in seen or lv.get("contentType", "LOCKUP_CONTENT_TYPE_VIDEO") != "LOCKUP_CONTENT_TYPE_VIDEO":
             continue
@@ -332,9 +329,62 @@ def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
                     "desc": "", "approx_date": True})
+    return out
+
+
+def _continuation(node) -> str | None:
+    toks = [c.get("token") for c in _walk(node, "continuationCommand") if isinstance(c, dict) and c.get("token")]
+    return toks[-1] if toks else None
+
+
+def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
+    body = json.dumps(payload).encode()
+    last: Exception | None = None
+    for i in range(retries):
+        req = urllib.request.Request(url, data=body, method="POST", headers={
+            "User-Agent": UA, "Cookie": COOKIE, "Content-Type": "application/json",
+            "Origin": "https://www.youtube.com", "Accept-Language": "en-US,en;q=0.8"})
+        try:
+            with urllib.request.urlopen(req, timeout=25) as r:
+                return json.loads(r.read().decode("utf-8", "replace"))
+        except Exception as e:  # noqa: BLE001
+            last = e
+            time.sleep(1.5 * (i + 1))
+    raise last  # type: ignore[misc]
+
+
+def scrape_videos_tab(channel_id: str, pages: int = 1) -> tuple[str, list[dict]]:
+    """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
+    separate tab, so they never appear here). With pages > 1, keep scrolling
+    the list through YouTube's public web 'browse' endpoint, the same request
+    the site makes when you scroll; no API key of ours is involved."""
+    page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl=en&gl=US")
+    data = _initial_data(page)
+    name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
+            or next(iter(_walk(data, "pageTitle")), ""))
+    out = _parse_video_items(data)
     if not out:
         raise ValueError("no videos found on page")
-    return name, out[:30]
+    seen = {v["id"] for v in out}
+    m = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', page)
+    version = m.group(1) if m else "2.20251101.00.00"
+    k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
+    endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
+    token = _continuation(data)
+    for _ in range(pages - 1):
+        if not token:
+            break
+        time.sleep(0.4)  # be gentle
+        resp = http_post_json(endpoint, {
+            "context": {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}},
+            "continuation": token})
+        items = [v for v in _parse_video_items(resp) if v["id"] not in seen]
+        if not items:
+            break
+        seen.update(v["id"] for v in items)
+        out.extend(items)
+        token = _continuation(resp)
+    return name, out
 
 
 def snippet(desc: str) -> str:
@@ -373,7 +423,9 @@ def load_json(p: Path, default):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--offline", action="store_true", help="no network; reuse existing data")
-    ap.add_argument("--workers", type=int, default=12)
+    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--max-archives", type=int, default=None,
+                    help="limit how many channels get their full archive fetched this run")
     args = ap.parse_args()
 
     cfg = yaml.safe_load((ROOT / "channels.yml").read_text())
@@ -432,17 +484,33 @@ def main() -> int:
                                   "topic": c["topic"], "cid": c.get("cid")}
 
     feeds: dict[str, tuple[str, list[dict]]] = {}
+    backfill: dict[str, str] = load_json(BACKFILL_JSON, {})
+    archive_pages = max(1, -(-MAX_PER_CHANNEL // 30))  # ~30 videos per page
+    report["archived"] = []
     if not args.offline:
         live = [c for c in chans if c.get("cid")]
+        todo_archive = {c["key"] for c in live if backfill.get(c["key"]) != c["cid"]}
+        if args.max_archives is not None:
+            todo_archive = set(sorted(todo_archive)[: args.max_archives])
 
         def grab(c):
             try:
-                return c["key"], fetch_feed(c["cid"])
+                if c["key"] in todo_archive:
+                    try:
+                        res = scrape_videos_tab(c["cid"], pages=archive_pages)
+                        return c["key"], res, True
+                    except Exception:  # noqa: BLE001  fall back to the normal path
+                        pass
+                return c["key"], fetch_feed(c["cid"]), False
             except Exception as e:  # noqa: BLE001
-                return c["key"], e
+                return c["key"], e, False
 
         with cf.ThreadPoolExecutor(args.workers) as ex:
-            for key, res in ex.map(grab, live):
+            for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
+                if archived:
+                    backfill[key] = c_["cid"]
+                    report["archived"].append(f"{key}: {len(res[1])}")
+                    print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):
                     report["feed_errors"].append(f"{key}: {res}")
                     print(f"! feed {key}: {res}", file=sys.stderr)
@@ -478,7 +546,7 @@ def main() -> int:
             candidates.append((c, e))
 
     # Shorts don't always say so in the feed: probe new videos once.
-    new = [(c, e) for c, e in candidates if e["id"] not in library]
+    new = [(c, e) for c, e in candidates if e["id"] not in library and not e.get("approx_date")]
     if new and not args.offline:
         with cf.ThreadPoolExecutor(args.workers) as ex:
             flags = list(ex.map(lambda ce: is_short(ce[1]["id"]), new))
@@ -556,6 +624,8 @@ def main() -> int:
     }
     VIDEOS_JSON.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     IDS_JSON.write_text(json.dumps(dict(sorted(ids_cache.items())), indent=1))
+    if not args.offline:
+        BACKFILL_JSON.write_text(json.dumps(dict(sorted(backfill.items())), indent=1, ensure_ascii=False))
     report["total"] = len(videos)
     report["pub_samples"] = PUB_SAMPLES
     REPORT_JSON.write_text(json.dumps(report, indent=1))

@@ -28,7 +28,8 @@ YouTube RSS ──┘   no API keys needed
 3. **Library grows over time.** Each run merges into the existing
    `videos.json` (up to 300 per channel), so the archive accumulates beyond what
    RSS shows.
-4. **Classics.** `classics.yml` pins evergreen videos forever.
+4. **Full archives.** The first time a channel is seen, its whole /videos list is paged through (up to 300 videos); after that, only new uploads are fetched. Old videos get approximate dates ("4y ago" becomes about four years back). `site/data/backfill.json` records which channels are done; delete an entry to re-fetch.
+5. **Classics.** `classics.yml` pins evergreen videos forever.
 
 ## Design: low dopamine, still comfortable
 
