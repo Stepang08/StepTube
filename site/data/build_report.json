@@ -1,13 +1,15 @@
 {
  "resolved": [],
  "unresolved": [],
- "feed_errors": [],
+ "feed_errors": [
+  "Learn English With TV Series: rss: HTTP Error 404: Not Found; rss: HTTP Error 404: Not Found; page: no ytInitialData"
+ ],
  "dropped": {
-  "short": 0,
-  "live": 0,
-  "filtered": 0
+  "short": 12,
+  "live": 31,
+  "filtered": 2
  },
- "new": 0,
- "total": 2662,
+ "new": 25,
+ "total": 2687,
  "pub_samples": []
 }
