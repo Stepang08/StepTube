@@ -50,6 +50,7 @@ NS = {
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
+VIEWS_VERSION = 1        # bump to re-fetch channels whose stored videos lack view counts
 CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
@@ -258,6 +259,7 @@ def parse_rss(xml: str) -> tuple[str, list[dict]]:
             "published": e.findtext("a:published", default="", namespaces=NS),
             "href": href,
             "views": views,
+            "view_count": views if views > 0 else None,
             "desc": desc,
         })
     return name, out
@@ -748,11 +750,18 @@ def main() -> int:
     backfill: dict[str, dict] = {k: (v if isinstance(v, dict) else {"cid": v, "cap": 300, "n": 300 if have.get(k, 0) >= 270 else have.get(k, 0)})
                                  for k, v in load_json(BACKFILL_JSON, {}).items()}
 
+    tot_ch = collections.Counter(v.get("ch") for v in library.values())
+    vc_ch = collections.Counter(v.get("ch") for v in library.values() if v.get("vc"))
+    vc_cover = {k: vc_ch[k] / n for k, n in tot_ch.items() if n}
+
     def needs_archive(c) -> bool:
         b = backfill.get(c["key"])
         if not b or b.get("cid") != c["cid"] or b.get("hl", "en") != c["hl"]:
             return True
         if c["hl"] != "en" and b.get("tv", 1) < TITLES_VERSION:  # fetched before titles were fixed
+            return True
+        # Archived before view counts were recorded: fetch once more to fill them in.
+        if b.get("vv", 0) < VIEWS_VERSION and vc_cover.get(c["key"], 0) < 0.5:
             return True
         # Re-fetch channels that were cut off by a smaller cap than today's.
         return b.get("cap", 0) < MAX_PER_CHANNEL and b.get("n", 0) >= b.get("cap", 0)
@@ -781,7 +790,7 @@ def main() -> int:
         with cf.ThreadPoolExecutor(args.workers) as ex:
             for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
                 if archived:
-                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"], "tv": TITLES_VERSION}
+                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"], "tv": TITLES_VERSION, "vv": VIEWS_VERSION}
                     report["archived"].append(f"{key}: {len(res[1])}")
                     print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):

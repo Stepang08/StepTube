@@ -89,9 +89,19 @@
     return out;
   }
 
+  // Most viewed first; videos without a count go last; ties newest first.
+  const byViews = (a, b) => (b.vc || 0) - (a.vc || 0) || (b.p || "").localeCompare(a.p || "");
+  function fmtViews(n) {
+    if (n >= 1e9) return `${+(n / 1e9).toFixed(1)}B views`;
+    if (n >= 1e6) return `${+(n / 1e6).toFixed(1)}M views`;
+    if (n >= 1e3) return `${n >= 1e5 ? Math.round(n / 1e3) : +(n / 1e3).toFixed(1)}K views`;
+    return `${n} view${n === 1 ? "" : "s"}`;
+  }
+
   function sortList(list, mode) {
     const l = list.slice();
-    if (mode === "old") l.sort((a, b) => (a.p || "").localeCompare(b.p || ""));
+    if (mode === "views") l.sort(byViews);
+    else if (mode === "old") l.sort((a, b) => (a.p || "").localeCompare(b.p || ""));
     else if (mode === "shuffle") {
       // Stable per-day shuffle: calm discovery without a slot machine on refresh.
       let seed = [...today()].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0;
@@ -108,7 +118,7 @@
       <a class="thumb" href="#/v/${v.id}" tabindex="-1" aria-hidden="true"><img loading="lazy" decoding="async" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"></a>
       <div class="info">
         <h3 class="title"><a href="#/v/${v.id}">${esc(v.t)}</a></h3>
-        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
+        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${showViews && v.vc ? `<span class="dot">·</span>${fmtViews(v.vc)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
         ${v.d ? `<p class="desc">${esc(v.d)}</p>` : ""}
       </div>
       <div class="acts">
@@ -121,15 +131,17 @@
   }
 
   let nopeMode = false;  // the For you page shows a "Not interested" button
+  let showViews = false; // view counts only appear while a list is sorted by views
   function chLink(v) {
     if (v.ch) return `<a href="#/c/${encodeURIComponent(v.ch)}">${esc(chName(v))}</a>`;
     if (v.ccid) return `<a href="https://www.youtube.com/channel/${esc(v.ccid)}" target="_blank" rel="noopener">${esc(chName(v))} ↗</a>`;
     return esc(chName(v));
   }
 
-  function listView({ title, sub = "", list, empty, note = "", sortable = true, endText, tools = "" }) {
+  function listView({ title, sub = "", list, empty, note = "", sortable = true, endText, tools = "", byViews: viewsSorted = false }) {
+    showViews = viewsSorted || (sortable && S.settings.sort === "views");
     const sortSel = tools || (sortable ? `<label class="tools">Sort
-      <select id="sort">${[["new", "Newest"], ["old", "Oldest"], ["shuffle", "Today's shuffle"]]
+      <select id="sort">${[["new", "Newest"], ["old", "Oldest"], ["views", "Most viewed"], ["shuffle", "Today's shuffle"]]
         .map(([k, n]) => `<option value="${k}"${S.settings.sort === k ? " selected" : ""}>${n}</option>`).join("")}</select></label>` : "");
     const items = sortable ? sortList(list, S.settings.sort) : list;
     const page = items.slice(0, shown);
@@ -174,13 +186,18 @@
         const all = list;
         if (lang !== "all") list = list.filter((v) => v.lang === lang);
         const n = (l) => all.filter((v) => v.lang === l).length;
-        const tools = `<label class="tools">Language <select id="cclang">
+        const ccSort = S.settings.ccSort === "views" ? "views" : "new";
+        const tools = `<span class="tools"><label>Sort <select id="ccsort">
+          <option value="new"${ccSort === "new" ? " selected" : ""}>Newest</option>
+          <option value="views"${ccSort === "views" ? " selected" : ""}>Most viewed</option></select></label>
+          <label>Language <select id="cclang">
           <option value="all"${lang === "all" ? " selected" : ""}>All (${all.length})</option>
           <option value="en"${lang === "en" ? " selected" : ""}>English (${n("en")})</option>
-          <option value="ru"${lang === "ru" ? " selected" : ""}>Русский (${n("ru")})</option></select></label>`;
-        listView({ title: t.name, tools, sortable: false,
-          sub: `${list.length} videos about Claude Code, from any channel · found by YouTube search every hour, newest first. Shorts, live streams and clickbait are filtered out.`,
-          list: sortList(list, "new"), empty: "Nothing yet. The hourly search fills this in." });
+          <option value="ru"${lang === "ru" ? " selected" : ""}>Русский (${n("ru")})</option></select></label></span>`;
+        listView({ title: t.name, tools, sortable: false, byViews: ccSort === "views",
+          sub: `${list.length} videos about Claude Code, from any channel · found by YouTube search every hour. Shorts, live streams and clickbait are filtered out.`,
+          list: sortList(list, ccSort), empty: "Nothing yet. The hourly search fills this in." });
+        $("#ccsort").addEventListener("change", (e) => { S.settings.ccSort = e.target.value; save(); shown = PAGE; render(true); });
         $("#cclang").addEventListener("change", (e) => { S.settings.ccLang = e.target.value; save(); shown = PAGE; render(true); });
         return;
       }
@@ -201,7 +218,7 @@
       }
       const rows = S.recs.rows.map((r) => ({ ...r, ids: r.ids.filter((id) => byId.has(id) && !S.notInterested.includes(id)) }))
         .filter((r) => r.ids.length);
-      nopeMode = true;
+      nopeMode = true; showViews = false;
       let i = 0;
       const body = rows.map((r) => `<h2 class="sec">${esc(r.label)}</h2><ul class="list">${r.ids.map((id) => card(byId.get(id), i++)).join("")}</ul>`).join("");
       main.innerHTML = head(
@@ -236,12 +253,14 @@
       const smartOn = S.settings.smart !== false;
       let { list, corrected } = StepSearch.rank(q, { visible, S });
       if (S.settings.searchSort === "new") list = list.slice().sort((a, b) => (b.p || "").localeCompare(a.p || ""));
+      else if (S.settings.searchSort === "views") list = list.slice().sort(byViews);
       const fix = corrected.length
         ? ` · showing results for <b>${esc(tokenizeFix(q, corrected))}</b>` : "";
       const tools = `<label class="tools">Sort <select id="ssort">
-        <option value="rel"${S.settings.searchSort !== "new" ? " selected" : ""}>Relevance</option>
-        <option value="new"${S.settings.searchSort === "new" ? " selected" : ""}>Upload date</option></select></label>`;
-      listView({ title: `“${q}”`, list, sortable: false, tools,
+        <option value="rel"${!["new", "views"].includes(S.settings.searchSort) ? " selected" : ""}>Relevance</option>
+        <option value="new"${S.settings.searchSort === "new" ? " selected" : ""}>Upload date</option>
+        <option value="views"${S.settings.searchSort === "views" ? " selected" : ""}>Most viewed</option></select></label>`;
+      listView({ title: `“${q}”`, list, sortable: false, tools, byViews: S.settings.searchSort === "views",
         sub: `${list.length >= 500 ? "500+" : list.length} result${list.length === 1 ? "" : "s"}${fix}<br><span id="smode">${searchMode(q)}</span>`,
         empty: "No matches in your library." });
       $("#ssort").addEventListener("change", (e) => { S.settings.searchSort = e.target.value; save(); shown = PAGE; render(true); });

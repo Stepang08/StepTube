@@ -91,7 +91,7 @@ main { max-width: 980px; margin: 0 auto; padding: 20px 16px 40px; outline: none;
 .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 0 14px; }
 .head h1 { font: 600 22px/1.25 var(--font-read); margin: 0; }
 .head .sub { color: var(--text-3); font-size: 14px; }
-.tools { display: flex; gap: 8px; align-items: center; color: var(--text-3); font-size: 14px; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; color: var(--text-3); font-size: 14px; }
 .tools select {
   background: var(--bg-2); color: var(--text-2); border: 1px solid var(--line);
   border-radius: 8px; padding: 4px 8px; font: inherit;
