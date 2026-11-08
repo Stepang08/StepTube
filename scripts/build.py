@@ -48,7 +48,7 @@ NS = {
     "media": "http://search.yahoo.com/mrss/",
 }
 
-TITLES_VERSION = 2       # bump to re-fetch non-English channels' original titles
+TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
