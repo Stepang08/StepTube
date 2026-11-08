@@ -50,7 +50,7 @@ NS = {
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
-VIEWS_VERSION = 4        # bump to re-fetch channels whose stored videos lack view counts
+VIEWS_VERSION = 5        # bump to re-fetch channels whose stored videos lack view counts
 CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
@@ -409,10 +409,10 @@ def lockup_views(meta) -> int | None:
             label = (p.get("accessibilityLabel") or "").lower()
             if "view" in text.lower() or "просмотр" in text.lower():
                 return parse_views(text)
+            if "просмотр" in label or re.search(r"[\u0400-\u04ff]", text):
+                return parse_views(f"{text} просмотров")
             if "view" in label or "watching" not in label and (p.get("leadingIcon") or {}).get("name", "").startswith("PLAY_ARROW"):
                 return parse_views(f"{text} views")
-            if "просмотр" in label:
-                return parse_views(f"{text} просмотров")
     return None
 
 
