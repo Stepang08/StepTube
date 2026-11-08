@@ -50,7 +50,7 @@ NS = {
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
-VIEWS_VERSION = 3        # bump to re-fetch channels whose stored videos lack view counts
+VIEWS_VERSION = 4        # bump to re-fetch channels whose stored videos lack view counts
 CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
@@ -393,11 +393,27 @@ def _parse_video_items(node) -> list[dict]:
         title = meta.get("title", {}).get("content", "")
         parts = [p.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for p in (p or [])]
         pub = next((p for p in parts if "ago" in p or "назад" in p), "")
-        views = next((parse_views(p) for p in parts if "view" in p.lower() or "просмотр" in p.lower()), None)
+        views = lockup_views(meta)
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
                     "view_count": views, "desc": "", "approx_date": True})
     return out
+
+
+def lockup_views(meta) -> int | None:
+    """View count from a lockup's metadata parts. The visible text is often just
+    '168K' or '168 тыс.'; the word 'views' only appears in the accessibility label."""
+    for parts in _walk(meta, "metadataParts"):
+        for p in parts or []:
+            text = (p.get("text") or {}).get("content", "")
+            label = (p.get("accessibilityLabel") or "").lower()
+            if "view" in text.lower() or "просмотр" in text.lower():
+                return parse_views(text)
+            if "view" in label or "watching" not in label and (p.get("leadingIcon") or {}).get("name", "").startswith("PLAY_ARROW"):
+                return parse_views(f"{text} views")
+            if "просмотр" in label:
+                return parse_views(f"{text} просмотров")
+    return None
 
 
 def _continuation(node) -> str | None:
