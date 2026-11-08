@@ -16,7 +16,8 @@
   <div class="bar">
     <a class="brand" href="#/" aria-label="StepTube home">step<span>tube</span></a>
     <form class="search" role="search" onsubmit="return false">
-      <input id="q" type="search" placeholder="Search your library  ( / )" autocomplete="off" spellcheck="false" aria-label="Search">
+      <input id="q" type="search" list="sugg" placeholder="Search your library  ( / )" autocomplete="off" spellcheck="false" aria-label="Search">
+      <datalist id="sugg"></datalist>
     </form>
     <nav class="me" aria-label="Your lists">
       <a href="#/later" data-nav="later">Later</a>
@@ -51,6 +52,7 @@
   <form method="dialog"><button>Close</button></form>
 </dialog>
 
+<script src="search.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

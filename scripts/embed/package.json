@@ -1,0 +1,9 @@
+{
+  "name": "steptube-embed",
+  "private": true,
+  "type": "module",
+  "description": "Build-time multilingual embeddings for StepTube search (same model as the browser)",
+  "dependencies": {
+    "@huggingface/transformers": "3.0.2"
+  }
+}

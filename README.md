@@ -43,6 +43,26 @@ YouTube RSS ──┘   no API keys needed
 - **Sort options:** newest, oldest, or *Today's shuffle* (stable for the day, so refreshing isn't a slot machine).
 - **Under review** tab: probation for channels you're unsure about. Their videos stay off the New page.
 
+## Search (works like YouTube's, locally)
+
+YouTube search has three stages: **query understanding** (normalising, spelling
+correction), **retrieval** from both a keyword index and an embedding
+("semantic") index, and **ranking**. Ranking puts relevance first, then quality
+and engagement signals, freshness and personalisation. StepTube does the same
+in your browser (`site/search.js`):
+
+| Stage | YouTube | StepTube |
+| --- | --- | --- |
+| Query understanding | spell correction, synonyms | typo tolerance (edit distance 1–2), prefix match as you type, crude stemming for Russian/Armenian inflections, "showing results for" |
+| Keyword retrieval | inverted index | BM25F over title ×3, channel ×2, description ×1 |
+| Semantic retrieval | deep embeddings | `multilingual-e5-small`. Videos are embedded nightly in the Action, and your query is embedded in the browser with the same model (transformers.js, about 120 MB, downloaded once) |
+| Ranking | relevance × watch time, CTR, freshness, your history | 0.5 keyword + 0.5 meaning, then × view count, × similarity to what you liked/watched, × channels you watch, × recency |
+| Autocomplete | query log | channel names and title prefixes |
+
+What it can't copy: YouTube's click and watch-time data from billions of users,
+and full video transcripts. The index is about 128 bytes per video (PCA from 384
+to 128 dimensions, int8). Turn smart search off in Settings to stay keyword-only.
+
 ## Personal features (stored in your browser only)
 
 Watch later, likes, history, watched marks, per-video **notes** (searchable),

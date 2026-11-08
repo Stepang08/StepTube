@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyyaml==6.0.2
+      - run: pip install pyyaml==6.0.2 numpy==2.1.3
       - name: Fetch channel feeds
         run: python scripts/build.py
       - name: Show resolution report
@@ -37,6 +37,27 @@ jobs:
           git add site/data
           git diff --cached --quiet || git commit -m "Update library $(date -u +%F)"
           git push
+      # ---- smart-search index (embeddings) --------------------------------
+      # Never blocks the deploy: if it fails, the site falls back to keyword search.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/embeddings
+            scripts/embed/node_modules/@huggingface/transformers/.cache
+          key: emb-${{ github.run_id }}
+          restore-keys: emb-
+      - name: Embed videos (multilingual-e5-small, incremental)
+        id: embed
+        continue-on-error: true
+        timeout-minutes: 40
+        run: |
+          npm ci --prefix scripts/embed --no-audit --no-fund
+          node scripts/embed/embed.mjs site/data/videos.json .cache/embeddings
+          python scripts/compress_embeddings.py .cache/embeddings/vecs.f32
+
       # Deploy only once Pages is enabled (Settings -> Pages -> Source: GitHub Actions),
       # so the daily data refresh never shows up as a failed run.
       - id: pages

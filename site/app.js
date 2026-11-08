@@ -11,7 +11,7 @@
   // ---------------------------------------------------------------- state
   const defaults = () => ({
     later: [], liked: [], history: [], watched: {}, notes: {}, muted: [],
-    settings: { thumbs: "muted", clickbait: false, theme: "auto", budget: 60, sort: "new" },
+    settings: { thumbs: "muted", clickbait: false, theme: "auto", budget: 60, sort: "new", smart: true, searchSort: "rel" },
     lastVisit: null, budget: { day: "", sec: 0 },
   });
   let S = defaults();
@@ -52,6 +52,7 @@
     }
     byId = new Map(DB.videos.map((v) => [v.id, v]));
     chByKey = new Map(DB.channels.map((c) => [c.key, c]));
+    window.StepSearch?.build(DB, chName);
     $("#tabs").innerHTML =
       `<a href="#/" data-tab="">New</a>` +
       DB.topics.filter((t) => DB.videos.some((v) => v.tp === t.key)).map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
@@ -74,12 +75,18 @@
     return d.toLocaleDateString(undefined, { year: d.getUTCFullYear() === new Date().getUTCFullYear() ? undefined : "numeric", month: "short", day: "numeric" });
   }
 
-  function search(q, pool) {
-    const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-    return pool.filter((v) => {
-      const hay = `${v.t} ${chName(v)} ${v.d || ""} ${S.notes[v.id] || ""}`.toLowerCase();
-      return terms.every((t) => hay.includes(t));
-    });
+  function searchMode(q) {
+    if (S.settings.smart === false) return "Keyword search (smart search is off in Settings).";
+    if (StepSearch.isReady(q)) return "Smart search: by meaning and keywords, ranked like YouTube (relevance, views, your taste).";
+    const st = StepSearch.status;
+    if (st.mode === "loading") return `Loading the smart-search model… ${st.detail} (one-time download, about 120 MB).`;
+    if (st.detail) return "Keyword search (smart search unavailable right now).";
+    return "Keyword results · refining by meaning…";
+  }
+  function tokenizeFix(q, corrected) {
+    let out = q.toLowerCase();
+    for (const [from, to] of corrected) out = out.replace(from, to);
+    return out;
   }
 
   function sortList(list, mode) {
@@ -112,10 +119,10 @@
     </li>`;
   }
 
-  function listView({ title, sub = "", list, empty, note = "", sortable = true, endText }) {
-    const sortSel = sortable ? `<label class="tools">Sort
+  function listView({ title, sub = "", list, empty, note = "", sortable = true, endText, tools = "" }) {
+    const sortSel = tools || (sortable ? `<label class="tools">Sort
       <select id="sort">${[["new", "Newest"], ["old", "Oldest"], ["shuffle", "Today's shuffle"]]
-        .map(([k, n]) => `<option value="${k}"${S.settings.sort === k ? " selected" : ""}>${n}</option>`).join("")}</select></label>` : "";
+        .map(([k, n]) => `<option value="${k}"${S.settings.sort === k ? " selected" : ""}>${n}</option>`).join("")}</select></label>` : "");
     const items = sortable ? sortList(list, S.settings.sort) : list;
     const page = items.slice(0, shown);
     main.innerHTML = `
@@ -180,8 +187,22 @@
       $("#clearH")?.addEventListener("click", () => { if (confirm("Clear watch history?")) { S.history = []; save(); render(); } });
     },
     search(q) {
-      const list = search(q, DB.videos.filter(visible));
-      listView({ title: `“${q}”`, sub: `${list.length} result${list.length === 1 ? "" : "s"}`, list, empty: "No matches in your library." });
+      const smartOn = S.settings.smart !== false;
+      let { list, corrected } = StepSearch.rank(q, { visible, S });
+      if (S.settings.searchSort === "new") list = list.slice().sort((a, b) => (b.p || "").localeCompare(a.p || ""));
+      const fix = corrected.length
+        ? ` · showing results for <b>${esc(tokenizeFix(q, corrected))}</b>` : "";
+      const tools = `<label class="tools">Sort <select id="ssort">
+        <option value="rel"${S.settings.searchSort !== "new" ? " selected" : ""}>Relevance</option>
+        <option value="new"${S.settings.searchSort === "new" ? " selected" : ""}>Upload date</option></select></label>`;
+      listView({ title: `“${q}”`, list, sortable: false, tools,
+        sub: `${list.length >= 500 ? "500+" : list.length} result${list.length === 1 ? "" : "s"}${fix}<br><span id="smode">${searchMode(q)}</span>`,
+        empty: "No matches in your library." });
+      $("#ssort").addEventListener("change", (e) => { S.settings.searchSort = e.target.value; save(); shown = PAGE; render(true); });
+      if (smartOn && !StepSearch.isReady(q)) {
+        StepSearch.semantic(q, () => { const el = $("#smode"); if (el) el.textContent = searchMode(q); })
+          .then((changed) => { if (lastRoute === "/s/" + q) changed ? render(true) : ($("#smode") && ($("#smode").textContent = searchMode(q))); });
+      }
     },
     channels() {
       const count = {}; DB.videos.forEach((v) => (count[v.ch] = (count[v.ch] || 0) + 1));
@@ -208,6 +229,8 @@
           <div class="ctl">${opt("thumbs", "muted", S.settings.thumbs, "Muted")}${opt("thumbs", "color", S.settings.thumbs, "Color")}${opt("thumbs", "off", S.settings.thumbs, "Off")}</div></div>
         <div class="set"><h3>Theme</h3><p>Warm dark or warm light. Auto follows your system.</p>
           <div class="ctl">${opt("theme", "auto", S.settings.theme, "Auto")}${opt("theme", "dark", S.settings.theme, "Dark")}${opt("theme", "light", S.settings.theme, "Light")}</div></div>
+        <div class="set"><h3>Smart search</h3><p>Finds videos by meaning (in any language) as well as keywords, and ranks them like YouTube. Downloads a ~120 MB model once, the first time you search.</p>
+          <div class="ctl">${opt("smart", true, S.settings.smart !== false, "On")}${opt("smart", false, S.settings.smart !== false, "Off")}</div></div>
         <div class="set"><h3>Clickbait-flagged titles</h3><p>${cb} video${cb === 1 ? "" : "s"} flagged by title heuristics (caps, “shocking”, “!!”, …).</p>
           <div class="ctl">${opt("clickbait", false, S.settings.clickbait, "Hide")}${opt("clickbait", true, S.settings.clickbait, "Show")}</div></div>
         <div class="set"><h3>Daily budget</h3><p>Minutes of playback per day before a gentle reminder. 0 = off. Today: ${used} min.</p>
@@ -362,6 +385,8 @@
 
   let qTimer;
   $("#q").addEventListener("input", (e) => {
+    const dl = $("#sugg");
+    if (dl && window.StepSearch) dl.innerHTML = StepSearch.suggest(e.target.value, DB.channels).map((x) => `<option value="${esc(x)}">`).join("");
     clearTimeout(qTimer);
     qTimer = setTimeout(() => {
       const v = e.target.value.trim();
