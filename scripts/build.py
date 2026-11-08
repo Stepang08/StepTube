@@ -353,7 +353,10 @@ def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
     raise last  # type: ignore[misc]
 
 
-def scrape_videos_tab(channel_id: str, pages: int = 1) -> tuple[str, list[dict]]:
+ARCHIVE_DEBUG: list = []
+
+
+def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None) -> tuple[str, list[dict]]:
     """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
     separate tab, so they never appear here). With pages > 1, keep scrolling
     the list through YouTube's public web 'browse' endpoint, the same request
@@ -371,19 +374,38 @@ def scrape_videos_tab(channel_id: str, pages: int = 1) -> tuple[str, list[dict]]
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
     endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
     token = _continuation(data)
-    for _ in range(pages - 1):
-        if not token:
-            break
+    dbg = {"cid": channel_id, "first_page": len(out), "token": bool(token), "client": version}
+    if not token and len(ARCHIVE_DEBUG) < 4:
+        i = page.find("continuation")
+        dbg["page_snippet"] = page[max(0, i - 300): i + 300] if i >= 0 else "no 'continuation' in page"
+    fetched = 1
+    while token and fetched < pages:
         time.sleep(0.4)  # be gentle
-        resp = http_post_json(endpoint, {
-            "context": {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}},
-            "continuation": token})
+        try:
+            resp = http_post_json(endpoint, {
+                "context": {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}},
+                "continuation": token})
+        except Exception as e:  # noqa: BLE001
+            dbg["post_error"] = str(e)[:300]
+            break
         items = [v for v in _parse_video_items(resp) if v["id"] not in seen]
+        fetched += 1
         if not items:
+            dbg["empty_response_keys"] = list(resp)[:10]
+            dbg["empty_response_sample"] = json.dumps(resp)[:600]
             break
         seen.update(v["id"] for v in items)
         out.extend(items)
         token = _continuation(resp)
+    dbg["pages"] = fetched
+    dbg["videos"] = len(out)
+    if len(ARCHIVE_DEBUG) < 6:
+        ARCHIVE_DEBUG.append(dbg)
+    if info is not None:
+        # Complete = we really reached the end of the list (or the cap), not a parsing dead end.
+        info["complete"] = (len(out) >= MAX_PER_CHANNEL or
+                            (token is None and "post_error" not in dbg and "empty_response_keys" not in dbg
+                             and (fetched > 1 or len(out) < 30)))
     return name, out
 
 
@@ -497,8 +519,9 @@ def main() -> int:
             try:
                 if c["key"] in todo_archive:
                     try:
-                        res = scrape_videos_tab(c["cid"], pages=archive_pages)
-                        return c["key"], res, True
+                        info: dict = {}
+                        res = scrape_videos_tab(c["cid"], pages=archive_pages, info=info)
+                        return c["key"], res, info.get("complete", False)
                     except Exception:  # noqa: BLE001  fall back to the normal path
                         pass
                 return c["key"], fetch_feed(c["cid"]), False
@@ -628,6 +651,7 @@ def main() -> int:
         BACKFILL_JSON.write_text(json.dumps(dict(sorted(backfill.items())), indent=1, ensure_ascii=False))
     report["total"] = len(videos)
     report["pub_samples"] = PUB_SAMPLES
+    report["archive_debug"] = ARCHIVE_DEBUG
     REPORT_JSON.write_text(json.dumps(report, indent=1))
     print(f"✓ {len(videos)} videos ({report['new']} new) from {len(out['channels'])} channels; "
           f"dropped {report['dropped']}; unresolved: {report['unresolved'] or 'none'}")
