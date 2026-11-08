@@ -98,7 +98,7 @@
   function card(v, i) {
     const later = S.later.includes(v.id), liked = S.liked.includes(v.id), seen = !!S.watched[v.id];
     return `<li class="card${seen ? " seen" : ""}" data-id="${v.id}" data-i="${i}">
-      <a class="thumb" href="#/v/${v.id}" tabindex="-1" aria-hidden="true"><img loading="lazy" decoding="async" alt="" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"></a>
+      <a class="thumb" href="#/v/${v.id}" tabindex="-1" aria-hidden="true"><img loading="lazy" decoding="async" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"></a>
       <div class="info">
         <h3 class="title"><a href="#/v/${v.id}">${esc(v.t)}</a></h3>
         <div class="byline">${v.ch ? `<a href="#/c/${encodeURIComponent(v.ch)}">${esc(chName(v))}</a>` : esc(chName(v))}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
@@ -141,7 +141,7 @@
   const views = {
     home() {
       const cutoff = new Date(Date.now() - NEW_DAYS * 864e5).toISOString().slice(0, 10);
-      const list = DB.videos.filter((v) => visible(v) && !v.ev && v.p >= cutoff && !S.watched[v.id]);
+      const list = DB.videos.filter((v) => visible(v) && !v.ev && v.tp !== "review" && v.p >= cutoff && !S.watched[v.id]);
       const fresh = prevVisit ? list.filter((v) => v.p >= prevVisit.slice(0, 10)).length : 0;
       const sub = prevVisit
         ? (fresh ? `${fresh} posted since your last visit.` : "Nothing new since your last visit.")
@@ -154,12 +154,15 @@
       const t = DB.topics.find((x) => x.key === key);
       if (!t) return views.notFound();
       const list = DB.videos.filter((v) => v.tp === key && visible(v));
-      listView({ title: t.name, sub: `${list.length} videos`, list, empty: "Nothing here yet.", note: budgetNote() });
+      const note = key === "review"
+        ? "These channels are on probation and don't appear on the New page. Watch a few, then move each to a real topic in <code>channels.yml</code> or delete its line. <a href='#/channels'>Channel list</a>."
+        : budgetNote();
+      listView({ title: t.name, sub: `${list.length} videos`, list, empty: "Nothing here yet.", note });
     },
     channel(key) {
       const c = chByKey.get(key);
       const list = DB.videos.filter((v) => v.ch === key && (S.settings.clickbait || !v.cb));
-      listView({ title: c?.name || key, sub: `${list.length} videos · <a href="https://www.youtube.com/@${esc(key)}" target="_blank" rel="noopener">on YouTube ↗</a>`, list, empty: "No videos stored for this channel yet." });
+      listView({ title: c?.name || key, sub: `${list.length} videos · <a href="https://www.youtube.com/${c?.cid ? "channel/" + c.cid : "@" + encodeURIComponent(key)}" target="_blank" rel="noopener">on YouTube ↗</a>`, list, empty: "No videos stored for this channel yet." });
     },
     classics() {
       listView({ title: "Classics", sub: "Pinned forever, from <code>classics.yml</code>.", list: DB.videos.filter((v) => v.ev), empty: "Add evergreen videos to classics.yml." });

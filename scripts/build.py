@@ -119,6 +119,37 @@ def resolve_handle(handle: str) -> str | None:
     return None
 
 
+CHANNEL_RENDERER = re.compile(
+    r'"channelRenderer":\{"channelId":"(UC[\w-]{22})","title":\{"simpleText":"((?:[^"\\]|\\.)*)"')
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"[^\w]+", "", unicodedata.normalize("NFKC", s).casefold())
+
+
+def resolve_name(name: str) -> tuple[str, str] | None:
+    """Find a channel by display name via YouTube's channel-filtered search.
+
+    Prefers an exact (normalized) title match among the results, else the top hit.
+    Returns (channel_id, matched_title)."""
+    q = urllib.parse.urlencode({"search_query": name, "sp": "EgIQAg=="})
+    try:
+        page = http_get(f"https://www.youtube.com/results?{q}")
+    except Exception:
+        return None
+    hits = [(cid, json.loads(f'"{t}"')) for cid, t in CHANNEL_RENDERER.findall(page)]
+    if not hits:
+        return None
+    want = _norm(name)
+    for cid, t in hits:
+        if _norm(t) == want:
+            return cid, t
+    for cid, t in hits:  # prefix match handles names truncated in the app ("…")
+        if _norm(t).startswith(want) or want.startswith(_norm(t)):
+            return cid, t
+    return hits[0]
+
+
 # --------------------------------------------------------------------------
 # Title hygiene
 # --------------------------------------------------------------------------
@@ -254,7 +285,7 @@ def main() -> int:
     # ---- resolve channel ids -------------------------------------------------
     chans = []
     for c in channels_cfg:
-        key = (c.get("handle") or c.get("channel_id") or "").lstrip("@")
+        key = (c.get("handle") or c.get("channel_id") or c.get("name") or "").lstrip("@")
         if not key:
             continue
         if c.get("topic") not in topics:
@@ -265,13 +296,22 @@ def main() -> int:
 
     if not args.offline:
         todo = [c for c in chans if not c["cid"]]
+        def res(c):
+            if c.get("handle"):
+                cid = resolve_handle(c["key"])
+                return (cid, "@" + c["key"]) if cid else None
+            return resolve_name(c["key"])
+
         with cf.ThreadPoolExecutor(args.workers) as ex:
-            for c, cid in zip(todo, ex.map(lambda c: resolve_handle(c["key"]), todo)):
-                if cid:
+            for c, hit in zip(todo, ex.map(res, todo)):
+                if hit:
+                    cid, matched = hit
                     c["cid"] = cid
                     ids_cache[c["key"].lower()] = cid
-                    report["resolved"].append(c["key"])
-                    print(f"  resolved @{c['key']} -> {cid}")
+                    exact = c.get("handle") or _norm(matched) == _norm(c["key"])
+                    report["resolved"].append({"entry": c["key"], "matched": matched, "id": cid,
+                                               **({} if exact else {"check": True})})
+                    print(f"  resolved {c['key']!r} -> {matched!r} {cid}{'' if exact else '  <- CHECK'}")
                 else:
                     report["unresolved"].append(c["key"])
                     print(f"! could not resolve @{c['key']}", file=sys.stderr)
@@ -394,7 +434,7 @@ def main() -> int:
     out = {
         "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "topics": [{"key": k, "name": n} for k, n in topics.items()],
-        "channels": [{"key": m["key"], "name": m["name"], "topic": m["topic"]}
+        "channels": [{"key": m["key"], "name": m["name"], "topic": m["topic"], "cid": m.get("cid")}
                      for m in channel_meta.values() if m["key"] in used],
         "videos": videos,
     }

@@ -1,70 +1,156 @@
-# StepTube seed channels
-# ----------------------
-# This file IS the algorithm. Only channels listed here ever show up.
+# StepTube channels: this file IS the algorithm.
+# Only channels listed here ever show up.
 #
-# Each entry needs a topic and EITHER a `handle` (the @name in the channel URL)
-# OR a `channel_id` (the UC... id). Handles are resolved automatically during
-# the nightly build and cached in site/data/channel_ids.json.
+# Each entry needs a topic plus ONE way to find the channel:
+#   handle: veritasium            # the @name from the channel URL (most reliable)
+#   channel_id: UCxxxxxxxxxxxxxxx  # the raw id (100% reliable)
+#   name: "Борис Трушин"           # display name, resolved via YouTube search (check build_report.json)
+# Resolved ids are cached in site/data/channel_ids.json; fix a wrong match by
+# switching that entry to `handle:` or `channel_id:`.
 #
-# Optional per-channel keys:
-#   min_minutes: 10       # skip videos shorter than this (needs duration data; ignored if unknown)
-#   include: ["lecture"]  # keep ONLY videos whose title contains one of these words
-#   exclude: ["podcast"]  # drop videos whose title contains any of these words
-#
-# Topics shown as tabs on the site (order matters):
+# Optional per channel:
+#   include: ["lecture"]   # keep ONLY titles containing one of these words
+#   exclude: ["podcast"]   # drop titles containing any of these words
+
+# Tabs, in order of importance.
 topics:
   ai: "AI & ML"
-  code: "Programming & Systems"
-  science: "Science & Math"
-  business: "Startups, Business & History"
+  math: "Mathematics"
+  code: "Programming"
+  science: "Science"
+  business: "Business"
+  other: "Other"
+  review: "Under review"   # undecided channels; not shown on the New page
 
 channels:
-  # --- AI & ML -------------------------------------------------------------
-  - { handle: AndrejKarpathy,        topic: ai }
-  - { handle: 3blue1brown,           topic: science }
-  - { handle: YannicKilcher,         topic: ai }
-  - { handle: TwoMinutePapers,       topic: ai }
-  - { handle: umarjamilai,           topic: ai }
-  - { handle: statquest,             topic: ai }
-  - { handle: WelchLabsVideo,        topic: ai }
-  - { handle: aiexplained-official,  topic: ai }
-  - { handle: GoogleDeepMind,        topic: ai }
-  - { handle: anthropic-ai,          topic: ai }
-  - { handle: DwarkeshPatel,         topic: ai }
-  - { handle: stanfordonline,        topic: ai, include: ["lecture", "cs", "stanford"] }
+  # ===================== AI & ML ===========================================
+  # yours
+  - { handle: YannicKilcher,        topic: ai }
+  - { handle: TwoMinutePapers,      topic: ai }
+  - { handle: WelchLabsVideo,       topic: ai }
+  - { handle: ritvikmath,           topic: ai }
+  - { handle: ArtemKirsanov,        topic: ai }
+  - { name: "MLinside",             topic: ai }
+  - { name: "Deep Learning School", topic: ai }
+  - { name: "Young&&Yandex",        topic: ai }
+  - { name: "Metric - Python, Մաթեմատիկա, Մեքենայական ուսուցում", topic: ai }
+  # starter pack
+  - { handle: AndrejKarpathy,       topic: ai }
+  - { handle: umarjamilai,          topic: ai }
+  - { handle: statquest,            topic: ai }
+  - { handle: GoogleDeepMind,       topic: ai }
+  - { handle: anthropic-ai,         topic: ai }
+  - { handle: DwarkeshPatel,        topic: ai }
+  - { handle: stanfordonline,       topic: ai, include: ["lecture", "cs", "stanford"] }
 
-  # --- Programming & Systems ----------------------------------------------
-  - { handle: Computerphile,         topic: code }
-  - { handle: BenEater,              topic: code }
-  - { handle: SebastianLague,        topic: code }
-  - { handle: jonhoo,                topic: code }
-  - { handle: TsodingDaily,          topic: code }
-  - { handle: CoreDumpped,           topic: code }
-  - { handle: StrangeLoopConf,       topic: code }
-  - { handle: GOTO-,                 topic: code }
-  - { handle: CppCon,                topic: code }
-  - { handle: mitocw,                topic: code }
+  # ===================== Mathematics =======================================
+  # university / general math (yours)
+  - { handle: BrightSideofMaths,    topic: math }
+  - { handle: TheMathSorcerer,      topic: math }
+  - { handle: MichaelPennMath,      topic: math }
+  - { name: "Mohamed Omar",         topic: math }
+  - { name: "Dedekind cuts",        topic: math }
+  - { name: "Riemann",              topic: math }
+  - { name: "Hamiltonian",          topic: math }
+  - { name: "Primus Mathematica",   topic: math }
+  - { name: "Math from Alpha to Omega", topic: math }
+  - { name: "Thinking In Math",     topic: math }
+  - { name: "Think Twice",          topic: math }
+  - { name: "Mu Prime Math",        topic: math }
+  - { name: "Mathin",               topic: math }
+  - { name: "Logic Unlocked",       topic: math }
+  - { name: "letsthinkcritically",  topic: math }
+  - { name: "Michael Greenberg",    topic: math }
+  - { name: "Dr. Ebrahimian",       topic: math }
+  - { name: "Sterudy",              topic: math }
+  - { name: "Համալսարանական մաթեմատիկա", topic: math }
+  - { name: "Маткульт-привет! :: Алексей Савватеев", topic: math }
+  - { name: "Видеозаписи МЦНМО",    topic: math }
+  - { name: "Т-Образование",        topic: math }
+  - { name: "Физтех-лицей онлайн",  topic: math }
+  - { name: "ФИЗМАТОВЕЦ",           topic: math }
+  - { name: "Борис Трушин",         topic: math }
+  - { name: "Математика | Alles",   topic: math }
+  - { name: "Элементарная Математика", topic: math }
+  - { name: "Онлайн Уроки",         topic: math }
+  - { name: "Андрей Кушнир",        topic: math }
+  - { name: "Dima Shvetsov",        topic: math }
+  # olympiad / problem solving (yours)
+  - { name: "Wild Mathing",         topic: math }
+  - { name: "Shefs of Problem Solving", topic: math }
+  - { name: "OptionalProblem",      topic: math }
+  - { name: "Olympiad animations",  topic: math }
+  - { name: "Olympiad Geometry",    topic: math }
+  - { name: "Maths OlympiadTrainer", topic: math }
+  - { name: "MathOlymp | Олимпиадная математика", topic: math }
+  - { name: "Дабромат | Олимпиадная математика", topic: math }
+  - { name: "Дмитрий Белов. Олимпиадная математика", topic: math }
+  - { name: "Виктор Прасолов",      topic: math }
+  - { name: "Фулл и точка",         topic: math }
+  - { name: "МТ кружки",            topic: math }
+  - { name: "Matvey Merzlikin",     topic: math }
+  - { name: "little fermat",        topic: math }
+  - { name: "Nice Math Problems",   topic: math }
+  - { name: "Creative Math Problems", topic: math }
+  - { name: "Boppana Math",         topic: math }
+  - { name: "GG Maths",             topic: math }
+  - { name: "Mr. Math",             topic: math }
+  - { name: "PhysMathFriends",      topic: math }
+  - { name: "Koreez Contest",       topic: math }
+  # starter pack
+  - { handle: 3blue1brown,          topic: math }
+  - { handle: Mathologer,           topic: math }
+  - { handle: numberphile,          topic: math }
 
-  # --- Science & Math -----------------------------------------------------
-  - { handle: veritasium,            topic: science }
-  - { handle: pbsspacetime,          topic: science }
-  - { handle: numberphile,           topic: science }
-  - { handle: standupmaths,          topic: science }
-  - { handle: Mathologer,            topic: science }
-  - { handle: minutephysics,         topic: science }
-  - { handle: smartereveryday,       topic: science }
-  - { handle: PracticalEngineeringChannel, topic: science }
-  - { handle: sabinehossenfelder,    topic: science }
-  - { handle: QuantaScienceChannel,  topic: science }
+  # ===================== Programming =======================================
+  # yours
+  - { handle: TechWithTim,          topic: code }
+  - { handle: freecodecamp,         topic: code }
+  - { handle: mattpocockuk,         topic: code }
+  - { handle: IBMTechnology,        topic: code }
+  - { name: "Errichto Algorithms",  topic: code }
+  # starter pack
+  - { handle: Computerphile,        topic: code }
+  - { handle: BenEater,             topic: code }
+  - { handle: SebastianLague,       topic: code }
+  - { handle: jonhoo,               topic: code }
+  - { handle: CoreDumpped,          topic: code }
 
-  # --- Startups, Business & History ---------------------------------------
-  - { handle: ycombinator,           topic: business }
-  - { handle: Asianometry,           topic: business }
-  - { handle: AcquiredFM,            topic: business }
-  - { handle: a16z,                  topic: business }
-  - { handle: ModernMBA,             topic: business }
-  - { handle: RealEngineering,       topic: business }
-  - { handle: CompanyMan,            topic: business }
+  # ===================== Science ===========================================
+  # yours
+  - { handle: veritasium,           topic: science }
+  - { handle: tibees,               topic: science }
+  - { name: "Лютая физика",         topic: science }
+  - { name: "Альфа-частица",        topic: science }
+  - { name: "Глеб Орел - Олимпиадный Препод по Физике", topic: science }
+  # starter pack
+  - { handle: pbsspacetime,         topic: science }
+  - { handle: QuantaScienceChannel, topic: science }
 
-  # --- Your channels go here (add from your subscriptions) ----------------
-  # - { handle: SomeChannel, topic: ai }
+  # ===================== Business ==========================================
+  # starter pack
+  - { handle: ycombinator,          topic: business }
+  - { handle: Asianometry,          topic: business }
+  - { handle: AcquiredFM,           topic: business }
+
+  # ===================== Other =============================================
+  - { name: "Rock Talk",            topic: other }
+  - { name: "Learn English With TV Series", topic: other }
+  - { name: "Հայր Միքայել Hayr Miqayel", topic: other }
+
+  # ===================== Under review ======================================
+  # Watch a few of each in the "Under review" tab, then move each one to a
+  # real topic or delete its line.
+  - { name: "Sean's AI Stories",    topic: review }   # AI explainer/news?
+  - { name: "SetupsAI",             topic: review }   # AI tools?
+  - { name: "Tech Creators Lab",    topic: review }   # AI/tech creator tools?
+  - { name: "Upsampled",            topic: review }   # unknown
+  - { name: "Ellie Sleightholm",    topic: review }   # software engineer, tech/coding vlogs
+  - { name: "Harvard Business Review", topic: review } # business
+  - { name: "Odysseas",             topic: review }   # "Renaissance man" learning/self-improvement
+  - { name: "Cosmic Vacuum",        topic: review }   # space/physics?
+  - { name: "Jan Rauch",            topic: review }   # unknown
+  - { name: "Patchouli",            topic: review }   # unknown
+  - { name: "RedPig",               topic: review }   # unknown
+  - { name: "DigiTec",              topic: review }   # likely Swiss electronics retailer (product videos)
+  - { name: "Gohar Khan",           topic: review }   # college admissions / study tips
