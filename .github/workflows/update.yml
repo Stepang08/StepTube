@@ -2,7 +2,7 @@ name: Update StepTube
 
 on:
   schedule:
-    - cron: "17 5 * * *"     # daily, 05:17 UTC
+    - cron: "17 * * * *"     # hourly, at :17 (GitHub may start scheduled runs a few minutes late)
   workflow_dispatch:          # "Run workflow" button in the Actions tab
   push:
     branches: [main]
@@ -47,7 +47,7 @@ jobs:
           path: |
             .cache/embeddings
             scripts/embed/node_modules/@huggingface/transformers/.cache
-          key: emb-${{ github.run_id }}
+          key: emb-${{ hashFiles('site/data/videos.json') }}
           restore-keys: emb-
       - name: Embed videos (multilingual-e5-small, incremental)
         id: embed

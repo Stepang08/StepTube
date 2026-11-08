@@ -49,7 +49,8 @@ NS = {
 }
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
-MAX_PER_CHANNEL = 1000  # library cap per channel (oldest dropped first)
+MAX_PER_CHANNEL = 1000
+CC_VERSION = 1           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
 # --------------------------------------------------------------------------
@@ -341,6 +342,16 @@ def parse_views(text: str) -> int | None:
     return int(val * {"": 1, "K": 1e3, "M": 1e6, "B": 1e9}[suf])
 
 
+def parse_duration(text: str) -> int | None:
+    """'1:02:03' / '12:34' -> seconds."""
+    if not text or not re.fullmatch(r"\d+(:\d{1,2}){1,2}", text.strip()):
+        return None
+    sec = 0
+    for part in text.strip().split(":"):
+        sec = sec * 60 + int(part)
+    return sec
+
+
 def _parse_video_items(node) -> list[dict]:
     """Pull video entries out of any chunk of ytInitialData / browse response."""
     out, seen = [], set()
@@ -360,8 +371,13 @@ def _parse_video_items(node) -> list[dict]:
             "href": f"https://www.youtube.com/watch?v={vid}",
             "views": 0 if (live_now or upcoming or not pub) else 1,
             "view_count": parse_views(_txt(r.get("viewCountText"))),
-            "desc": _txt(r.get("descriptionSnippet")),
+            "desc": _txt(r.get("descriptionSnippet")) or _txt(next(iter(_walk(r, "snippetText")), None)),
             "approx_date": True,
+            "channel": _txt(r.get("ownerText") or r.get("longBylineText")),
+            "channel_id": next((b.get("browseId") for b in _walk(r.get("ownerText") or r.get("longBylineText") or {},
+                                                                 "browseEndpoint") if isinstance(b, dict)), None),
+            "seconds": parse_duration(_txt(r.get("lengthText"))),
+            "is_short": "/shorts/" in json.dumps(r.get("navigationEndpoint", {})),
         })
     for lv in _walk(node, "lockupViewModel"):  # newer layout
         vid = lv.get("contentId")
@@ -386,6 +402,7 @@ def _continuation(node) -> str | None:
     (shelves, Home tab, menus) are never followed."""
     lists = ([g.get("contents") for g in _walk(node, "richGridRenderer")] +
              [g.get("items") for g in _walk(node, "gridRenderer")] +
+             [g.get("contents") for g in _walk(node, "sectionListRenderer")] +
              list(_walk(node, "continuationItems")))
     for lst in lists:
         if isinstance(lst, list) and lst and "continuationItemRenderer" in lst[-1]:
@@ -506,6 +523,104 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
     return name, out[:MAX_PER_CHANNEL]
 
 
+SEARCH_SORT = {"date": "CAISAhAB", "relevance": "EgIQAQ=="}   # videos only
+
+
+def fetch_search(query: str, hl: str = "en", pages: int = 2, sort: str = "date") -> list[dict]:
+    """YouTube search results (videos only), paged like the site's own scroll."""
+    q = urllib.parse.urlencode({"search_query": query, "sp": SEARCH_SORT[sort], "hl": hl, "gl": "US"})
+    page = http_get(f"https://www.youtube.com/results?{q}", hl=hl)
+    data = _initial_data(page)
+    m = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', page)
+    version = m.group(1) if m else "2.20251101.00.00"
+    out = _parse_video_items(data)
+    seen = {v["id"] for v in out}
+    token, fetched = _continuation(data), 1
+    while token and fetched < pages:
+        time.sleep(0.4)
+        try:
+            resp = http_post_json("https://www.youtube.com/youtubei/v1/search?prettyPrint=false",
+                                  {"context": {"client": {"clientName": "WEB", "clientVersion": version,
+                                                          "hl": hl, "gl": "US"}}, "continuation": token}, hl=hl)
+        except Exception:  # noqa: BLE001
+            break
+        items = [v for v in _parse_video_items(resp) if v["id"] not in seen]
+        fetched += 1
+        if not items:
+            break
+        seen.update(v["id"] for v in items)
+        out.extend(items)
+        token = _continuation(resp)
+    return out
+
+
+CC_TITLE = re.compile(r"claude[\s_-]?code|клод\s*код", re.I)
+_NON_LATIN_OTHER = re.compile(r"[\u0370-\u03ff\u0590-\u06ff\u0900-\u0dff\u0e00-\u0e7f\u3040-\u30ff"
+                              r"\u3400-\u9fff\uac00-\ud7af]")
+_NOT_EN = {"para", "con", "como", "usar", "el", "los", "las", "una", "uno", "del", "que", "em", "com",
+           "você", "não", "und", "mit", "für", "der", "die", "das", "ist", "avec", "pour", "les",
+           "des", "est", "une", "dans", "ein", "eine", "wie", "sur", "pra", "seu", "sua"}
+
+
+def video_lang(title: str, desc: str = "") -> str | None:
+    """'ru', 'en' or None (other language)."""
+    text = f"{title} {desc}"
+    if re.search(r"[\u0400-\u04ff]", title):
+        return "ru"
+    if _NON_LATIN_OTHER.search(text) or re.search(r"[ñãõç¿¡ßü]", text.lower()):
+        return None
+    words = set(re.findall(r"[a-zà-ÿ]+", text.lower()))
+    return None if words & _NOT_EN else "en"
+
+
+def claude_code_videos(cfg: dict, deep: bool) -> tuple[list[dict], dict]:
+    """Run the configured searches; return filtered videos + stats."""
+    stats = {"raw": 0, "kept": 0, "by_lang": {"en": 0, "ru": 0}, "dropped": {}}
+    found: dict[str, dict] = {}
+    jobs = []
+    for qd in cfg.get("queries") or []:
+        jobs.append((qd["q"], qd.get("hl", "en"), cfg.get("pages", 2), "date"))
+        if deep:
+            jobs.append((qd["q"], qd.get("hl", "en"), cfg.get("backfill_pages", 15), "date"))
+            jobs.append((qd["q"], qd.get("hl", "en"), cfg.get("backfill_pages", 15), "relevance"))
+    min_sec = int(cfg.get("min_minutes", 2) * 60)
+
+    def drop(why):
+        stats["dropped"][why] = stats["dropped"].get(why, 0) + 1
+
+    with cf.ThreadPoolExecutor(4) as ex:
+        results = list(ex.map(lambda j: (j, _safe(lambda: fetch_search(j[0], j[1], j[2], j[3]))), jobs))
+    for (query, hl, *_), items in results:
+        if isinstance(items, Exception):
+            stats.setdefault("errors", []).append(f"{query}/{hl}: {items}")
+            continue
+        for v in items:
+            stats["raw"] += 1
+            if v["id"] in found:
+                continue
+            if not CC_TITLE.search(v["title"]):
+                drop("title"); continue
+            if v.get("is_short") or not v.get("seconds") or v["seconds"] < min_sec:
+                drop("short/no-duration"); continue
+            if LIVE.search(v["title"]) or not v.get("views"):
+                drop("live"); continue
+            lang = video_lang(v["title"], v.get("desc", ""))
+            if lang not in ("en", "ru"):
+                drop("language"); continue
+            found[v["id"]] = {**v, "lang": lang}
+    stats["kept"] = len(found)
+    for v in found.values():
+        stats["by_lang"][v["lang"]] += 1
+    return list(found.values()), stats
+
+
+def _safe(fn):
+    try:
+        return fn()
+    except Exception as e:  # noqa: BLE001
+        return e
+
+
 def snippet(desc: str) -> str:
     # Drop links, hashtags, timestamps and sponsor boilerplate; keep the gist.
     lines = []
@@ -538,6 +653,15 @@ def channel_lang(c: dict, key: str) -> str:
     if c.get("lang"):
         return c["lang"]
     return "ru" if re.search(r"[\u0400-\u04FF]", c.get("name") or key) else "en"
+
+
+def round_sig(n: int, sig: int = 2) -> int:
+    """12,345 -> 12,000: view counts barely matter at finer grain, and rounding
+    keeps hourly runs from committing a new library just because views ticked up."""
+    if n <= 0:
+        return n
+    from math import floor, log10
+    return int(round(n, -int(floor(log10(n))) + (sig - 1)))
 
 
 def load_json(p: Path, default):
@@ -659,6 +783,17 @@ def main() -> int:
                 else:
                     feeds[key] = res
 
+    # ---- Claude Code: YouTube search, any channel ---------------------------
+    cc_cfg = cfg.get("claude_code") or {}
+    cc_items: list[dict] = []
+    if cc_cfg and not args.offline:
+        deep = (backfill.get("__claude_code__") or {}).get("v") != CC_VERSION
+        cc_items, cc_stats = claude_code_videos(cc_cfg, deep)
+        report["claude_code"] = {**cc_stats, "deep": deep, "new": 0}
+        print(f"  claude code: {cc_stats['kept']} kept of {cc_stats['raw']} ({cc_stats['by_lang']}), deep={deep}")
+        if deep and cc_stats["kept"] and not cc_stats.get("errors"):
+            backfill["__claude_code__"] = {"v": CC_VERSION}
+
     # ---- channel avatars (so the Channels page shows who each one really is) --
     if not args.offline:
         AVATAR_DIR.mkdir(parents=True, exist_ok=True)
@@ -738,12 +873,32 @@ def main() -> int:
             "p": (library.get(e["id"], {}).get("p") if e.get("approx_date") and library.get(e["id"], {}).get("p")
                   else e["published"][:10]),
             "d": snippet(e["desc"]),
-            **({"vc": e["view_count"]} if e.get("view_count") else {}),
+            **({"vc": round_sig(e["view_count"])} if e.get("view_count") else {}),
             **({"cb": 1} if is_clickbait(e["title"]) else {}),
         }
         if not is_clickbait(e["title"]):
             library[e["id"]].pop("cb", None)
         report["new"] += int(is_new)
+
+    # ---- merge Claude Code results -------------------------------------------
+    cc_topic = cc_cfg.get("topic", "claude")
+    for e in cc_items:
+        cur = library.get(e["id"], {})
+        entry = {**cur, "id": e["id"], "cc": 1, "lang": e["lang"]}
+        if not cur.get("ch"):  # not already in the library via one of your channels
+            entry.update(t=calm_title(e["title"]), ch="", tp=cc_topic,
+                         chn=e.get("channel") or cur.get("chn", ""),
+                         ccid=e.get("channel_id") or cur.get("ccid"),
+                         p=cur.get("p") or e["published"][:10],
+                         d=snippet(e.get("desc") or "") or cur.get("d", ""))
+            if e.get("view_count"):
+                entry["vc"] = round_sig(e["view_count"])
+            if is_clickbait(e["title"]):
+                entry["cb"] = 1
+            else:
+                entry.pop("cb", None)
+        report["claude_code"]["new"] += int(e["id"] not in library)
+        library[e["id"]] = entry
 
     # ---- classics ------------------------------------------------------------
     for v in classics_cfg.get("videos") or []:
@@ -766,11 +921,14 @@ def main() -> int:
     keep_keys = {c["key"] for c in chans}
     by_ch: dict[str, list[dict]] = {}
     for v in library.values():
-        if v.get("ev") or v.get("ch") in keep_keys:
-            by_ch.setdefault(v.get("ch") or "_ev", []).append(v)
+        if v.get("ev") or v.get("ch") in keep_keys or (v.get("cc") and not v.get("ch")):
+            by_ch.setdefault(v.get("ch") or ("_ev" if v.get("ev") else "_cc"), []).append(v)
     videos = []
     for k, vs in by_ch.items():
         vs.sort(key=lambda v: v.get("p", ""), reverse=True)
+        if k == "_cc":
+            videos.extend(vs[: int(cc_cfg.get("max_videos", 2000))])
+            continue
         videos.extend(vs if k == "_ev" else [v for v in vs[:MAX_PER_CHANNEL]] +
                       [v for v in vs[MAX_PER_CHANNEL:] if v.get("ev")])
     # Videos follow their channel's current topic (so moving a channel in
@@ -794,6 +952,11 @@ def main() -> int:
                      for m in channel_meta.values() if m["key"] in used],
         "videos": videos,
     }
+    # Keep the previous timestamp when nothing else changed, so an hourly run
+    # with no new videos produces no commit.
+    if prev and {k: v for k, v in prev.items() if k != "generated"} == {k: v for k, v in out.items() if k != "generated"}:
+        out["generated"] = prev.get("generated", out["generated"])
+        report["unchanged"] = True
     VIDEOS_JSON.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     IDS_JSON.write_text(json.dumps(dict(sorted(ids_cache.items())), indent=1))
     if not args.offline:

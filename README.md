@@ -63,6 +63,32 @@ What it can't copy: YouTube's click and watch-time data from billions of users,
 and full video transcripts. The index is about 128 bytes per video (PCA from 384
 to 128 dimensions, int8). Turn smart search off in Settings to stay keyword-only.
 
+## For you (recommendations)
+
+A YouTube-style home feed, computed in your browser from your own history and kept calm:
+
+- **Because you watched ‹title›:** the nearest unwatched neighbours of your last 8 watched videos and latest likes, using the same embeddings as search.
+- **New from channels you watch:** recent uploads from the channels you actually watch.
+- **Picked for you:** older videos close to your overall taste.
+
+Picks are computed **once a day** and don't reshuffle on refresh. You can also:
+- Press **✕** (or `n`) to mark a video **Not interested**, which hides it and anything nearly identical.
+- Use `g f` to open the tab.
+
+## Claude Code tab
+
+Every hour the build runs the YouTube searches in `channels.yml` (`claude_code:`), in English and Russian. It keeps only videos that:
+- mention Claude Code in the title,
+- are at least 2 minutes long (no Shorts),
+- aren't live streams or premieres,
+- are in English or Russian.
+
+Clickbait is hidden like everywhere else. These videos come from any channel, so they stay off the New page, but they appear in search and For you.
+
+## Update schedule
+
+The Action runs **every hour** (`17 * * * *`). GitHub sometimes starts scheduled runs a few minutes late. View counts are rounded and the timestamp is kept when nothing changed, so a quiet hour makes no commit.
+
 ## Personal features (stored in your browser only)
 
 Watch later, likes, history, watched marks, per-video **notes** (searchable),
@@ -87,7 +113,7 @@ and per-device channel muting. Export and import live in Settings.
 
 1. Merge to `main`.
 2. Repo **Settings → Pages → Source: GitHub Actions**.
-3. **Actions → Update StepTube → Run workflow**. After that it runs daily.
+3. **Actions → Update StepTube → Run workflow**. After that it runs every hour.
 
 Run it locally:
 

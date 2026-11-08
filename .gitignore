@@ -3,3 +3,4 @@ __pycache__/
 node_modules/
 .cache/
 site/data/search/
+site/data/build_report.json

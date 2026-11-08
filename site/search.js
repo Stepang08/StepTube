@@ -270,5 +270,83 @@
     return [...out];
   }
 
-  window.StepSearch = { build, rank, semantic, suggest, status, isReady: (q) => sem.cache.has(q.trim()) };
+  // ------------------------------------------------------------ recommendations
+  /* "For you", built like YouTube's home feed but from your own data only:
+     candidates come from vector neighbours of what you recently watched
+     ("Because you watched X"), fresh uploads from channels you watch, and
+     videos close to your overall taste. Uses the document vectors only, so it
+     never needs the 120 MB query model. */
+  async function recommend(S, { visible, now = Date.now() }) {
+    let ix = null;
+    try { ix = await loadIndex(); } catch { ix = null; }
+    const seen = new Set(Object.keys(S.watched || {}));
+    for (const h of S.history || []) seen.add(h.id);
+    const nope = new Set(S.notInterested || []);
+    const used = new Set(), perCh = {};
+    const chKey = (v) => v.ch || v.ccid || v.chn || "";
+    const ok = (d) => {
+      const v = videos[d];
+      return v && visible(v) && !seen.has(v.id) && !nope.has(v.id) && !used.has(v.id) && (perCh[chKey(v)] || 0) < 2;
+    };
+    const take = (d) => { const v = videos[d]; used.add(v.id); perCh[chKey(v)] = (perCh[chKey(v)] || 0) + 1; return v.id; };
+    const ageDays = (v) => (v.p ? (now - Date.parse(v.p)) / 864e5 : 3650);
+    const boost = (v) => 1 + 0.15 * (v.vc ? Math.min(1, Math.log10(1 + v.vc) / 7) : 0.3) + 0.05 * Math.exp(-ageDays(v) / 1000);
+
+    // "Not interested": anything nearly identical to a dismissed video is out too.
+    const nopeVecs = ix ? [...nope].slice(-50).map((id) => idIndex.get(id)).filter((d) => d != null).map((d) => rowVec(d, ix)) : [];
+    const blocked = new Uint8Array(N);
+    for (const q of nopeVecs) { const s = dotAll(q, ix); for (let d = 0; d < N; d++) if (s[d] > 0.9) blocked[d] = 1; }
+
+    const best = (scores, k, filter = () => true) => {
+      const order = [];
+      for (let d = 0; d < N; d++) if (scores[d] > 0 && !blocked[d] && filter(videos[d])) order.push(d);
+      order.sort((a, b) => scores[b] * boost(videos[b]) - scores[a] * boost(videos[a]));
+      const out = [];
+      for (const d of order) { if (out.length >= k) break; if (ok(d)) out.push(take(d)); }
+      return out;
+    };
+
+    const rows = [];
+    // 1. Because you watched X: seeds = latest distinct watched, then latest likes.
+    const seeds = [];
+    for (const h of (S.history || []).slice().reverse()) if (!seeds.includes(h.id) && idIndex.has(h.id)) { seeds.push(h.id); if (seeds.length >= 8) break; }
+    for (const id of (S.liked || []).slice(-4).reverse()) if (!seeds.includes(id) && idIndex.has(id)) seeds.push(id);
+    if (ix) {
+      for (const id of seeds) {
+        if (rows.length >= 4) break;
+        const sd = idIndex.get(id);
+        const ids = best(dotAll(rowVec(sd, ix), ix), 4, (v) => v.id !== id);
+        if (ids.length >= 2) rows.push({ label: `Because you watched “${videos[sd].t}”`, seed: id, ids });
+      }
+    }
+    // 2. New from channels you watch (last 30 days), by how much you watch them.
+    const aff = {};
+    for (const h of S.history || []) { const v = videos[idIndex.get(h.id)]; if (v) aff[chKey(v)] = (aff[chKey(v)] || 0) + 1; }
+    for (const id of S.liked || []) { const v = videos[idIndex.get(id)]; if (v) aff[chKey(v)] = (aff[chKey(v)] || 0) + 3; }
+    const fresh = new Float32Array(N);
+    for (let d = 0; d < N; d++) { const v = videos[d]; const a = aff[chKey(v)]; if (a && ageDays(v) <= 30) fresh[d] = Math.log1p(a) * Math.exp(-ageDays(v) / 15); }
+    const freshIds = best(fresh, 4);
+    if (freshIds.length) rows.push({ label: "New from channels you watch", ids: freshIds });
+    // 3. Picked for you: close to your overall taste, favouring older gems.
+    const prof = ix ? profile(S) : null;
+    if (prof) {
+      const s = dotAll(prof, ix);
+      const ids = best(s, 6, (v) => ageDays(v) > 30);
+      if (ids.length) rows.push({ label: "Picked for you", ids });
+    }
+    // Cold start: nothing watched yet (or no index).
+    if (!rows.length) {
+      const yearAgo = now - 365 * 864e5;
+      const pop = new Float32Array(N);
+      for (let d = 0; d < N; d++) { const v = videos[d]; if (v.vc && v.p && Date.parse(v.p) >= yearAgo) pop[d] = Math.log10(1 + v.vc); }
+      const ids = best(pop, 12);
+      if (ids.length) rows.push({ label: "Popular in your library this year", ids });
+      const ev = new Float32Array(N); for (let d = 0; d < N; d++) if (videos[d].ev) ev[d] = 1;
+      const evIds = best(ev, 6);
+      if (evIds.length) rows.push({ label: "Classics", ids: evIds });
+    }
+    return { rows, smart: !!ix, seeds: seeds.length };
+  }
+
+  window.StepSearch = { build, rank, semantic, suggest, recommend, status, isReady: (q) => sem.cache.has(q.trim()) };
 })();

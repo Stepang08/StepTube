@@ -17,12 +17,28 @@
 # Tabs, in order of importance.
 topics:
   ai: "AI & ML"
+  claude: "Claude Code"   # filled by the claude_code searches below, not by channels
   math: "Mathematics"
   code: "Programming"
   science: "Science"
   business: "Business"
   other: "Other"
   review: "Under review"   # undecided channels; not shown on the New page
+
+# Claude Code tab: videos from ANY channel, found by YouTube search every hour.
+# Kept only if the title mentions Claude Code, it's not a Short (>= min_minutes),
+# not a live/premiere, and it's in English or Russian. Clickbait is hidden.
+claude_code:
+  topic: claude
+  queries:
+    - { q: "claude code", hl: en }
+    - { q: "claude code", hl: ru }
+    - { q: "claude code tips", hl: en }
+    - { q: "claude code tutorial", hl: en }
+  pages: 2            # per query, every hour (newest first)
+  backfill_pages: 15  # first run only: deeper, by date and by relevance
+  min_minutes: 2
+  max_videos: 2000
 
 channels:
   # ===================== AI & ML ===========================================

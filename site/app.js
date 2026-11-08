@@ -10,7 +10,7 @@
 
   // ---------------------------------------------------------------- state
   const defaults = () => ({
-    later: [], liked: [], history: [], watched: {}, notes: {}, muted: [],
+    later: [], liked: [], history: [], watched: {}, notes: {}, muted: [], notInterested: [], recs: null,
     settings: { thumbs: "muted", clickbait: false, theme: "auto", budget: 60, sort: "new", smart: true, searchSort: "rel" },
     lastVisit: null, budget: { day: "", sec: 0 },
   });
@@ -54,7 +54,7 @@
     chByKey = new Map(DB.channels.map((c) => [c.key, c]));
     window.StepSearch?.build(DB, chName);
     $("#tabs").innerHTML =
-      `<a href="#/" data-tab="">New</a>` +
+      `<a href="#/" data-tab="">New</a><a href="#/foryou" data-tab="foryou">For you</a>` +
       DB.topics.filter((t) => DB.videos.some((v) => v.tp === t.key)).map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
       `<a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
     const when = DB.generated ? new Date(DB.generated) : null;
@@ -108,15 +108,23 @@
       <a class="thumb" href="#/v/${v.id}" tabindex="-1" aria-hidden="true"><img loading="lazy" decoding="async" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"></a>
       <div class="info">
         <h3 class="title"><a href="#/v/${v.id}">${esc(v.t)}</a></h3>
-        <div class="byline">${v.ch ? `<a href="#/c/${encodeURIComponent(v.ch)}">${esc(chName(v))}</a>` : esc(chName(v))}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
+        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
         ${v.d ? `<p class="desc">${esc(v.d)}</p>` : ""}
       </div>
       <div class="acts">
         <button class="icon" data-act="later" aria-pressed="${later}" title="Watch later (w)" aria-label="Watch later">${later ? "◆" : "◇"}</button>
         <button class="icon" data-act="like" aria-pressed="${liked}" title="Like (l)" aria-label="Like">${liked ? "♥" : "♡"}</button>
         <button class="icon" data-act="seen" aria-pressed="${seen}" title="Mark watched (x)" aria-label="Mark watched">${seen ? "✓" : "○"}</button>
+        ${nopeMode ? `<button class="icon" data-act="nope" title="Not interested (n)" aria-label="Not interested">✕</button>` : ""}
       </div>
     </li>`;
+  }
+
+  let nopeMode = false;  // the For you page shows a "Not interested" button
+  function chLink(v) {
+    if (v.ch) return `<a href="#/c/${encodeURIComponent(v.ch)}">${esc(chName(v))}</a>`;
+    if (v.ccid) return `<a href="https://www.youtube.com/channel/${esc(v.ccid)}" target="_blank" rel="noopener">${esc(chName(v))} ↗</a>`;
+    return esc(chName(v));
   }
 
   function listView({ title, sub = "", list, empty, note = "", sortable = true, endText, tools = "" }) {
@@ -148,7 +156,7 @@
   const views = {
     home() {
       const cutoff = new Date(Date.now() - NEW_DAYS * 864e5).toISOString().slice(0, 10);
-      const list = DB.videos.filter((v) => visible(v) && !v.ev && v.tp !== "review" && v.p >= cutoff && !S.watched[v.id]);
+      const list = DB.videos.filter((v) => visible(v) && !v.ev && v.ch && v.tp !== "review" && v.p >= cutoff && !S.watched[v.id]);
       const fresh = prevVisit ? list.filter((v) => v.p >= prevVisit.slice(0, 10)).length : 0;
       const sub = prevVisit
         ? (fresh ? `${fresh} posted since your last visit.` : "Nothing new since your last visit.")
@@ -160,11 +168,49 @@
     topic(key) {
       const t = DB.topics.find((x) => x.key === key);
       if (!t) return views.notFound();
-      const list = DB.videos.filter((v) => v.tp === key && visible(v));
+      let list = DB.videos.filter((v) => v.tp === key && visible(v));
+      if (key === "claude") {
+        const lang = S.settings.ccLang || "all";
+        const all = list;
+        if (lang !== "all") list = list.filter((v) => v.lang === lang);
+        const n = (l) => all.filter((v) => v.lang === l).length;
+        const tools = `<label class="tools">Language <select id="cclang">
+          <option value="all"${lang === "all" ? " selected" : ""}>All (${all.length})</option>
+          <option value="en"${lang === "en" ? " selected" : ""}>English (${n("en")})</option>
+          <option value="ru"${lang === "ru" ? " selected" : ""}>Русский (${n("ru")})</option></select></label>`;
+        listView({ title: t.name, tools, sortable: false,
+          sub: `${list.length} videos about Claude Code, from any channel · found by YouTube search every hour, newest first. Shorts, live streams and clickbait are filtered out.`,
+          list: sortList(list, "new"), empty: "Nothing yet. The hourly search fills this in." });
+        $("#cclang").addEventListener("change", (e) => { S.settings.ccLang = e.target.value; save(); shown = PAGE; render(true); });
+        return;
+      }
       const note = key === "review"
         ? "These channels are on probation and don't appear on the New page. Watch a few, then move each to a real topic in <code>channels.yml</code> or delete its line. <a href='#/channels'>Channel list</a>."
         : budgetNote();
       listView({ title: t.name, sub: `${list.length} videos`, list, empty: "Nothing here yet.", note });
+    },
+    async foryou() {
+      const day = today();
+      const head = (sub) => `<div class="head"><div><h1>For you</h1><div class="sub">${sub}</div></div></div>`;
+      if (!S.recs || S.recs.day !== day || S.recs.v !== 1) {
+        main.innerHTML = head("Picking today's videos…");
+        const r = await StepSearch.recommend(S, { visible: (v) => visible(v) && v.tp !== "review" });
+        S.recs = { v: 1, day, smart: r.smart, rows: r.rows.map((x) => ({ label: x.label, ids: x.ids })) };
+        save();
+        if (lastRoute !== "/foryou") return;  // user navigated away meanwhile
+      }
+      const rows = S.recs.rows.map((r) => ({ ...r, ids: r.ids.filter((id) => byId.has(id) && !S.notInterested.includes(id)) }))
+        .filter((r) => r.ids.length);
+      nopeMode = true;
+      let i = 0;
+      const body = rows.map((r) => `<h2 class="sec">${esc(r.label)}</h2><ul class="list">${r.ids.map((id) => card(byId.get(id), i++)).join("")}</ul>`).join("");
+      main.innerHTML = head(
+        "Picked once a day from what you've watched and liked, the way YouTube's home feed works, but only from your library. New picks tomorrow." +
+        (S.recs.smart ? "" : " (Simple mode: the similarity index isn't available, so this uses your channels only.)")) +
+        (rows.length ? body : `<p class="end">Nothing left for today. Watch something from <a href="#/">New</a> and come back tomorrow.</p>`) +
+        (rows.length ? `<p class="end">That's today's picks.</p>` : "");
+      nopeMode = false;
+      sel = Math.min(sel, i - 1); markSel();
     },
     channel(key) {
       const c = chByKey.get(key);
@@ -267,7 +313,7 @@
             <button class="btn" id="replay">Replay</button></div></div></div>
         </div>
         <h1>${esc(v.t)}</h1>
-        <div class="byline">${v.ch ? `<a href="#/c/${encodeURIComponent(v.ch)}">${esc(chName(v))}</a>` : esc(chName(v))}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}</div>
+        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}</div>
         <div class="row">
           <button class="btn" data-act="later" aria-pressed="${later}">${later ? "◆ In Watch later" : "◇ Watch later"}</button>
           <button class="btn" data-act="like" aria-pressed="${liked}">${liked ? "♥ Liked" : "♡ Like"}</button>
@@ -339,6 +385,11 @@
 
   // ---------------------------------------------------------------- actions
   function toggle(act, id) {
+    if (act === "nope") {
+      if (!S.notInterested.includes(id)) S.notInterested.push(id);
+      if (S.notInterested.length > 500) S.notInterested = S.notInterested.slice(-500);
+      save(); return;
+    }
     if (act === "later") S.later = S.later.includes(id) ? S.later.filter((x) => x !== id) : [...S.later, id];
     if (act === "like") S.liked = S.liked.includes(id) ? S.liked.filter((x) => x !== id) : [...S.liked, id];
     if (act === "seen") { if (S.watched[id]) delete S.watched[id]; else S.watched[id] = Date.now(); }
@@ -415,7 +466,7 @@
     const cs = cards();
     if (gPending) {
       gPending = false;
-      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/" }[e.key];
+      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/", f: "#/foryou" }[e.key];
       if (m) { location.hash = m; e.preventDefault(); }
       return;
     }
@@ -429,6 +480,10 @@
         markSel(); cs[sel].scrollIntoView({ block: "nearest" }); break;
       }
       case "Enter": case "o": if (cs[sel]) location.hash = `#/v/${cs[sel].dataset.id}`; break;
+      case "n": {
+        if (location.hash !== "#/foryou" || !cs[sel]) break;
+        toggle("nope", cs[sel].dataset.id); render(true); break;
+      }
       case "w": case "l": case "x": {
         const act = { w: "later", l: "like", x: "seen" }[e.key];
         const id = location.hash.startsWith("#/v/") ? main.dataset.id : cs[sel]?.dataset.id;
