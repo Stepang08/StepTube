@@ -1,25 +1,46 @@
 {
- "resolved": [
-  {
-   "entry": "Welch Labs",
-   "matched": "Welch Labs",
-   "id": "UConVfxXodg78Tzh5nNu85Ew"
-  },
-  {
-   "entry": "\u041b\u044e\u0442\u0430\u044f \u0444\u0438\u0437\u0438\u043a\u0430",
-   "matched": "\u041b\u044e\u0442\u0430\u044f \u0444\u0438\u0437\u0438\u043a\u0430",
-   "id": "UCPEnobVMlQ20f1KPV3RZ4oA"
-  }
- ],
+ "resolved": [],
  "unresolved": [],
  "feed_errors": [
-  "3blue1brown: rss: HTTP Error 404: Not Found; rss: HTTP Error 404: Not Found; page: no ytInitialData"
+  "Nice Math Problems: rss: HTTP Error 404: Not Found; rss: HTTP Error 404: Not Found; page: no ytInitialData"
  ],
  "dropped": {
   "short": 1,
   "live": 31,
   "filtered": 2
  },
- "new": 2686,
- "total": 2691
+ "new": 2690,
+ "total": 2691,
+ "pub_samples": [
+  "12d ago",
+  "9mo ago",
+  "9mo ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "1y ago",
+  "2y ago",
+  "2y ago",
+  "2y ago",
+  "2y ago",
+  "2y ago",
+  "{\"lockupMetadataViewModel\": {\"title\": {\"content\": \"A Gentle Introduction to Graph Neural Networks\"}, \"metadata\": {\"contentMetadataViewModel\": {\"metadataRows\": [{\"metadataParts\": [{\"text\": {\"content\": \"22K\"}, \"accessibilityLabel\": \"22 thousand views\", \"leadingIcon\": {\"name\": \"PLAY_ARROW_OUTLINED\", \"height\": 12, \"width\": 12}}, {\"text\": {\"content\": \"12d ago\"}, \"accessibilityLabel\": \"12 days ago\"}]}], \"delimiter\": \" \"}}, \"menuButton\": {\"buttonViewModel\": {\"iconName\": \"MORE_VERT\", \"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"COkCEPBbIhMI8PuXyNX3lwMV2wsVBR2wWB5EygEE9xPt1g==\", \"showSheetCommand\": {\"panelLoadingStrategy\": {\"inlineContent\": {\"sheetViewModel\": {\"content\": {\"listViewModel\": {\"listItems\": [{\"listItemViewModel\": {\"title\": {\"content\": \"Add to queue\"}, \"leadingImage\": {\"sources\": [{\"clientResource\": {\"imageName\": \"ADD_TO_QUEUE_TAIL\"}}]}, \"rendererContext\": {\"loggingContext\": {\"loggingDirectives\": {\"trackingParams\": \"CO0CEP6YBBgAIhMI8PuXyNX3lwMV2wsVBR2wWB5E\", \"visibility\": {\"types\": \"12\"}}}, \"commandContext\": {\"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CO0CEP6YBBgAIhMI8PuXyNX3lwMV2wsVBR2wWB5EygEE9xPt1g==\", \"commandMetadata\": {\"webCommandMetadata\": {\"sendPost\": true}}, \"signalServiceEndpoint\": {\"signal\": \"CLIENT_SIGNAL\", \"actions\": [{\"clickTrackingParams\": \"CO0CEP6YBBgAIhMI8PuXyNX3lwMV2wsVBR2wWB5EygEE9xPt1g==\", \"addToPlaylistCommand\": {\"openMiniplayer\": true, \"videoId\": \"ICtL_tfcw7M\", \"listType\": \"PLAYLIST_EDIT_LIST_TYPE_QUEUE\", \"onCreateListCommand\": {\"",
+  "{\"lockupMetadataViewModel\": {\"title\": {\"content\": \"I BUILT A FULLY AUTOMATIC MANSPLAINER\"}, \"metadata\": {\"contentMetadataViewModel\": {\"metadataRows\": [{\"metadataParts\": [{\"text\": {\"content\": \"13K\"}, \"accessibilityLabel\": \"13 thousand views\", \"leadingIcon\": {\"name\": \"PLAY_ARROW_OUTLINED\", \"height\": 12, \"width\": 12}}, {\"text\": {\"content\": \"8mo ago\"}, \"accessibilityLabel\": \"8 months ago\"}]}], \"delimiter\": \" \"}}, \"menuButton\": {\"buttonViewModel\": {\"iconName\": \"MORE_VERT\", \"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CO8CEPBbIhMI_5mbyNX3lwMVHo__BB2mBCd6ygEEeV11UA==\", \"showSheetCommand\": {\"panelLoadingStrategy\": {\"inlineContent\": {\"sheetViewModel\": {\"content\": {\"listViewModel\": {\"listItems\": [{\"listItemViewModel\": {\"title\": {\"content\": \"Add to queue\"}, \"leadingImage\": {\"sources\": [{\"clientResource\": {\"imageName\": \"ADD_TO_QUEUE_TAIL\"}}]}, \"rendererContext\": {\"loggingContext\": {\"loggingDirectives\": {\"trackingParams\": \"CPMCEP6YBBgAIhMI_5mbyNX3lwMVHo__BB2mBCd6\", \"visibility\": {\"types\": \"12\"}}}, \"commandContext\": {\"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CPMCEP6YBBgAIhMI_5mbyNX3lwMVHo__BB2mBCd6ygEEeV11UA==\", \"commandMetadata\": {\"webCommandMetadata\": {\"sendPost\": true}}, \"signalServiceEndpoint\": {\"signal\": \"CLIENT_SIGNAL\", \"actions\": [{\"clickTrackingParams\": \"CPMCEP6YBBgAIhMI_5mbyNX3lwMVHo__BB2mBCd6ygEEeV11UA==\", \"addToPlaylistCommand\": {\"openMiniplayer\": true, \"videoId\": \"xHi8PUIVyoo\", \"listType\": \"PLAYLIST_EDIT_LIST_TYPE_QUEUE\", \"onCreateListCommand\": {\"clickTra",
+  "{\"lockupMetadataViewModel\": {\"title\": {\"content\": \"Building a distributed training framework from first principles\"}, \"metadata\": {\"contentMetadataViewModel\": {\"metadataRows\": [{\"metadataParts\": [{\"text\": {\"content\": \"50K\"}, \"accessibilityLabel\": \"50 thousand views\", \"leadingIcon\": {\"name\": \"PLAY_ARROW_OUTLINED\", \"height\": 12, \"width\": 12}}, {\"text\": {\"content\": \"2mo ago\"}, \"accessibilityLabel\": \"2 months ago\"}]}], \"delimiter\": \" \"}}, \"menuButton\": {\"buttonViewModel\": {\"iconName\": \"MORE_VERT\", \"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CLQCEPBbIhMIsLiZyNX3lwMV3MwWCR20MjpLygEEFeouyQ==\", \"showSheetCommand\": {\"panelLoadingStrategy\": {\"inlineContent\": {\"sheetViewModel\": {\"content\": {\"listViewModel\": {\"listItems\": [{\"listItemViewModel\": {\"title\": {\"content\": \"Add to queue\"}, \"leadingImage\": {\"sources\": [{\"clientResource\": {\"imageName\": \"ADD_TO_QUEUE_TAIL\"}}]}, \"rendererContext\": {\"loggingContext\": {\"loggingDirectives\": {\"trackingParams\": \"CLgCEP6YBBgAIhMIsLiZyNX3lwMV3MwWCR20MjpL\", \"visibility\": {\"types\": \"12\"}}}, \"commandContext\": {\"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CLgCEP6YBBgAIhMIsLiZyNX3lwMV3MwWCR20MjpLygEEFeouyQ==\", \"commandMetadata\": {\"webCommandMetadata\": {\"sendPost\": true}}, \"signalServiceEndpoint\": {\"signal\": \"CLIENT_SIGNAL\", \"actions\": [{\"clickTrackingParams\": \"CLgCEP6YBBgAIhMIsLiZyNX3lwMV3MwWCR20MjpLygEEFeouyQ==\", \"addToPlaylistCommand\": {\"openMiniplayer\": true, \"videoId\": \"XoGvCBRnwLs\", \"listType\": \"PLAYLIST_EDIT_LIST_TYPE_QUEUE\", \"onCrea",
+  "{\"lockupMetadataViewModel\": {\"title\": {\"content\": \"The GELU, SiLU and SwiGLU activation functions, clearly explained!!!\"}, \"metadata\": {\"contentMetadataViewModel\": {\"metadataRows\": [{\"metadataParts\": [{\"text\": {\"content\": \"52K\"}, \"accessibilityLabel\": \"52 thousand views\", \"leadingIcon\": {\"name\": \"PLAY_ARROW_OUTLINED\", \"height\": 12, \"width\": 12}}, {\"text\": {\"content\": \"2mo ago\"}, \"accessibilityLabel\": \"2 months ago\"}]}], \"delimiter\": \" \"}}, \"menuButton\": {\"buttonViewModel\": {\"iconName\": \"MORE_VERT\", \"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CPICEPBbIhMIqYGcyNX3lwMVxoblBx2lVywgygEEvMREdQ==\", \"showSheetCommand\": {\"panelLoadingStrategy\": {\"inlineContent\": {\"sheetViewModel\": {\"content\": {\"listViewModel\": {\"listItems\": [{\"listItemViewModel\": {\"title\": {\"content\": \"Add to queue\"}, \"leadingImage\": {\"sources\": [{\"clientResource\": {\"imageName\": \"ADD_TO_QUEUE_TAIL\"}}]}, \"rendererContext\": {\"loggingContext\": {\"loggingDirectives\": {\"trackingParams\": \"CPYCEP6YBBgAIhMIqYGcyNX3lwMVxoblBx2lVywg\", \"visibility\": {\"types\": \"12\"}}}, \"commandContext\": {\"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CPYCEP6YBBgAIhMIqYGcyNX3lwMVxoblBx2lVywgygEEvMREdQ==\", \"commandMetadata\": {\"webCommandMetadata\": {\"sendPost\": true}}, \"signalServiceEndpoint\": {\"signal\": \"CLIENT_SIGNAL\", \"actions\": [{\"clickTrackingParams\": \"CPYCEP6YBBgAIhMIqYGcyNX3lwMVxoblBx2lVywgygEEvMREdQ==\", \"addToPlaylistCommand\": {\"openMiniplayer\": true, \"videoId\": \"2FaI2Fen1mQ\", \"listType\": \"PLAYLIST_EDIT_LIST_TYPE_QUEUE\", \"o",
+  "{\"lockupMetadataViewModel\": {\"title\": {\"content\": \"\u0417\u0430\u043d\u044f\u0442\u0438\u0435 7. \u041f\u0430\u0440\u0430\u043b\u043b\u0435\u043b\u044c A'  \u2013 \u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 1\"}, \"metadata\": {\"contentMetadataViewModel\": {\"metadataRows\": [{\"metadataParts\": [{\"text\": {\"content\": \"574\"}, \"accessibilityLabel\": \"574 views\", \"leadingIcon\": {\"name\": \"PLAY_ARROW_OUTLINED\", \"height\": 12, \"width\": 12}}, {\"text\": {\"content\": \"4d ago\"}, \"accessibilityLabel\": \"4 days ago\"}]}], \"delimiter\": \" \"}}, \"menuButton\": {\"buttonViewModel\": {\"iconName\": \"MORE_VERT\", \"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"COkCEPBbIhMI7vybyNX3lwMVMjwvCB2qcC0nygEEEubz5g==\", \"showSheetCommand\": {\"panelLoadingStrategy\": {\"inlineContent\": {\"sheetViewModel\": {\"content\": {\"listViewModel\": {\"listItems\": [{\"listItemViewModel\": {\"title\": {\"content\": \"Add to queue\"}, \"leadingImage\": {\"sources\": [{\"clientResource\": {\"imageName\": \"ADD_TO_QUEUE_TAIL\"}}]}, \"rendererContext\": {\"loggingContext\": {\"loggingDirectives\": {\"trackingParams\": \"CO0CEP6YBBgAIhMI7vybyNX3lwMVMjwvCB2qcC0n\", \"visibility\": {\"types\": \"12\"}}}, \"commandContext\": {\"onTap\": {\"innertubeCommand\": {\"clickTrackingParams\": \"CO0CEP6YBBgAIhMI7vybyNX3lwMVMjwvCB2qcC0nygEEEubz5g==\", \"commandMetadata\": {\"webCommandMetadata\": {\"sendPost\": true}}, \"signalServiceEndpoint\": {\"signal\": \"CLIENT_SIGNAL\", \"actions\": [{\"clickTrackingParams\": \"CO0CEP6YBBgAIhMI7vybyNX3lwMVMjwvCB2qcC0nygEEEubz5g==\", \"addToPlaylistCommand\": {\"openMiniplayer\": true, \"videoId\": \"EO3J1Umzhb8\", \"listType\": \"PLAYLIST_EDIT_LIST_TYPE_QUEUE\", \"onCreateListCommand\": {\"clickTrackingPara"
+ ]
 }
