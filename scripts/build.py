@@ -146,8 +146,8 @@ def resolve_name(name: str) -> tuple[str, str] | None:
     for cid, t in hits:
         if _norm(t) == want:
             return cid, t
-    for cid, t in hits:  # prefix match handles names truncated in the app ("…")
-        if _norm(t).startswith(want) or want.startswith(_norm(t)):
+    for cid, t in hits:  # names truncated in the app ("…"): the real title is longer
+        if len(want) >= 8 and _norm(t).startswith(want):
             return cid, t
     return hits[0]
 
@@ -171,7 +171,8 @@ KEEP_UPPER = {"AI", "ML", "LLM", "LLMs", "GPT", "GPU", "CPU", "TPU", "API", "MIT
               "OS", "RAM", "DNA", "RNA", "CERN", "IBM", "AMD", "TSMC", "ASML", "NVIDIA", "II",
               "III", "IV", "CS", "PhD", "RL", "RLHF", "AGI", "ASI", "NLP", "CNN", "RNN", "LSTM",
               "VC", "IPO", "M&A", "GDP", "FPGA", "ASIC", "x86", "ARM", "RISC-V", "TCP", "HTTP",
-              "UDP", "DNS", "SSD", "JWST", "LHC", "QED", "QCD", "EV", "SpaceX"}
+              "UDP", "DNS", "SSD", "JWST", "LHC", "QED", "QCD", "EV", "SpaceX", "IMO", "IOI", "IMC",
+              "USAMO", "AIME", "AMC", "APMO", "INMO", "ISL", "ICPC", "CSES", "EGMO", "BMO", "PDE", "ODE"}
 
 
 def caps_ratio(title: str) -> float:
@@ -197,6 +198,11 @@ def calm_title(title: str) -> str:
             return w
         return w.capitalize()
 
+    if caps_ratio(t) >= 0.5:  # whole title shouted: sentence-case it, keep acronyms
+        words = t.split(" ")
+        keep = lambda w: re.split(r"[-/]", w.strip("()[]:,.!?\"'"))[0] in KEEP_UPPER or bool(re.search(r"\d", w))
+        t = " ".join(w if keep(w) else w.lower() for w in words)
+        t = t[:1].upper() + t[1:]
     t = re.sub(r"\b[A-Z][A-Z']{3,}\b", fix, t)
     return re.sub(r"\s{2,}", " ", t).strip(" -|·")
 
@@ -205,7 +211,7 @@ def calm_title(title: str) -> str:
 # Feed parsing
 # --------------------------------------------------------------------------
 
-def fetch_feed(channel_id: str) -> tuple[str, list[dict]]:
+def fetch_feed(channel_id: str, hl: str = "en") -> tuple[str, list[dict]]:
     """Latest uploads for a channel. Tries the RSS feed (channel, then uploads
     playlist); if YouTube refuses it (it 404s for some datacenter IPs), falls
     back to parsing the channel's /videos page."""
@@ -217,7 +223,7 @@ def fetch_feed(channel_id: str) -> tuple[str, list[dict]]:
         except Exception as e:  # noqa: BLE001
             errors.append(f"rss: {e}")
     try:
-        return scrape_videos_tab(channel_id)
+        return scrape_videos_tab(channel_id, hl=hl)
     except Exception as e:  # noqa: BLE001
         errors.append(f"page: {e}")
     raise RuntimeError("; ".join(errors))
@@ -252,8 +258,16 @@ _REL = re.compile(r"(\d+)\s*(seconds?|secs?|s|minutes?|mins?|mo|months?|m|hours?
                   r"days?|d|weeks?|wks?|w|years?|yrs?|y)\b\.?\s*ago", re.I)
 
 
+_REL_RU = re.compile(r"(\d+)\s*(секунд\w*|сек\.?|минут\w*|мин\.?|час\w*|ч\.|дн\w*|день|"
+                     r"недел\w*|нед\.?|месяц\w*|мес\.?|год\w*|лет)\s*назад", re.I)
+_RU_DAYS = (("сек", 0), ("мин", 0), ("ч", 0), ("д", 1), ("нед", 7), ("мес", 30), ("год", 365), ("лет", 365))
+
+
 def _unit_days(u: str) -> int:
     u = u.lower()
+    for pre, days in _RU_DAYS:
+        if u.startswith(pre):
+            return days
     if u.startswith("mo"):
         return 30
     return {"s": 0, "m": 0, "h": 0, "d": 1, "w": 7, "y": 365}[u[0]]
@@ -263,9 +277,9 @@ PUB_SAMPLES: list = []
 
 
 def rel_to_iso(text: str) -> str:
-    if not _REL.search(text or "") and len(PUB_SAMPLES) < 25:
+    m = _REL.search(text or "") or _REL_RU.search(text or "")
+    if not m and len(PUB_SAMPLES) < 25:
         PUB_SAMPLES.append(text)  # unparsed date strings, surfaced in build_report.json
-    m = _REL.search(text or "")
     days = int(m.group(1)) * _unit_days(m.group(2)) if m else 0
     return (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
@@ -298,13 +312,21 @@ def _initial_data(page: str) -> dict:
 
 
 _VIEWS = re.compile(r"([\d.,]+)\s*([KMB]?)\s*views?", re.I)
+_VIEWS_RU = re.compile(r"(\d[\d\s\u00a0\u202f.,]*)\s*(тыс|млн|млрд)?\.?\s*просмотр", re.I)
 
 
 def parse_views(text: str) -> int | None:
     """'1,234 views' / '12K views' / '1.2M views' -> int (None if absent)."""
     m = _VIEWS.search(text or "")
     if not m:
-        return None
+        r = _VIEWS_RU.search(text or "")
+        if not r:
+            return None
+        num = re.sub(r"[\s\u00a0\u202f]", "", r.group(1)).replace(",", ".")
+        try:
+            return int(float(num) * {None: 1, "тыс": 1e3, "млн": 1e6, "млрд": 1e9}[(r.group(2) or "").lower() or None])
+        except ValueError:
+            return None
     num, suf = m.group(1), m.group(2).upper()
     try:
         val = float(num.replace(",", "")) if not suf else float(num.replace(",", "."))
@@ -343,8 +365,8 @@ def _parse_video_items(node) -> list[dict]:
         meta = lv.get("metadata", {}).get("lockupMetadataViewModel", {})
         title = meta.get("title", {}).get("content", "")
         parts = [p.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for p in (p or [])]
-        pub = next((p for p in parts if "ago" in p), "")
-        views = next((parse_views(p) for p in parts if "view" in p.lower()), None)
+        pub = next((p for p in parts if "ago" in p or "назад" in p), "")
+        views = next((parse_views(p) for p in parts if "view" in p.lower() or "просмотр" in p.lower()), None)
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
                     "view_count": views, "desc": "", "approx_date": True})
@@ -396,7 +418,8 @@ def _videos_tab(data: dict) -> dict | None:
     return None
 
 
-def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None) -> tuple[str, list[dict]]:
+def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
+                      hl: str = "en") -> tuple[str, list[dict]]:
     """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
     separate tab, so they never appear here). With pages > 1, keep scrolling
     the list through YouTube's public web 'browse' endpoint, the same request
@@ -405,7 +428,9 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
     Paging only ever follows the Videos tab's own grid token. If that grid
     can't be located, we return the first page and report the archive as
     incomplete rather than following an unrelated token."""
-    page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl=en&gl=US")
+    # hl = the channel's own language: with any other UI language YouTube
+    # machine-translates titles (Russian lectures would come back in English).
+    page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl={hl}&gl=US")
     data = _initial_data(page)
     name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
             or next(iter(_walk(data, "pageTitle")), ""))
@@ -413,7 +438,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
     version = m.group(1) if m else "2.20251101.00.00"
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
     endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
-    ctx = {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}}
+    ctx = {"client": {"clientName": "WEB", "clientVersion": version, "hl": hl, "gl": "US"}}
     dbg: dict = {"cid": channel_id, "client": version}
 
     grid = None  # the node we both parse items from and take the paging token from
@@ -496,6 +521,14 @@ def oembed(video_id: str) -> dict | None:
 # Main
 # --------------------------------------------------------------------------
 
+def channel_lang(c: dict, key: str) -> str:
+    """UI language to request a channel in: `lang:` from channels.yml, else
+    Russian for Cyrillic names, else English."""
+    if c.get("lang"):
+        return c["lang"]
+    return "ru" if re.search(r"[\u0400-\u04FF]", c.get("name") or key) else "en"
+
+
 def load_json(p: Path, default):
     try:
         return json.loads(p.read_text())
@@ -536,7 +569,7 @@ def main() -> int:
             print(f"! {key}: unknown topic {c.get('topic')!r}", file=sys.stderr)
             continue
         cid = c.get("channel_id") or ids_cache.get(key.lower())
-        chans.append({**c, "key": key, "cid": cid})
+        chans.append({**c, "key": key, "cid": cid, "hl": channel_lang(c, key)})
 
     if not args.offline:
         todo = [c for c in chans if not c["cid"]]
@@ -575,7 +608,7 @@ def main() -> int:
 
     def needs_archive(c) -> bool:
         b = backfill.get(c["key"])
-        if not b or b.get("cid") != c["cid"]:
+        if not b or b.get("cid") != c["cid"] or b.get("hl", "en") != c["hl"]:
             return True
         # Re-fetch channels that were cut off by a smaller cap than today's.
         return b.get("cap", 0) < MAX_PER_CHANNEL and b.get("n", 0) >= b.get("cap", 0)
@@ -593,18 +626,18 @@ def main() -> int:
                 if c["key"] in todo_archive:
                     try:
                         info: dict = {}
-                        res = scrape_videos_tab(c["cid"], pages=archive_pages, info=info)
+                        res = scrape_videos_tab(c["cid"], pages=archive_pages, info=info, hl=c["hl"])
                         return c["key"], res, info.get("complete", False)
                     except Exception:  # noqa: BLE001  fall back to the normal path
                         pass
-                return c["key"], fetch_feed(c["cid"]), False
+                return c["key"], fetch_feed(c["cid"], c["hl"]), False
             except Exception as e:  # noqa: BLE001
                 return c["key"], e, False
 
         with cf.ThreadPoolExecutor(args.workers) as ex:
             for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
                 if archived:
-                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1])}
+                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"]}
                     report["archived"].append(f"{key}: {len(res[1])}")
                     print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):

@@ -11,6 +11,8 @@
 # Optional per channel:
 #   include: ["lecture"]   # keep ONLY titles containing one of these words
 #   exclude: ["podcast"]   # drop titles containing any of these words
+#   lang: ru               # the channel's language, so YouTube doesn't machine-translate
+#                          # its titles (auto-detected as ru for Cyrillic names)
 
 # Tabs, in order of importance.
 topics:
@@ -30,9 +32,9 @@ channels:
   - { name: "Welch Labs",           topic: ai }
   - { handle: ritvikmath,           topic: ai }
   - { handle: ArtemKirsanov,        topic: ai }
-  - { name: "MLinside",             topic: ai }
-  - { name: "Deep Learning School", topic: ai }
-  - { name: "Young&&Yandex",        topic: ai }
+  - { name: "MLinside",             topic: ai, lang: ru }
+  - { name: "Deep Learning School", topic: ai, lang: ru }
+  - { name: "Young&&Yandex",        topic: ai, lang: ru }
   - { name: "Metric - Python, Մաթեմատիկա, Մեքենայական ուսուցում", topic: ai }
   # starter pack
   - { handle: AndrejKarpathy,       topic: ai }
@@ -53,19 +55,19 @@ channels:
   - { handle: MichaelPennMath,      topic: math }
   - { name: "Mohamed Omar",         topic: math }
   - { name: "Dedekind cuts",        topic: math }
-  - { name: "Riemann",              topic: math }
+  # - { name: "Riemann", topic: math }   # PAUSED: name search found a music-cover channel; needs its @handle
   - { name: "Hamiltonian",          topic: math }
   - { name: "Primus Mathematica",   topic: math }
   - { name: "Math from Alpha to Omega", topic: math }
   - { name: "Thinking In Math",     topic: math }
-  - { name: "Think Twice",          topic: math }
+  - { handle: ThinkTwiceLtu,        topic: math }   # math animations (the name search found a K-pop fan channel)
   - { name: "Mu Prime Math",        topic: math }
-  - { name: "Mathin",               topic: math }
+  - { name: "Mathin",               topic: math, lang: ru }
   - { name: "Logic Unlocked",       topic: math }
   - { name: "letsthinkcritically",  topic: math }
   - { name: "Michael Greenberg",    topic: math }
   - { name: "Dr. Ebrahimian",       topic: math }
-  - { name: "Sterudy",              topic: math }
+  - { name: "Sterudy",              topic: math, lang: ru }
   - { name: "Համալսարանական մաթեմատիկա", topic: math }
   - { name: "Маткульт-привет! :: Алексей Савватеев", topic: math }
   - { name: "Видеозаписи МЦНМО",    topic: math }
@@ -76,8 +78,8 @@ channels:
   - { name: "Математика | Alles",   topic: math }
   - { name: "Элементарная Математика", topic: math }
   - { name: "Онлайн Уроки",         topic: math }
-  - { name: "Андрей Кушнир",        topic: math }
-  - { name: "Dima Shvetsov",        topic: math }
+  # - { name: "Андрей Кушнир", topic: math }   # PAUSED: name search found a quadcopter channel; needs its @handle
+  - { name: "Dima Shvetsov",        topic: math, lang: ru }
   # olympiad / problem solving (yours)
   - { name: "Wild Mathing",         topic: math }
   - { name: "Shefs of Problem Solving", topic: math }
@@ -90,7 +92,7 @@ channels:
   - { name: "Дмитрий Белов. Олимпиадная математика", topic: math }
   - { name: "Виктор Прасолов",      topic: math }
   - { name: "Фулл и точка",         topic: math }
-  - { name: "МТ кружки",            topic: math }
+  # - { name: "МТ кружки", topic: math }   # PAUSED: name search found a fishing channel "МТ"; needs its @handle
   - { name: "Matvey Merzlikin",     topic: math }
   - { name: "little fermat",        topic: math }
   - { name: "Nice Math Problems",   topic: math }
@@ -129,7 +131,7 @@ channels:
   - { name: "Лютая физика",         topic: science }
   - { name: "Альфа-частица",        topic: science }
   - { name: "Глеб Орел - Олимпиадный Препод по Физике", topic: science }
-  - { name: "Jan Rauch",            topic: science }  # physics & astronomy lessons
+  - { name: "Jan Rauch",            topic: science, lang: ru }  # physics & astronomy lessons
   # starter pack
   - { handle: pbsspacetime,         topic: science }
   - { handle: QuantaScienceChannel, topic: science }
