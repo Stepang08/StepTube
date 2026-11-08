@@ -27,7 +27,7 @@ channels:
   # yours
   - { handle: YannicKilcher,        topic: ai }
   - { handle: TwoMinutePapers,      topic: ai }
-  - { handle: WelchLabsVideo,       topic: ai }
+  - { name: "Welch Labs",           topic: ai }
   - { handle: ritvikmath,           topic: ai }
   - { handle: ArtemKirsanov,        topic: ai }
   - { name: "MLinside",             topic: ai }

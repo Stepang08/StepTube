@@ -204,7 +204,24 @@ def calm_title(title: str) -> str:
 # --------------------------------------------------------------------------
 
 def fetch_feed(channel_id: str) -> tuple[str, list[dict]]:
-    xml = http_get(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}")
+    """Latest uploads for a channel. Tries the RSS feed (channel, then uploads
+    playlist); if YouTube refuses it (it 404s for some datacenter IPs), falls
+    back to parsing the channel's /videos page."""
+    errors = []
+    for url in (f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}",
+                f"https://www.youtube.com/feeds/videos.xml?playlist_id=UU{channel_id[2:]}"):
+        try:
+            return parse_rss(http_get(url, retries=1))
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"rss: {e}")
+    try:
+        return scrape_videos_tab(channel_id)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"page: {e}")
+    raise RuntimeError("; ".join(errors))
+
+
+def parse_rss(xml: str) -> tuple[str, list[dict]]:
     root = ET.fromstring(xml)
     name = root.findtext("a:title", default="", namespaces=NS)
     out = []
@@ -226,6 +243,85 @@ def fetch_feed(channel_id: str) -> tuple[str, list[dict]]:
             "desc": desc,
         })
     return name, out
+
+
+_REL = re.compile(r"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago", re.I)
+_UNIT_DAYS = {"second": 0, "minute": 0, "hour": 0, "day": 1, "week": 7, "month": 30, "year": 365}
+
+
+def rel_to_iso(text: str) -> str:
+    m = _REL.search(text or "")
+    days = int(m.group(1)) * _UNIT_DAYS[m.group(2).lower()] if m else 0
+    return (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+
+def _txt(node) -> str:
+    if not isinstance(node, dict):
+        return ""
+    if "simpleText" in node:
+        return node["simpleText"]
+    return "".join(r.get("text", "") for r in node.get("runs", []))
+
+
+def _walk(o, key):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            if k == key:
+                yield v
+            else:
+                yield from _walk(v, key)
+    elif isinstance(o, list):
+        for v in o:
+            yield from _walk(v, key)
+
+
+def _initial_data(page: str) -> dict:
+    m = re.search(r"ytInitialData\s*=\s*", page)
+    if not m:
+        raise ValueError("no ytInitialData")
+    return json.JSONDecoder().raw_decode(page, m.end())[0]
+
+
+def scrape_videos_tab(channel_id: str) -> tuple[str, list[dict]]:
+    """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
+    separate tab, so they never appear here)."""
+    data = _initial_data(http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl=en&gl=US"))
+    name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
+            or next(iter(_walk(data, "pageTitle")), ""))
+    out, seen = [], set()
+    for r in _walk(data, "videoRenderer"):
+        vid = r.get("videoId")
+        if not vid or vid in seen:
+            continue
+        seen.add(vid)
+        pub = _txt(r.get("publishedTimeText"))
+        overlays = json.dumps(r.get("thumbnailOverlays", [])) + json.dumps(r.get("badges", []))
+        live_now = '"LIVE"' in overlays or "BADGE_STYLE_TYPE_LIVE_NOW" in overlays
+        upcoming = "upcomingEventData" in r
+        out.append({
+            "id": vid,
+            "title": _txt(r.get("title")),
+            "published": rel_to_iso(pub),
+            "href": f"https://www.youtube.com/watch?v={vid}",
+            "views": 0 if (live_now or upcoming or not pub) else 1,
+            "desc": _txt(r.get("descriptionSnippet")),
+            "approx_date": True,
+        })
+    for lv in _walk(data, "lockupViewModel"):  # newer layout
+        vid = lv.get("contentId")
+        if not vid or vid in seen or lv.get("contentType", "LOCKUP_CONTENT_TYPE_VIDEO") != "LOCKUP_CONTENT_TYPE_VIDEO":
+            continue
+        seen.add(vid)
+        meta = lv.get("metadata", {}).get("lockupMetadataViewModel", {})
+        title = meta.get("title", {}).get("content", "")
+        parts = [p.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for p in (p or [])]
+        pub = next((p for p in parts if "ago" in p), "")
+        out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
+                    "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
+                    "desc": "", "approx_date": True})
+    if not out:
+        raise ValueError("no videos found on page")
+    return name, out[:30]
 
 
 def snippet(desc: str) -> str:
@@ -388,7 +484,8 @@ def main() -> int:
             "t": calm_title(e["title"]),
             "ch": c["key"],
             "tp": c["topic"],
-            "p": e["published"][:10],
+            "p": (library.get(e["id"], {}).get("p") if e.get("approx_date") and library.get(e["id"], {}).get("p")
+                  else e["published"][:10]),
             "d": snippet(e["desc"]),
             **({"cb": 1} if is_clickbait(e["title"]) else {}),
         }
