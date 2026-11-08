@@ -63,7 +63,8 @@
   "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
   "cap": 1000,
   "n": 294,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "DigiTec": {
   "cid": "UCJxIyj5KsFsxYXyOhd16wuw",
@@ -74,7 +75,8 @@
   "cid": "UCTQCppqdK0tVeNEckLi6-RA",
   "cap": 1000,
   "n": 75,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Dr. Ebrahimian": {
   "cid": "UCb0meJAASHH4nzJAbgiGBsw",
@@ -125,7 +127,8 @@
   "cid": "UCcTRcPDtfOF7VCGrrpUkylQ",
   "cap": 1000,
   "n": 213,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Koreez Contest": {
   "cid": "UCXSN90LK5Z8eac9dM_1f_Cg",
@@ -146,7 +149,8 @@
   "cid": "UCfsH7DO5n7N5Mup_oxwKMDQ",
   "cap": 1000,
   "n": 164,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Math from Alpha to Omega": {
   "cid": "UC0B2PS3DGRaC8ARxgvMqR3g",
@@ -157,13 +161,15 @@
   "cid": "UCBVxM7-bXOXU9lVrCLivapQ",
   "cap": 1000,
   "n": 128,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Mathin": {
   "cid": "UCvNjqNktxdfe44dZL1aap3w",
   "cap": 1000,
   "n": 51,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Mathologer": {
   "cid": "UC1_uAIS3r8Vu6JjXWvastJg",
@@ -289,7 +295,8 @@
   "cid": "UCnP12DrX8lF9liqudV8hsCA",
   "cap": 1000,
   "n": 7,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Tech Creators Lab": {
   "cid": "UCRmSZlMJKqwzg-lSl6hlSDg",
@@ -351,7 +358,8 @@
   "cid": "UCYtojgaSgXZWIIrYHbIgZ_Q",
   "cap": 1000,
   "n": 1000,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "anthropic-ai": {
   "cid": "UCrDwWp7EBBv4NwvScIpBDOA",
@@ -432,7 +440,8 @@
   "cid": "UC2Ii5sVVBztUpSn_ul-d5eQ",
   "cap": 1000,
   "n": 18,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Андрей Кушнир": {
   "cid": "UCSB2cZogAtsDcwBIr0oHMhQ",
@@ -443,42 +452,50 @@
   "cid": "UCo2JwjPSEc9U8ZJ_KQi6rDQ",
   "cap": 1000,
   "n": 690,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Видеозаписи МЦНМО": {
   "cid": "UCtUJwoYzwI1XP2FIkQaQygA",
   "cap": 1000,
   "n": 89,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Виктор Прасолов": {
   "cid": "UCAfUJDJGmnMxM2tiU-LZoFw",
   "cap": 1000,
   "n": 18,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Глеб Орел - Олимпиадный Препод по Физике": {
   "cid": "UCx_E5DQIZJo3SSxDhmjD25g",
   "cap": 1000,
   "n": 186,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Дабромат | Олимпиадная математика": {
   "cid": "UC_dRAIjytb-g10UCvBf_2cg",
   "cap": 1000,
   "n": 14,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Дмитрий Белов. Олимпиадная математика": {
   "cid": "UCw5rmyPmaroYt2xCKy6Pi5w",
-  "cap": 300,
-  "n": 193
+  "cap": 1000,
+  "n": 193,
+  "hl": "ru",
+  "tv": 2
  },
  "Лютая физика": {
   "cid": "UCPEnobVMlQ20f1KPV3RZ4oA",
   "cap": 1000,
   "n": 65,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "МТ кружки": {
   "cid": "UCodqqRyYt-liwuNXEV4L_0g",
@@ -489,49 +506,57 @@
   "cid": "UCJxyiaxeHvLkRRJmtyidywQ",
   "cap": 1000,
   "n": 175,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Маткульт-привет! :: Алексей Савватеев": {
   "cid": "UCWk8OxsylgmZ_VgY7jC9pjQ",
   "cap": 1000,
   "n": 727,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Онлайн Уроки": {
   "cid": "UCBNsaEaA4ddwc6GK6uFiMDQ",
   "cap": 1000,
   "n": 37,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Т-Образование": {
   "cid": "UCw2ORfEOUoEe-MNgCCm0aoQ",
   "cap": 1000,
   "n": 490,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "ФИЗМАТОВЕЦ": {
   "cid": "UCcCrptM0EWMECJC3jH3yHxA",
   "cap": 1000,
   "n": 24,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Физтех-лицей онлайн": {
   "cid": "UCEPZ7gyAqGRuVGBAxerg0VA",
   "cap": 1000,
   "n": 6,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Фулл и точка": {
   "cid": "UCFmbny7qvlsHO9ARmczOPCg",
   "cap": 1000,
   "n": 5,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Элементарная Математика": {
   "cid": "UC9mZMNP_0WtTE5ByDYFupOQ",
   "cap": 1000,
   "n": 334,
-  "hl": "ru"
+  "hl": "ru",
+  "tv": 2
  },
  "Համալսարանական մաթեմատիկա": {
   "cid": "UCMFONp28jEDHXDBWJyRVYcA",
