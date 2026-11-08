@@ -62,7 +62,8 @@
  "Deep Learning School": {
   "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
   "cap": 1000,
-  "n": 294
+  "n": 294,
+  "hl": "ru"
  },
  "DigiTec": {
   "cid": "UCJxIyj5KsFsxYXyOhd16wuw",
@@ -71,8 +72,9 @@
  },
  "Dima Shvetsov": {
   "cid": "UCTQCppqdK0tVeNEckLi6-RA",
-  "cap": 300,
-  "n": 75
+  "cap": 1000,
+  "n": 75,
+  "hl": "ru"
  },
  "Dr. Ebrahimian": {
   "cid": "UCb0meJAASHH4nzJAbgiGBsw",
@@ -121,8 +123,9 @@
  },
  "Jan Rauch": {
   "cid": "UCcTRcPDtfOF7VCGrrpUkylQ",
-  "cap": 300,
-  "n": 213
+  "cap": 1000,
+  "n": 213,
+  "hl": "ru"
  },
  "Koreez Contest": {
   "cid": "UCXSN90LK5Z8eac9dM_1f_Cg",
@@ -141,8 +144,9 @@
  },
  "MLinside": {
   "cid": "UCfsH7DO5n7N5Mup_oxwKMDQ",
-  "cap": 300,
-  "n": 163
+  "cap": 1000,
+  "n": 164,
+  "hl": "ru"
  },
  "Math from Alpha to Omega": {
   "cid": "UC0B2PS3DGRaC8ARxgvMqR3g",
@@ -151,13 +155,15 @@
  },
  "MathOlymp | Олимпиадная математика": {
   "cid": "UCBVxM7-bXOXU9lVrCLivapQ",
-  "cap": 300,
-  "n": 128
+  "cap": 1000,
+  "n": 128,
+  "hl": "ru"
  },
  "Mathin": {
   "cid": "UCvNjqNktxdfe44dZL1aap3w",
-  "cap": 300,
-  "n": 51
+  "cap": 1000,
+  "n": 51,
+  "hl": "ru"
  },
  "Mathologer": {
   "cid": "UC1_uAIS3r8Vu6JjXWvastJg",
@@ -281,8 +287,9 @@
  },
  "Sterudy": {
   "cid": "UCnP12DrX8lF9liqudV8hsCA",
-  "cap": 300,
-  "n": 7
+  "cap": 1000,
+  "n": 7,
+  "hl": "ru"
  },
  "Tech Creators Lab": {
   "cid": "UCRmSZlMJKqwzg-lSl6hlSDg",
@@ -303,6 +310,12 @@
   "cid": "UCl_j3znImX5RzV_ocDwYAlQ",
   "cap": 300,
   "n": 196
+ },
+ "ThinkTwiceLtu": {
+  "cid": "UC9yt3wz-6j19RwD5m5f6HSg",
+  "cap": 1000,
+  "n": 33,
+  "hl": "en"
  },
  "Thinking In Math": {
   "cid": "UC5uV1LcSkHL5zCxKBikdTEg",
@@ -337,7 +350,8 @@
  "Young&&Yandex": {
   "cid": "UCYtojgaSgXZWIIrYHbIgZ_Q",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "ru"
  },
  "anthropic-ai": {
   "cid": "UCrDwWp7EBBv4NwvScIpBDOA",
@@ -416,8 +430,9 @@
  },
  "Альфа-частица": {
   "cid": "UC2Ii5sVVBztUpSn_ul-d5eQ",
-  "cap": 300,
-  "n": 18
+  "cap": 1000,
+  "n": 18,
+  "hl": "ru"
  },
  "Андрей Кушнир": {
   "cid": "UCSB2cZogAtsDcwBIr0oHMhQ",
@@ -427,27 +442,32 @@
  "Борис Трушин": {
   "cid": "UCo2JwjPSEc9U8ZJ_KQi6rDQ",
   "cap": 1000,
-  "n": 690
+  "n": 690,
+  "hl": "ru"
  },
  "Видеозаписи МЦНМО": {
   "cid": "UCtUJwoYzwI1XP2FIkQaQygA",
-  "cap": 300,
-  "n": 89
+  "cap": 1000,
+  "n": 89,
+  "hl": "ru"
  },
  "Виктор Прасолов": {
   "cid": "UCAfUJDJGmnMxM2tiU-LZoFw",
-  "cap": 300,
-  "n": 18
+  "cap": 1000,
+  "n": 18,
+  "hl": "ru"
  },
  "Глеб Орел - Олимпиадный Препод по Физике": {
   "cid": "UCx_E5DQIZJo3SSxDhmjD25g",
-  "cap": 300,
-  "n": 186
+  "cap": 1000,
+  "n": 186,
+  "hl": "ru"
  },
  "Дабромат | Олимпиадная математика": {
   "cid": "UC_dRAIjytb-g10UCvBf_2cg",
-  "cap": 300,
-  "n": 14
+  "cap": 1000,
+  "n": 14,
+  "hl": "ru"
  },
  "Дмитрий Белов. Олимпиадная математика": {
   "cid": "UCw5rmyPmaroYt2xCKy6Pi5w",
@@ -456,8 +476,9 @@
  },
  "Лютая физика": {
   "cid": "UCPEnobVMlQ20f1KPV3RZ4oA",
-  "cap": 300,
-  "n": 65
+  "cap": 1000,
+  "n": 65,
+  "hl": "ru"
  },
  "МТ кружки": {
   "cid": "UCodqqRyYt-liwuNXEV4L_0g",
@@ -466,43 +487,51 @@
  },
  "Математика | Alles": {
   "cid": "UCJxyiaxeHvLkRRJmtyidywQ",
-  "cap": 300,
-  "n": 175
+  "cap": 1000,
+  "n": 175,
+  "hl": "ru"
  },
  "Маткульт-привет! :: Алексей Савватеев": {
   "cid": "UCWk8OxsylgmZ_VgY7jC9pjQ",
   "cap": 1000,
-  "n": 727
+  "n": 727,
+  "hl": "ru"
  },
  "Онлайн Уроки": {
   "cid": "UCBNsaEaA4ddwc6GK6uFiMDQ",
-  "cap": 300,
-  "n": 37
+  "cap": 1000,
+  "n": 37,
+  "hl": "ru"
  },
  "Т-Образование": {
   "cid": "UCw2ORfEOUoEe-MNgCCm0aoQ",
   "cap": 1000,
-  "n": 490
+  "n": 490,
+  "hl": "ru"
  },
  "ФИЗМАТОВЕЦ": {
   "cid": "UCcCrptM0EWMECJC3jH3yHxA",
-  "cap": 300,
-  "n": 24
+  "cap": 1000,
+  "n": 24,
+  "hl": "ru"
  },
  "Физтех-лицей онлайн": {
   "cid": "UCEPZ7gyAqGRuVGBAxerg0VA",
-  "cap": 300,
-  "n": 6
+  "cap": 1000,
+  "n": 6,
+  "hl": "ru"
  },
  "Фулл и точка": {
   "cid": "UCFmbny7qvlsHO9ARmczOPCg",
-  "cap": 300,
-  "n": 5
+  "cap": 1000,
+  "n": 5,
+  "hl": "ru"
  },
  "Элементарная Математика": {
   "cid": "UC9mZMNP_0WtTE5ByDYFupOQ",
   "cap": 1000,
-  "n": 334
+  "n": 334,
+  "hl": "ru"
  },
  "Համալսարանական մաթեմատիկա": {
   "cid": "UCMFONp28jEDHXDBWJyRVYcA",
