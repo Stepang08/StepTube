@@ -169,6 +169,8 @@ body[data-thumbs="off"] .thumb { display: none; }
 /* ---------- channels / settings ---------- */
 .grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 20px; }
 .chan { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.chan .cn { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.chan .av { width: 28px; height: 28px; border-radius: 50%; flex: none; background: var(--bg-3); filter: grayscale(.6); }
 .chan .n { color: var(--text-3); font-size: 13px; }
 .chan.muted a { text-decoration: line-through; color: var(--text-3); }
 .set { border-bottom: 1px solid var(--line); padding: 16px 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center; }

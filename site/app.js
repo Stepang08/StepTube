@@ -212,7 +212,8 @@
           if (!cs.length) return "";
           return `<h2 class="sec">${esc(t.name)}</h2><div class="grid2">${cs.map((c) => {
             const m = S.muted.includes(c.key);
-            return `<div class="chan${m ? " muted" : ""}"><span><a href="#/c/${encodeURIComponent(c.key)}">${esc(c.name)}</a> <span class="n">${count[c.key] || 0}</span></span>
+            const av = c.av ? `<img class="av" src="data/avatars/${c.cid}.jpg" alt="" loading="lazy">` : `<span class="av"></span>`;
+            return `<div class="chan${m ? " muted" : ""}"><span class="cn">${av}<a href="#/c/${encodeURIComponent(c.key)}">${esc(c.name)}</a> <span class="n">${count[c.key] || 0}</span></span>
               <button class="btn" data-mute="${esc(c.key)}" aria-pressed="${m}">${m ? "Muted" : "Mute"}</button></div>`;
           }).join("")}</div>`;
         }).join("");

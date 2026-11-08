@@ -406,6 +406,8 @@ def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
 
 
 ARCHIVE_DEBUG: list = []
+AVATARS: dict[str, str] = {}   # channel id -> avatar URL seen on its page
+AVATAR_DIR = DATA / "avatars"
 _VIDEOS_URL = re.compile(r"/videos/?(?:[?#].*)?$")
 
 
@@ -434,6 +436,9 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
     data = _initial_data(page)
     name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
             or next(iter(_walk(data, "pageTitle")), ""))
+    thumbs = data.get("metadata", {}).get("channelMetadataRenderer", {}).get("avatar", {}).get("thumbnails") or []
+    if thumbs and thumbs[0].get("url"):
+        AVATARS[channel_id] = thumbs[0]["url"]
     m = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', page)
     version = m.group(1) if m else "2.20251101.00.00"
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
@@ -646,6 +651,20 @@ def main() -> int:
                 else:
                     feeds[key] = res
 
+    # ---- channel avatars (so the Channels page shows who each one really is) --
+    if not args.offline and AVATARS:
+        AVATAR_DIR.mkdir(parents=True, exist_ok=True)
+        for cid, url in AVATARS.items():
+            f = AVATAR_DIR / f"{cid}.jpg"
+            if f.exists():
+                continue
+            try:
+                req = urllib.request.Request(re.sub(r"=s\d+", "=s88", url), headers={"User-Agent": UA})
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    f.write_bytes(r.read())
+            except Exception as e:  # noqa: BLE001
+                print(f"! avatar {cid}: {e}", file=sys.stderr)
+
     # ---- filter + merge ------------------------------------------------------
     candidates = []
     for c in chans:
@@ -748,7 +767,8 @@ def main() -> int:
     out = {
         "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "topics": [{"key": k, "name": n} for k, n in topics.items()],
-        "channels": [{"key": m["key"], "name": m["name"], "topic": m["topic"], "cid": m.get("cid")}
+        "channels": [{"key": m["key"], "name": m["name"], "topic": m["topic"], "cid": m.get("cid"),
+                      **({"av": 1} if m.get("cid") and (AVATAR_DIR / f"{m['cid']}.jpg").exists() else {})}
                      for m in channel_meta.values() if m["key"] in used],
         "videos": videos,
     }
