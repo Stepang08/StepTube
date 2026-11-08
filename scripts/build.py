@@ -534,6 +534,12 @@ def main() -> int:
         vs.sort(key=lambda v: v.get("p", ""), reverse=True)
         videos.extend(vs if k == "_ev" else [v for v in vs[:MAX_PER_CHANNEL]] +
                       [v for v in vs[MAX_PER_CHANNEL:] if v.get("ev")])
+    # Videos follow their channel's current topic (so moving a channel in
+    # channels.yml re-files its whole history).
+    topic_of = {c["key"]: c["topic"] for c in chans}
+    for v in videos:
+        if not v.get("ev") and v.get("ch") in topic_of:
+            v["tp"] = topic_of[v["ch"]]
     # topic sanity
     for v in videos:
         if v["tp"] not in topics:

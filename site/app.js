@@ -54,7 +54,7 @@
     chByKey = new Map(DB.channels.map((c) => [c.key, c]));
     $("#tabs").innerHTML =
       `<a href="#/" data-tab="">New</a>` +
-      DB.topics.map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
+      DB.topics.filter((t) => DB.videos.some((v) => v.tp === t.key)).map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
       `<a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
     const when = DB.generated ? new Date(DB.generated) : null;
     $("#meta").textContent = `${DB.videos.length} videos · ${DB.channels.length} channels` +

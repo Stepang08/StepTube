@@ -42,6 +42,9 @@ channels:
   - { handle: anthropic-ai,         topic: ai }
   - { handle: DwarkeshPatel,        topic: ai }
   - { handle: stanfordonline,       topic: ai, include: ["lecture", "cs", "stanford"] }
+  # reviewed
+  - { name: "Sean's AI Stories",    topic: ai }
+  - { name: "Tech Creators Lab",    topic: ai }
 
   # ===================== Mathematics =======================================
   # university / general math (yours)
@@ -97,6 +100,9 @@ channels:
   - { name: "Mr. Math",             topic: math }
   - { name: "PhysMathFriends",      topic: math }
   - { name: "Koreez Contest",       topic: math }
+  - { name: "RedPig",               topic: math }   # olympiad (IMO/INMO) solutions
+  - { name: "Upsampled",            topic: math }   # math visualizations
+  - { name: "Ellie Sleightholm",    topic: math }   # applied-math PhD at Cambridge
   # starter pack
   - { handle: 3blue1brown,          topic: math }
   - { handle: Mathologer,           topic: math }
@@ -123,6 +129,7 @@ channels:
   - { name: "Лютая физика",         topic: science }
   - { name: "Альфа-частица",        topic: science }
   - { name: "Глеб Орел - Олимпиадный Препод по Физике", topic: science }
+  - { name: "Jan Rauch",            topic: science }  # physics & astronomy lessons
   # starter pack
   - { handle: pbsspacetime,         topic: science }
   - { handle: QuantaScienceChannel, topic: science }
@@ -132,25 +139,16 @@ channels:
   - { handle: ycombinator,          topic: business }
   - { handle: Asianometry,          topic: business }
   - { handle: AcquiredFM,           topic: business }
+  - { name: "DigiTec",              topic: business } # Armenian tech/AI conference
+  - { name: "Harvard Business Review", topic: business }
 
   # ===================== Other =============================================
   - { name: "Rock Talk",            topic: other }
   - { name: "Learn English With TV Series", topic: other }
   - { name: "Հայր Միքայել Hayr Miqayel", topic: other }
+  - { name: "Odysseas",             topic: other }    # learning & research habits
+  - { name: "Patchouli",            topic: other }    # music
 
   # ===================== Under review ======================================
-  # Watch a few of each in the "Under review" tab, then move each one to a
-  # real topic or delete its line.
-  - { name: "Sean's AI Stories",    topic: review }   # AI explainer/news?
-  - { name: "SetupsAI",             topic: review }   # AI tools?
-  - { name: "Tech Creators Lab",    topic: review }   # AI/tech creator tools?
-  - { name: "Upsampled",            topic: review }   # unknown
-  - { name: "Ellie Sleightholm",    topic: review }   # software engineer, tech/coding vlogs
-  - { name: "Harvard Business Review", topic: review } # business
-  - { name: "Odysseas",             topic: review }   # "Renaissance man" learning/self-improvement
-  - { name: "Cosmic Vacuum",        topic: review }   # space/physics?
-  - { name: "Jan Rauch",            topic: review }   # unknown
-  - { name: "Patchouli",            topic: review }   # unknown
-  - { name: "RedPig",               topic: review }   # unknown
-  - { name: "DigiTec",              topic: review }   # likely Swiss electronics retailer (product videos)
-  - { name: "Gohar Khan",           topic: review }   # college admissions / study tips
+  # Put undecided channels here (topic: review). They get their own tab and
+  # stay off the New page until you move them to a real topic.
