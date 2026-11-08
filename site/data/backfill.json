@@ -361,6 +361,9 @@
   "hl": "ru",
   "tv": 3
  },
+ "__claude_code__": {
+  "v": 1
+ },
  "anthropic-ai": {
   "cid": "UCrDwWp7EBBv4NwvScIpBDOA",
   "cap": 300,
