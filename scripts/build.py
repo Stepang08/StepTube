@@ -50,7 +50,7 @@ NS = {
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
-VIEWS_VERSION = 2        # bump to re-fetch channels whose stored videos lack view counts
+VIEWS_VERSION = 3        # bump to re-fetch channels whose stored videos lack view counts
 CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
@@ -493,7 +493,8 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None,
     if out and not any(v.get("view_count") for v in out) and len(VC_DEBUG) < 3:
         raw = next(iter(_walk(grid, "videoRenderer")), None) or next(iter(_walk(grid, "lockupViewModel")), None)
         VC_DEBUG.append(channel_id)
-        print(f"  [no view counts] {channel_id}: " + json.dumps(raw, ensure_ascii=False)[:2500])
+        meta = (raw or {}).get("metadata", raw)
+        print(f"  [no view counts] {channel_id}: " + json.dumps(meta, ensure_ascii=False)[:3000])
     if not out:
         # Whole-page fallback: fine for "latest uploads", never used for paging.
         out = _parse_video_items(data)
