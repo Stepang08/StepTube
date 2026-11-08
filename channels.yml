@@ -77,7 +77,7 @@ channels:
   - { name: "Борис Трушин",         topic: math }
   - { name: "Математика | Alles",   topic: math }
   - { name: "Элементарная Математика", topic: math }
-  - { name: "Онлайн Уроки",         topic: math }
+  # - { name: "Онлайн Уроки" }   # PAUSED: avatar didn't match (got a pink 'уроки' logo); needs its @handle
   # - { name: "Андрей Кушнир", topic: math }   # PAUSED: name search found a quadcopter channel; needs its @handle
   - { name: "Dima Shvetsov",        topic: math, lang: ru }
   # olympiad / problem solving (yours)
@@ -99,7 +99,7 @@ channels:
   - { name: "Creative Math Problems", topic: math }
   - { name: "Boppana Math",         topic: math }
   - { name: "GG Maths",             topic: math }
-  - { name: "Mr. Math",             topic: math }
+  # - { name: "Mr. Math" }   # PAUSED: avatar didn't match (got an Einstein-sketch 'MrMath'); needs its @handle
   - { name: "PhysMathFriends",      topic: math }
   - { name: "Koreez Contest",       topic: math }
   - { name: "RedPig",               topic: math }   # olympiad (IMO/INMO) solutions
@@ -145,11 +145,11 @@ channels:
   - { name: "Harvard Business Review", topic: business }
 
   # ===================== Other =============================================
-  - { name: "Rock Talk",            topic: other }
+  # - { name: "Rock Talk" }   # PAUSED: avatar didn't match (got a green brain icon); needs its @handle
   - { name: "Learn English With TV Series", topic: other }
   - { name: "Հայր Միքայել Hayr Miqayel", topic: other }
   - { name: "Odysseas",             topic: other }    # learning & research habits
-  - { name: "Patchouli",            topic: other }    # music
+  # - { name: "Patchouli" }   # PAUSED: avatar didn't match (got a guitarist; yours has an anime avatar); needs its @handle
 
   # ===================== Under review ======================================
   # Put undecided channels here (topic: review). They get their own tab and
