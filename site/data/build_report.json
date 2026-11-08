@@ -1,0 +1,645 @@
+{
+ "resolved": [
+  {
+   "entry": "YannicKilcher",
+   "matched": "@YannicKilcher",
+   "id": "UCZHmQk67mSJgfCCTn7xBfew"
+  },
+  {
+   "entry": "TwoMinutePapers",
+   "matched": "@TwoMinutePapers",
+   "id": "UCbfYPyITQ-7l4upoX8nvctg"
+  },
+  {
+   "entry": "ritvikmath",
+   "matched": "@ritvikmath",
+   "id": "UCUcpVoi5KkJmnE3bvEhHR0Q"
+  },
+  {
+   "entry": "ArtemKirsanov",
+   "matched": "@ArtemKirsanov",
+   "id": "UCR2uRTQ53V_egXKFflMMaaw"
+  },
+  {
+   "entry": "MLinside",
+   "matched": "MLinside",
+   "id": "UCfsH7DO5n7N5Mup_oxwKMDQ"
+  },
+  {
+   "entry": "Deep Learning School",
+   "matched": "Deep Learning School",
+   "id": "UCFTNoZYjkg-3LZTHrHfV1nQ"
+  },
+  {
+   "entry": "Young&&Yandex",
+   "matched": "Young&&Yandex",
+   "id": "UCYtojgaSgXZWIIrYHbIgZ_Q"
+  },
+  {
+   "entry": "Metric - Python, \u0544\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561, \u0544\u0565\u0584\u0565\u0576\u0561\u0575\u0561\u056f\u0561\u0576 \u0578\u0582\u057d\u0578\u0582\u0581\u0578\u0582\u0574",
+   "matched": "Metric - Python, \u0544\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561, \u0544\u0565\u0584\u0565\u0576\u0561\u0575\u0561\u056f\u0561\u0576 \u0578\u0582\u057d\u0578\u0582\u0581\u0578\u0582\u0574",
+   "id": "UC5BavugdnUkti3Es7-deZDg"
+  },
+  {
+   "entry": "AndrejKarpathy",
+   "matched": "@AndrejKarpathy",
+   "id": "UCXUPKJO5MZQN11PqgIvyuvQ"
+  },
+  {
+   "entry": "umarjamilai",
+   "matched": "@umarjamilai",
+   "id": "UCtAcpQcYerN8xxZJYTfWBMw"
+  },
+  {
+   "entry": "statquest",
+   "matched": "@statquest",
+   "id": "UCtYLUTtgS3k1Fg4y5tAhLbw"
+  },
+  {
+   "entry": "GoogleDeepMind",
+   "matched": "@GoogleDeepMind",
+   "id": "UCP7jMXSY2xbc3KCAE0MHQ-A"
+  },
+  {
+   "entry": "anthropic-ai",
+   "matched": "@anthropic-ai",
+   "id": "UCrDwWp7EBBv4NwvScIpBDOA"
+  },
+  {
+   "entry": "DwarkeshPatel",
+   "matched": "@DwarkeshPatel",
+   "id": "UCXl4i9dYBrFOabk0xGmbkRA"
+  },
+  {
+   "entry": "stanfordonline",
+   "matched": "@stanfordonline",
+   "id": "UCBa5G_ESCn8Yd4vw5U-gIcg"
+  },
+  {
+   "entry": "BrightSideofMaths",
+   "matched": "@BrightSideofMaths",
+   "id": "UCdwo4k1RQHTcq_-WS7Cazqg"
+  },
+  {
+   "entry": "TheMathSorcerer",
+   "matched": "@TheMathSorcerer",
+   "id": "UCr7lmzIk63PZnBw3bezl-Mg"
+  },
+  {
+   "entry": "MichaelPennMath",
+   "matched": "@MichaelPennMath",
+   "id": "UC6jM0RFkr4eSkzT5Gx0HOAw"
+  },
+  {
+   "entry": "Mohamed Omar",
+   "matched": "Mohamed Omar",
+   "id": "UCSoVyBb75Mf9o_eZGuKa2HQ"
+  },
+  {
+   "entry": "Dedekind cuts",
+   "matched": "Dedekind cuts",
+   "id": "UCVrSVkLq5HHVYbwgA9Nt8HQ"
+  },
+  {
+   "entry": "Riemann",
+   "matched": "Riemann",
+   "id": "UCMf3MweZ4M6poZ3mCf1SNIQ"
+  },
+  {
+   "entry": "Hamiltonian",
+   "matched": "Hamiltonian",
+   "id": "UCp9Rg04-sACrSSl9kVbTE9g"
+  },
+  {
+   "entry": "Primus Mathematica",
+   "matched": "Primus Mathematica",
+   "id": "UCpT6PKii9-v3Gev-N0z5Fwg"
+  },
+  {
+   "entry": "Math from Alpha to Omega",
+   "matched": "Math from Alpha to Omega",
+   "id": "UC0B2PS3DGRaC8ARxgvMqR3g"
+  },
+  {
+   "entry": "Thinking In Math",
+   "matched": "Thinking In Math",
+   "id": "UC5uV1LcSkHL5zCxKBikdTEg"
+  },
+  {
+   "entry": "Think Twice",
+   "matched": "Think Twice",
+   "id": "UCl_j3znImX5RzV_ocDwYAlQ"
+  },
+  {
+   "entry": "Mu Prime Math",
+   "matched": "Mu Prime Math",
+   "id": "UCo8T0D8my1Hz5KoHCRYOAnQ"
+  },
+  {
+   "entry": "Mathin",
+   "matched": "Mathin",
+   "id": "UCvNjqNktxdfe44dZL1aap3w"
+  },
+  {
+   "entry": "Logic Unlocked",
+   "matched": "Logic Unlocked",
+   "id": "UC2a7KIx9FNRhw0apeIOOkcw"
+  },
+  {
+   "entry": "letsthinkcritically",
+   "matched": "letsthinkcritically",
+   "id": "UCT-QRRiYoza5rRDCKNdYdhg"
+  },
+  {
+   "entry": "Michael Greenberg",
+   "matched": "Michael Greenberg",
+   "id": "UC3mhbGC7kQgzkXT9fceNOwA"
+  },
+  {
+   "entry": "Dr. Ebrahimian",
+   "matched": "Dr. Ebrahimian",
+   "id": "UCb0meJAASHH4nzJAbgiGBsw"
+  },
+  {
+   "entry": "Sterudy",
+   "matched": "Sterudy",
+   "id": "UCnP12DrX8lF9liqudV8hsCA"
+  },
+  {
+   "entry": "\u0540\u0561\u0574\u0561\u056c\u057d\u0561\u0580\u0561\u0576\u0561\u056f\u0561\u0576 \u0574\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561",
+   "matched": "\u0540\u0561\u0574\u0561\u056c\u057d\u0561\u0580\u0561\u0576\u0561\u056f\u0561\u0576 \u0574\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561",
+   "id": "UCMFONp28jEDHXDBWJyRVYcA"
+  },
+  {
+   "entry": "\u041c\u0430\u0442\u043a\u0443\u043b\u044c\u0442-\u043f\u0440\u0438\u0432\u0435\u0442! :: \u0410\u043b\u0435\u043a\u0441\u0435\u0439 \u0421\u0430\u0432\u0432\u0430\u0442\u0435\u0435\u0432",
+   "matched": "\u041c\u0430\u0442\u043a\u0443\u043b\u044c\u0442-\u043f\u0440\u0438\u0432\u0435\u0442! :: \u0410\u043b\u0435\u043a\u0441\u0435\u0439 \u0421\u0430\u0432\u0432\u0430\u0442\u0435\u0435\u0432 \u0438 \u041a\u043e",
+   "id": "UCWk8OxsylgmZ_VgY7jC9pjQ",
+   "check": true
+  },
+  {
+   "entry": "\u0412\u0438\u0434\u0435\u043e\u0437\u0430\u043f\u0438\u0441\u0438 \u041c\u0426\u041d\u041c\u041e",
+   "matched": "\u0412\u0438\u0434\u0435\u043e\u0437\u0430\u043f\u0438\u0441\u0438 \u041c\u0426\u041d\u041c\u041e",
+   "id": "UCtUJwoYzwI1XP2FIkQaQygA"
+  },
+  {
+   "entry": "\u0422-\u041e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435",
+   "matched": "\u0422-\u041e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435",
+   "id": "UCw2ORfEOUoEe-MNgCCm0aoQ"
+  },
+  {
+   "entry": "\u0424\u0438\u0437\u0442\u0435\u0445-\u043b\u0438\u0446\u0435\u0439 \u043e\u043d\u043b\u0430\u0439\u043d",
+   "matched": "\u0424\u0438\u0437\u0442\u0435\u0445-\u043b\u0438\u0446\u0435\u0439 \u043e\u043d\u043b\u0430\u0439\u043d",
+   "id": "UCEPZ7gyAqGRuVGBAxerg0VA"
+  },
+  {
+   "entry": "\u0424\u0418\u0417\u041c\u0410\u0422\u041e\u0412\u0415\u0426",
+   "matched": "\u0424\u0418\u0417\u041c\u0410\u0422\u041e\u0412\u0415\u0426",
+   "id": "UCcCrptM0EWMECJC3jH3yHxA"
+  },
+  {
+   "entry": "\u0411\u043e\u0440\u0438\u0441 \u0422\u0440\u0443\u0448\u0438\u043d",
+   "matched": "\u0411\u043e\u0440\u0438\u0441 \u0422\u0440\u0443\u0448\u0438\u043d",
+   "id": "UCo2JwjPSEc9U8ZJ_KQi6rDQ"
+  },
+  {
+   "entry": "\u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 | Alles",
+   "matched": "\u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 | Alles",
+   "id": "UCJxyiaxeHvLkRRJmtyidywQ"
+  },
+  {
+   "entry": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u0430\u0440\u043d\u0430\u044f \u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "matched": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u0430\u0440\u043d\u0430\u044f \u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "id": "UC9mZMNP_0WtTE5ByDYFupOQ"
+  },
+  {
+   "entry": "\u041e\u043d\u043b\u0430\u0439\u043d \u0423\u0440\u043e\u043a\u0438",
+   "matched": "\u041e\u043d\u043b\u0430\u0439\u043d \u0443\u0440\u043e\u043a\u0438",
+   "id": "UCBNsaEaA4ddwc6GK6uFiMDQ"
+  },
+  {
+   "entry": "\u0410\u043d\u0434\u0440\u0435\u0439 \u041a\u0443\u0448\u043d\u0438\u0440",
+   "matched": "\u0430\u043d\u0434\u0440\u0435\u0439 \u043a\u0443\u0448\u043d\u0438\u0440",
+   "id": "UCSB2cZogAtsDcwBIr0oHMhQ"
+  },
+  {
+   "entry": "Dima Shvetsov",
+   "matched": "Dima Shvetsov",
+   "id": "UCTQCppqdK0tVeNEckLi6-RA"
+  },
+  {
+   "entry": "Wild Mathing",
+   "matched": "Wild Mathing",
+   "id": "UCj0Od_id0gPbmwZ65U8xwrw"
+  },
+  {
+   "entry": "Shefs of Problem Solving",
+   "matched": "Shefs of Problem Solving",
+   "id": "UCGnDWH8_ClXegQkWnbzDnzA"
+  },
+  {
+   "entry": "OptionalProblem",
+   "matched": "OptionalProblem",
+   "id": "UChIFVu0mJZiI931hd2hZniA"
+  },
+  {
+   "entry": "Olympiad animations",
+   "matched": "Olympiad animations",
+   "id": "UC7m1pOqARAZfkS7AP9OnaRA"
+  },
+  {
+   "entry": "Olympiad Geometry",
+   "matched": "Olympiad Geometry",
+   "id": "UCrN-KzbGWHz6Y48dIfJTRRg"
+  },
+  {
+   "entry": "Maths OlympiadTrainer",
+   "matched": "Maths OlympiadTrainer",
+   "id": "UC6qPsTzhBHA6LlvuQ2stSVg"
+  },
+  {
+   "entry": "MathOlymp | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "matched": "MathOlymp | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "id": "UCBVxM7-bXOXU9lVrCLivapQ"
+  },
+  {
+   "entry": "\u0414\u0430\u0431\u0440\u043e\u043c\u0430\u0442 | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "matched": "\u0414\u0430\u0431\u0440\u043e\u043c\u0430\u0442 | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 ",
+   "id": "UC_dRAIjytb-g10UCvBf_2cg"
+  },
+  {
+   "entry": "\u0414\u043c\u0438\u0442\u0440\u0438\u0439 \u0411\u0435\u043b\u043e\u0432. \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430",
+   "matched": "\u0414\u043c\u0438\u0442\u0440\u0438\u0439 \u0411\u0435\u043b\u043e\u0432. \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 \u0432 \u0428\u043a\u043e\u043b\u043a\u043e\u0432\u043e",
+   "id": "UCw5rmyPmaroYt2xCKy6Pi5w",
+   "check": true
+  },
+  {
+   "entry": "\u0412\u0438\u043a\u0442\u043e\u0440 \u041f\u0440\u0430\u0441\u043e\u043b\u043e\u0432",
+   "matched": "\u0412\u0438\u043a\u0442\u043e\u0440 \u041f\u0440\u0430\u0441\u043e\u043b\u043e\u0432",
+   "id": "UCAfUJDJGmnMxM2tiU-LZoFw"
+  },
+  {
+   "entry": "\u0424\u0443\u043b\u043b \u0438 \u0442\u043e\u0447\u043a\u0430",
+   "matched": "Full and a point",
+   "id": "UCFmbny7qvlsHO9ARmczOPCg",
+   "check": true
+  },
+  {
+   "entry": "\u041c\u0422 \u043a\u0440\u0443\u0436\u043a\u0438",
+   "matched": "\u041c\u0422",
+   "id": "UCodqqRyYt-liwuNXEV4L_0g",
+   "check": true
+  },
+  {
+   "entry": "Matvey Merzlikin",
+   "matched": "Matvey Merzlikin",
+   "id": "UCMXeKJu_RDw9J2-RPKrJL3A"
+  },
+  {
+   "entry": "little fermat",
+   "matched": "little fermat",
+   "id": "UC3TFJRjKrW6yCCLJcgRhFBg"
+  },
+  {
+   "entry": "Nice Math Problems",
+   "matched": "Nice Math Problems",
+   "id": "UCL1MZd6c_e7DPEFo88z3EBg"
+  },
+  {
+   "entry": "Creative Math Problems",
+   "matched": "Creative Math Problems",
+   "id": "UCfVApS9lD-I3A0QTsm1XoPw"
+  },
+  {
+   "entry": "Boppana Math",
+   "matched": "Boppana Math",
+   "id": "UCN9CBC4dh9tdAgAKCQOzrXg"
+  },
+  {
+   "entry": "GG Maths",
+   "matched": "GG Maths",
+   "id": "UCZWoiVVe1Zby5j1s5H9eI4A"
+  },
+  {
+   "entry": "Mr. Math",
+   "matched": "MrMath",
+   "id": "UC_hl3Y2jHHOKXuo4k5sVARA"
+  },
+  {
+   "entry": "PhysMathFriends",
+   "matched": "PhysMathFriends",
+   "id": "UCNHJWy9MJ2YQ2Dne9OP9VCw"
+  },
+  {
+   "entry": "Koreez Contest",
+   "matched": "Koreez Contest",
+   "id": "UCXSN90LK5Z8eac9dM_1f_Cg"
+  },
+  {
+   "entry": "3blue1brown",
+   "matched": "@3blue1brown",
+   "id": "UCYO_jab_esuFRV4b17AJtAw"
+  },
+  {
+   "entry": "Mathologer",
+   "matched": "@Mathologer",
+   "id": "UC1_uAIS3r8Vu6JjXWvastJg"
+  },
+  {
+   "entry": "numberphile",
+   "matched": "@numberphile",
+   "id": "UCoxcjq-8xIDTYp3uz647V5A"
+  },
+  {
+   "entry": "TechWithTim",
+   "matched": "@TechWithTim",
+   "id": "UC4JX40jDee_tINbkjycV4Sg"
+  },
+  {
+   "entry": "freecodecamp",
+   "matched": "@freecodecamp",
+   "id": "UC8butISFwT-Wl7EV0hUK0BQ"
+  },
+  {
+   "entry": "mattpocockuk",
+   "matched": "@mattpocockuk",
+   "id": "UCswG6FSbgZjbWtdf_hMLaow"
+  },
+  {
+   "entry": "IBMTechnology",
+   "matched": "@IBMTechnology",
+   "id": "UCKWaEZ-_VweaEx1j62do_vQ"
+  },
+  {
+   "entry": "Errichto Algorithms",
+   "matched": "Errichto Algorithms",
+   "id": "UCBr_Fu6q9iHYQCh13jmpbrg"
+  },
+  {
+   "entry": "Computerphile",
+   "matched": "@Computerphile",
+   "id": "UC9-y-6csu5WGm29I7JiwpnA"
+  },
+  {
+   "entry": "BenEater",
+   "matched": "@BenEater",
+   "id": "UCS0N5baNlQWJCUrhCEo8WlA"
+  },
+  {
+   "entry": "SebastianLague",
+   "matched": "@SebastianLague",
+   "id": "UCmtyQOKKmrMVaKuRXz02jbQ"
+  },
+  {
+   "entry": "jonhoo",
+   "matched": "@jonhoo",
+   "id": "UC_iD0xppBwwsrM9DegC5cQQ"
+  },
+  {
+   "entry": "CoreDumpped",
+   "matched": "@CoreDumpped",
+   "id": "UCGKEMK3s-ZPbjVOIuAV8clQ"
+  },
+  {
+   "entry": "veritasium",
+   "matched": "@veritasium",
+   "id": "UCHnyfMqiRRG1u-2MsSQLbXA"
+  },
+  {
+   "entry": "tibees",
+   "matched": "@tibees",
+   "id": "UC52kszkc08-acFOuogFl5jw"
+  },
+  {
+   "entry": "\u0410\u043b\u044c\u0444\u0430-\u0447\u0430\u0441\u0442\u0438\u0446\u0430",
+   "matched": "\u0410\u043b\u044c\u0444\u0430-\u0447\u0430\u0441\u0442\u0438\u0446\u0430",
+   "id": "UC2Ii5sVVBztUpSn_ul-d5eQ"
+  },
+  {
+   "entry": "\u0413\u043b\u0435\u0431 \u041e\u0440\u0435\u043b - \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u044b\u0439 \u041f\u0440\u0435\u043f\u043e\u0434 \u043f\u043e \u0424\u0438\u0437\u0438\u043a\u0435",
+   "matched": "\u0413\u043b\u0435\u0431 \u041e\u0440\u0435\u043b - \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u044b\u0439 \u041f\u0440\u0435\u043f\u043e\u0434 \u043f\u043e \u0424\u0438\u0437\u0438\u043a\u0435",
+   "id": "UCx_E5DQIZJo3SSxDhmjD25g"
+  },
+  {
+   "entry": "pbsspacetime",
+   "matched": "@pbsspacetime",
+   "id": "UC7_gcs09iThXybpVgjHZ_7g"
+  },
+  {
+   "entry": "QuantaScienceChannel",
+   "matched": "@QuantaScienceChannel",
+   "id": "UCTpmmkp1E4nmZqWPS-dl5bg"
+  },
+  {
+   "entry": "ycombinator",
+   "matched": "@ycombinator",
+   "id": "UCcefcZRL2oaA_uBNeo5UOWg"
+  },
+  {
+   "entry": "Asianometry",
+   "matched": "@Asianometry",
+   "id": "UC1LpsuAUaKoMzzJSEt5WImw"
+  },
+  {
+   "entry": "AcquiredFM",
+   "matched": "@AcquiredFM",
+   "id": "UCyFqFYfTW2VoIQKylJ04Rtw"
+  },
+  {
+   "entry": "Rock Talk",
+   "matched": "Rock Talk",
+   "id": "UCRFYsr9Soy70DOxyqIuuJiw"
+  },
+  {
+   "entry": "Learn English With TV Series",
+   "matched": "Learn English With TV Series",
+   "id": "UCKgpamMlm872zkGDcBJHYDg"
+  },
+  {
+   "entry": "\u0540\u0561\u0575\u0580 \u0544\u056b\u0584\u0561\u0575\u0565\u056c Hayr Miqayel",
+   "matched": "\u0540\u0561\u0575\u0580 \u0544\u056b\u0584\u0561\u0575\u0565\u056c Hayr Miqayel",
+   "id": "UCvIOGcM59FMwsNIbYFQogBA"
+  },
+  {
+   "entry": "Sean's AI Stories",
+   "matched": "Sean\u2018s AI Stories",
+   "id": "UCx-OfB7xsTN_GnoplitHfXg"
+  },
+  {
+   "entry": "SetupsAI",
+   "matched": "SetupsAI",
+   "id": "UC0xHrJNbxHmFnUP-49WYM-Q"
+  },
+  {
+   "entry": "Tech Creators Lab",
+   "matched": "Tech Creators Lab",
+   "id": "UCRmSZlMJKqwzg-lSl6hlSDg"
+  },
+  {
+   "entry": "Upsampled",
+   "matched": "Upsampled",
+   "id": "UC3_ngL2eLA2o0TtFlG4WQ1g"
+  },
+  {
+   "entry": "Ellie Sleightholm",
+   "matched": "Ellie Sleightholm",
+   "id": "UCylqgu2ojsCxojFpQogowOA"
+  },
+  {
+   "entry": "Harvard Business Review",
+   "matched": "Harvard Business Review",
+   "id": "UCWo4IA01TXzBeGJJKWHOG9g"
+  },
+  {
+   "entry": "Odysseas",
+   "matched": "Odysseas",
+   "id": "UCQjBsscIa_mgEnSvWpm_9vw"
+  },
+  {
+   "entry": "Cosmic Vacuum",
+   "matched": "Cosmic Vacuum",
+   "id": "UC80EXMxCS3dqJUekAmXdhmw"
+  },
+  {
+   "entry": "Jan Rauch",
+   "matched": "Jan Rauch",
+   "id": "UCcTRcPDtfOF7VCGrrpUkylQ"
+  },
+  {
+   "entry": "Patchouli",
+   "matched": "Patchouli",
+   "id": "UCecG6l0ZO7INzT-CQhvePoA"
+  },
+  {
+   "entry": "RedPig",
+   "matched": "RedPig",
+   "id": "UCBoH0u68QUCdGs9Ber_z1mQ"
+  },
+  {
+   "entry": "DigiTec",
+   "matched": "DigiTec",
+   "id": "UCJxIyj5KsFsxYXyOhd16wuw"
+  },
+  {
+   "entry": "Gohar Khan",
+   "matched": "Gohar Khan",
+   "id": "UCPk2s5c4R_d-EUUNvFFODoA"
+  }
+ ],
+ "unresolved": [
+  "WelchLabsVideo",
+  "\u041b\u044e\u0442\u0430\u044f \u0444\u0438\u0437\u0438\u043a\u0430"
+ ],
+ "feed_errors": [
+  "YannicKilcher: HTTP Error 404: Not Found",
+  "TwoMinutePapers: HTTP Error 404: Not Found",
+  "ritvikmath: HTTP Error 404: Not Found",
+  "ArtemKirsanov: HTTP Error 404: Not Found",
+  "MLinside: HTTP Error 404: Not Found",
+  "Deep Learning School: HTTP Error 404: Not Found",
+  "Young&&Yandex: HTTP Error 404: Not Found",
+  "Metric - Python, \u0544\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561, \u0544\u0565\u0584\u0565\u0576\u0561\u0575\u0561\u056f\u0561\u0576 \u0578\u0582\u057d\u0578\u0582\u0581\u0578\u0582\u0574: HTTP Error 404: Not Found",
+  "AndrejKarpathy: HTTP Error 404: Not Found",
+  "umarjamilai: HTTP Error 404: Not Found",
+  "statquest: HTTP Error 404: Not Found",
+  "GoogleDeepMind: HTTP Error 404: Not Found",
+  "anthropic-ai: HTTP Error 404: Not Found",
+  "DwarkeshPatel: HTTP Error 404: Not Found",
+  "stanfordonline: HTTP Error 404: Not Found",
+  "BrightSideofMaths: HTTP Error 404: Not Found",
+  "TheMathSorcerer: HTTP Error 404: Not Found",
+  "MichaelPennMath: HTTP Error 404: Not Found",
+  "Mohamed Omar: HTTP Error 404: Not Found",
+  "Dedekind cuts: HTTP Error 404: Not Found",
+  "Riemann: HTTP Error 404: Not Found",
+  "Hamiltonian: HTTP Error 404: Not Found",
+  "Primus Mathematica: HTTP Error 404: Not Found",
+  "Math from Alpha to Omega: HTTP Error 404: Not Found",
+  "Thinking In Math: HTTP Error 404: Not Found",
+  "Think Twice: HTTP Error 404: Not Found",
+  "Mu Prime Math: HTTP Error 404: Not Found",
+  "Mathin: HTTP Error 404: Not Found",
+  "Logic Unlocked: HTTP Error 404: Not Found",
+  "letsthinkcritically: HTTP Error 404: Not Found",
+  "Michael Greenberg: HTTP Error 404: Not Found",
+  "Dr. Ebrahimian: HTTP Error 404: Not Found",
+  "Sterudy: HTTP Error 404: Not Found",
+  "\u0540\u0561\u0574\u0561\u056c\u057d\u0561\u0580\u0561\u0576\u0561\u056f\u0561\u0576 \u0574\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561: HTTP Error 404: Not Found",
+  "\u041c\u0430\u0442\u043a\u0443\u043b\u044c\u0442-\u043f\u0440\u0438\u0432\u0435\u0442! :: \u0410\u043b\u0435\u043a\u0441\u0435\u0439 \u0421\u0430\u0432\u0432\u0430\u0442\u0435\u0435\u0432: HTTP Error 404: Not Found",
+  "\u0412\u0438\u0434\u0435\u043e\u0437\u0430\u043f\u0438\u0441\u0438 \u041c\u0426\u041d\u041c\u041e: HTTP Error 404: Not Found",
+  "\u0422-\u041e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435: HTTP Error 404: Not Found",
+  "\u0424\u0438\u0437\u0442\u0435\u0445-\u043b\u0438\u0446\u0435\u0439 \u043e\u043d\u043b\u0430\u0439\u043d: HTTP Error 404: Not Found",
+  "\u0424\u0418\u0417\u041c\u0410\u0422\u041e\u0412\u0415\u0426: HTTP Error 404: Not Found",
+  "\u0411\u043e\u0440\u0438\u0441 \u0422\u0440\u0443\u0448\u0438\u043d: HTTP Error 404: Not Found",
+  "\u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 | Alles: HTTP Error 404: Not Found",
+  "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u0430\u0440\u043d\u0430\u044f \u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430: HTTP Error 404: Not Found",
+  "\u041e\u043d\u043b\u0430\u0439\u043d \u0423\u0440\u043e\u043a\u0438: HTTP Error 404: Not Found",
+  "\u0410\u043d\u0434\u0440\u0435\u0439 \u041a\u0443\u0448\u043d\u0438\u0440: HTTP Error 404: Not Found",
+  "Dima Shvetsov: HTTP Error 404: Not Found",
+  "Wild Mathing: HTTP Error 404: Not Found",
+  "Shefs of Problem Solving: HTTP Error 404: Not Found",
+  "OptionalProblem: HTTP Error 404: Not Found",
+  "Olympiad animations: HTTP Error 404: Not Found",
+  "Olympiad Geometry: HTTP Error 404: Not Found",
+  "Maths OlympiadTrainer: HTTP Error 404: Not Found",
+  "MathOlymp | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430: HTTP Error 404: Not Found",
+  "\u0414\u0430\u0431\u0440\u043e\u043c\u0430\u0442 | \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430: HTTP Error 404: Not Found",
+  "\u0414\u043c\u0438\u0442\u0440\u0438\u0439 \u0411\u0435\u043b\u043e\u0432. \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430: HTTP Error 404: Not Found",
+  "\u0412\u0438\u043a\u0442\u043e\u0440 \u041f\u0440\u0430\u0441\u043e\u043b\u043e\u0432: HTTP Error 404: Not Found",
+  "\u0424\u0443\u043b\u043b \u0438 \u0442\u043e\u0447\u043a\u0430: HTTP Error 404: Not Found",
+  "\u041c\u0422 \u043a\u0440\u0443\u0436\u043a\u0438: HTTP Error 404: Not Found",
+  "Matvey Merzlikin: HTTP Error 404: Not Found",
+  "little fermat: HTTP Error 404: Not Found",
+  "Nice Math Problems: HTTP Error 404: Not Found",
+  "Creative Math Problems: HTTP Error 404: Not Found",
+  "Boppana Math: HTTP Error 404: Not Found",
+  "GG Maths: HTTP Error 404: Not Found",
+  "Mr. Math: HTTP Error 404: Not Found",
+  "PhysMathFriends: HTTP Error 404: Not Found",
+  "Koreez Contest: HTTP Error 404: Not Found",
+  "3blue1brown: HTTP Error 404: Not Found",
+  "Mathologer: HTTP Error 404: Not Found",
+  "numberphile: HTTP Error 404: Not Found",
+  "TechWithTim: HTTP Error 404: Not Found",
+  "freecodecamp: HTTP Error 404: Not Found",
+  "mattpocockuk: HTTP Error 404: Not Found",
+  "IBMTechnology: HTTP Error 404: Not Found",
+  "Errichto Algorithms: HTTP Error 404: Not Found",
+  "Computerphile: HTTP Error 404: Not Found",
+  "BenEater: HTTP Error 404: Not Found",
+  "SebastianLague: HTTP Error 404: Not Found",
+  "jonhoo: HTTP Error 404: Not Found",
+  "CoreDumpped: HTTP Error 404: Not Found",
+  "veritasium: HTTP Error 404: Not Found",
+  "tibees: HTTP Error 404: Not Found",
+  "\u0410\u043b\u044c\u0444\u0430-\u0447\u0430\u0441\u0442\u0438\u0446\u0430: HTTP Error 404: Not Found",
+  "\u0413\u043b\u0435\u0431 \u041e\u0440\u0435\u043b - \u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u043d\u044b\u0439 \u041f\u0440\u0435\u043f\u043e\u0434 \u043f\u043e \u0424\u0438\u0437\u0438\u043a\u0435: HTTP Error 404: Not Found",
+  "pbsspacetime: HTTP Error 404: Not Found",
+  "QuantaScienceChannel: HTTP Error 404: Not Found",
+  "ycombinator: HTTP Error 404: Not Found",
+  "Asianometry: HTTP Error 404: Not Found",
+  "AcquiredFM: HTTP Error 404: Not Found",
+  "Rock Talk: HTTP Error 404: Not Found",
+  "Learn English With TV Series: HTTP Error 404: Not Found",
+  "\u0540\u0561\u0575\u0580 \u0544\u056b\u0584\u0561\u0575\u0565\u056c Hayr Miqayel: HTTP Error 404: Not Found",
+  "Sean's AI Stories: HTTP Error 404: Not Found",
+  "SetupsAI: HTTP Error 404: Not Found",
+  "Tech Creators Lab: HTTP Error 404: Not Found",
+  "Upsampled: HTTP Error 404: Not Found",
+  "Ellie Sleightholm: HTTP Error 404: Not Found",
+  "Harvard Business Review: HTTP Error 404: Not Found",
+  "Odysseas: HTTP Error 404: Not Found",
+  "Cosmic Vacuum: HTTP Error 404: Not Found",
+  "Jan Rauch: HTTP Error 404: Not Found",
+  "Patchouli: HTTP Error 404: Not Found",
+  "RedPig: HTTP Error 404: Not Found",
+  "DigiTec: HTTP Error 404: Not Found",
+  "Gohar Khan: HTTP Error 404: Not Found"
+ ],
+ "dropped": {
+  "short": 0,
+  "live": 0,
+  "filtered": 0
+ },
+ "new": 0,
+ "total": 5
+}
