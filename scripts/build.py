@@ -365,16 +365,43 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
     data = _initial_data(page)
     name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
             or next(iter(_walk(data, "pageTitle")), ""))
-    out = _parse_video_items(data)
-    if not out:
-        raise ValueError("no videos found on page")
-    seen = {v["id"] for v in out}
     m = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', page)
     version = m.group(1) if m else "2.20251101.00.00"
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
     endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
-    token = _continuation(data)
-    dbg = {"cid": channel_id, "first_page": len(out), "token": bool(token), "client": version}
+    ctx = {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}}
+
+    # Use the *Videos* tab's own grid: the page may also hold Home-shelf
+    # content and continuation tokens that lead elsewhere.
+    grid, tab_state = data, "whole-page"
+    for tab in _walk(data, "tabRenderer"):
+        url = (tab.get("endpoint", {}).get("commandMetadata", {}).get("webCommandMetadata", {}).get("url") or "")
+        if not (url.endswith("/videos") or tab.get("title") == "Videos"):
+            continue
+        if tab.get("selected") and tab.get("content"):
+            grid, tab_state = tab["content"], "videos-tab"
+        else:
+            params = tab.get("endpoint", {}).get("browseEndpoint", {}).get("params")
+            if params:
+                grid = http_post_json(endpoint, {"context": ctx, "browseId": channel_id, "params": params})
+                tab_state = "videos-tab-browsed"
+        break
+    out = _parse_video_items(grid)
+    if not out and grid is not data:
+        out, tab_state = _parse_video_items(data), tab_state + "+fallback"
+    if not out:
+        raise ValueError("no videos found on page")
+    seen = {v["id"] for v in out}
+
+    def grid_token(node):
+        for cir in _walk(node, "continuationItemRenderer"):
+            t = _continuation(cir)
+            if t:
+                return t
+        return None
+
+    token = grid_token(grid)
+    dbg = {"cid": channel_id, "first_page": len(out), "token": bool(token), "client": version, "tab": tab_state}
     if not token and len(ARCHIVE_DEBUG) < 4:
         i = page.find("continuation")
         dbg["page_snippet"] = page[max(0, i - 300): i + 300] if i >= 0 else "no 'continuation' in page"
@@ -382,9 +409,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
     while token and fetched < pages:
         time.sleep(0.4)  # be gentle
         try:
-            resp = http_post_json(endpoint, {
-                "context": {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}},
-                "continuation": token})
+            resp = http_post_json(endpoint, {"context": ctx, "continuation": token})
         except Exception as e:  # noqa: BLE001
             dbg["post_error"] = str(e)[:300]
             break
@@ -396,7 +421,7 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
             break
         seen.update(v["id"] for v in items)
         out.extend(items)
-        token = _continuation(resp)
+        token = grid_token(resp)
     dbg["pages"] = fetched
     dbg["videos"] = len(out)
     if len(ARCHIVE_DEBUG) < 6:
