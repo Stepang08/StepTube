@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StepTube</title>
+<meta name="description" content="A calm, hand-curated video library. No algorithm, no feed, no Shorts.">
+<meta name="theme-color" content="#1c1b18" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%238a9a84'/><path d='M12 9v14l11-7z' fill='%231c1b18'/></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="#/" aria-label="StepTube home">step<span>tube</span></a>
+    <form class="search" role="search" onsubmit="return false">
+      <input id="q" type="search" placeholder="Search your library  ( / )" autocomplete="off" spellcheck="false" aria-label="Search">
+    </form>
+    <nav class="me" aria-label="Your lists">
+      <a href="#/later" data-nav="later">Later</a>
+      <a href="#/liked" data-nav="liked">Liked</a>
+      <a href="#/history" data-nav="history">History</a>
+      <a href="#/settings" data-nav="settings" aria-label="Settings">⚙</a>
+    </nav>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Topics"></nav>
+</header>
+
+<main id="main" tabindex="-1"></main>
+
+<footer class="foot">
+  <span id="meta"></span>
+  <span><button class="link" id="helpBtn">Keyboard shortcuts <kbd>?</kbd></button></span>
+</footer>
+
+<dialog id="help">
+  <h2>Keyboard</h2>
+  <dl class="keys">
+    <dt><kbd>/</kbd></dt><dd>Search</dd>
+    <dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>Next / previous video</dd>
+    <dt><kbd>Enter</kbd> / <kbd>o</kbd></dt><dd>Open selected</dd>
+    <dt><kbd>w</kbd></dt><dd>Toggle Watch later</dd>
+    <dt><kbd>l</kbd></dt><dd>Toggle Like</dd>
+    <dt><kbd>x</kbd></dt><dd>Mark watched / unwatched</dd>
+    <dt><kbd>1</kbd>–<kbd>9</kbd></dt><dd>Jump to topic (0 = New)</dd>
+    <dt><kbd>g</kbd> then <kbd>l</kbd>/<kbd>h</kbd>/<kbd>c</kbd>/<kbd>s</kbd></dt><dd>Later / History / Channels / Settings</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Back / close</dd>
+  </dl>
+  <form method="dialog"><button>Close</button></form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

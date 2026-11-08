@@ -1,0 +1,70 @@
+# StepTube seed channels
+# ----------------------
+# This file IS the algorithm. Only channels listed here ever show up.
+#
+# Each entry needs a topic and EITHER a `handle` (the @name in the channel URL)
+# OR a `channel_id` (the UC... id). Handles are resolved automatically during
+# the nightly build and cached in site/data/channel_ids.json.
+#
+# Optional per-channel keys:
+#   min_minutes: 10       # skip videos shorter than this (needs duration data; ignored if unknown)
+#   include: ["lecture"]  # keep ONLY videos whose title contains one of these words
+#   exclude: ["podcast"]  # drop videos whose title contains any of these words
+#
+# Topics shown as tabs on the site (order matters):
+topics:
+  ai: "AI & ML"
+  code: "Programming & Systems"
+  science: "Science & Math"
+  business: "Startups, Business & History"
+
+channels:
+  # --- AI & ML -------------------------------------------------------------
+  - { handle: AndrejKarpathy,        topic: ai }
+  - { handle: 3blue1brown,           topic: science }
+  - { handle: YannicKilcher,         topic: ai }
+  - { handle: TwoMinutePapers,       topic: ai }
+  - { handle: umarjamilai,           topic: ai }
+  - { handle: statquest,             topic: ai }
+  - { handle: WelchLabsVideo,        topic: ai }
+  - { handle: aiexplained-official,  topic: ai }
+  - { handle: GoogleDeepMind,        topic: ai }
+  - { handle: anthropic-ai,          topic: ai }
+  - { handle: DwarkeshPatel,         topic: ai }
+  - { handle: stanfordonline,        topic: ai, include: ["lecture", "cs", "stanford"] }
+
+  # --- Programming & Systems ----------------------------------------------
+  - { handle: Computerphile,         topic: code }
+  - { handle: BenEater,              topic: code }
+  - { handle: SebastianLague,        topic: code }
+  - { handle: jonhoo,                topic: code }
+  - { handle: TsodingDaily,          topic: code }
+  - { handle: CoreDumpped,           topic: code }
+  - { handle: StrangeLoopConf,       topic: code }
+  - { handle: GOTO-,                 topic: code }
+  - { handle: CppCon,                topic: code }
+  - { handle: mitocw,                topic: code }
+
+  # --- Science & Math -----------------------------------------------------
+  - { handle: veritasium,            topic: science }
+  - { handle: pbsspacetime,          topic: science }
+  - { handle: numberphile,           topic: science }
+  - { handle: standupmaths,          topic: science }
+  - { handle: Mathologer,            topic: science }
+  - { handle: minutephysics,         topic: science }
+  - { handle: smartereveryday,       topic: science }
+  - { handle: PracticalEngineeringChannel, topic: science }
+  - { handle: sabinehossenfelder,    topic: science }
+  - { handle: QuantaScienceChannel,  topic: science }
+
+  # --- Startups, Business & History ---------------------------------------
+  - { handle: ycombinator,           topic: business }
+  - { handle: Asianometry,           topic: business }
+  - { handle: AcquiredFM,            topic: business }
+  - { handle: a16z,                  topic: business }
+  - { handle: ModernMBA,             topic: business }
+  - { handle: RealEngineering,       topic: business }
+  - { handle: CompanyMan,            topic: business }
+
+  # --- Your channels go here (add from your subscriptions) ----------------
+  # - { handle: SomeChannel, topic: ai }

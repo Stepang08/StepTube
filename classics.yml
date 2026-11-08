@@ -1,0 +1,10 @@
+# Evergreen videos: pinned forever, regardless of channel feeds.
+# Add any video you want permanently in your library.
+#   - { id: VIDEO_ID, topic: ai, title: "Optional title", channel: "Optional channel" }
+# Missing titles/channels are filled in automatically during the build.
+videos:
+  - { id: kCc8FmEb1nY, topic: ai, title: "Let's build GPT: from scratch, in code, spelled out.", channel: "Andrej Karpathy" }
+  - { id: VMj-3S1tku0, topic: ai, title: "The spelled-out intro to neural networks and backpropagation: building micrograd", channel: "Andrej Karpathy" }
+  - { id: zjkBMFhNj_g, topic: ai, title: "[1hr Talk] Intro to Large Language Models", channel: "Andrej Karpathy" }
+  - { id: 7xTGNNLPyMI, topic: ai, title: "Deep Dive into LLMs like ChatGPT", channel: "Andrej Karpathy" }
+  - { id: aircAruvnKk, topic: ai, title: "But what is a neural network?", channel: "3Blue1Brown" }
