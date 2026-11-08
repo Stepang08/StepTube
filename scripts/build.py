@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import collections
 import concurrent.futures as cf
 import datetime as dt
 import html
@@ -47,7 +48,7 @@ NS = {
     "media": "http://search.yahoo.com/mrss/",
 }
 
-MAX_PER_CHANNEL = 300   # library cap per channel (oldest dropped first)
+MAX_PER_CHANNEL = 1000  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
 # --------------------------------------------------------------------------
@@ -296,6 +297,22 @@ def _initial_data(page: str) -> dict:
     return json.JSONDecoder().raw_decode(page, m.end())[0]
 
 
+_VIEWS = re.compile(r"([\d.,]+)\s*([KMB]?)\s*views?", re.I)
+
+
+def parse_views(text: str) -> int | None:
+    """'1,234 views' / '12K views' / '1.2M views' -> int (None if absent)."""
+    m = _VIEWS.search(text or "")
+    if not m:
+        return None
+    num, suf = m.group(1), m.group(2).upper()
+    try:
+        val = float(num.replace(",", "")) if not suf else float(num.replace(",", "."))
+    except ValueError:
+        return None
+    return int(val * {"": 1, "K": 1e3, "M": 1e6, "B": 1e9}[suf])
+
+
 def _parse_video_items(node) -> list[dict]:
     """Pull video entries out of any chunk of ytInitialData / browse response."""
     out, seen = [], set()
@@ -314,6 +331,7 @@ def _parse_video_items(node) -> list[dict]:
             "published": rel_to_iso(pub),
             "href": f"https://www.youtube.com/watch?v={vid}",
             "views": 0 if (live_now or upcoming or not pub) else 1,
+            "view_count": parse_views(_txt(r.get("viewCountText"))),
             "desc": _txt(r.get("descriptionSnippet")),
             "approx_date": True,
         })
@@ -326,15 +344,27 @@ def _parse_video_items(node) -> list[dict]:
         title = meta.get("title", {}).get("content", "")
         parts = [p.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for p in (p or [])]
         pub = next((p for p in parts if "ago" in p), "")
+        views = next((parse_views(p) for p in parts if "view" in p.lower()), None)
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
-                    "desc": "", "approx_date": True})
+                    "view_count": views, "desc": "", "approx_date": True})
     return out
 
 
 def _continuation(node) -> str | None:
-    toks = [c.get("token") for c in _walk(node, "continuationCommand") if isinstance(c, dict) and c.get("token")]
-    return toks[-1] if toks else None
+    """The paging token of a video list: the continuationItemRenderer that is
+    the *last entry* of the grid (richGridRenderer.contents / gridRenderer.items)
+    or of a continuation response's continuationItems. Tokens nested deeper
+    (shelves, Home tab, menus) are never followed."""
+    lists = ([g.get("contents") for g in _walk(node, "richGridRenderer")] +
+             [g.get("items") for g in _walk(node, "gridRenderer")] +
+             list(_walk(node, "continuationItems")))
+    for lst in lists:
+        if isinstance(lst, list) and lst and "continuationItemRenderer" in lst[-1]:
+            for c in _walk(lst[-1], "continuationCommand"):
+                if isinstance(c, dict) and c.get("token"):
+                    return c["token"]
+    return None
 
 
 def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
@@ -354,13 +384,27 @@ def http_post_json(url: str, payload: dict, retries: int = 3) -> dict:
 
 
 ARCHIVE_DEBUG: list = []
+_VIDEOS_URL = re.compile(r"/videos/?(?:[?#].*)?$")
+
+
+def _videos_tab(data: dict) -> dict | None:
+    for tab in _walk(data, "tabRenderer"):
+        ep = tab.get("endpoint", {})
+        url = ep.get("commandMetadata", {}).get("webCommandMetadata", {}).get("url") or ""
+        if _VIDEOS_URL.search(url) or tab.get("title") == "Videos":
+            return tab
+    return None
 
 
 def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None) -> tuple[str, list[dict]]:
     """Parse https://www.youtube.com/channel/<id>/videos (Shorts live on a
     separate tab, so they never appear here). With pages > 1, keep scrolling
     the list through YouTube's public web 'browse' endpoint, the same request
-    the site makes when you scroll; no API key of ours is involved."""
+    the site makes when you scroll; no API key of ours is involved.
+
+    Paging only ever follows the Videos tab's own grid token. If that grid
+    can't be located, we return the first page and report the archive as
+    incomplete rather than following an unrelated token."""
     page = http_get(f"https://www.youtube.com/channel/{channel_id}/videos?hl=en&gl=US")
     data = _initial_data(page)
     name = (data.get("metadata", {}).get("channelMetadataRenderer", {}).get("title")
@@ -370,43 +414,38 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
     endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
     ctx = {"client": {"clientName": "WEB", "clientVersion": version, "hl": "en", "gl": "US"}}
+    dbg: dict = {"cid": channel_id, "client": version}
 
-    # Use the *Videos* tab's own grid: the page may also hold Home-shelf
-    # content and continuation tokens that lead elsewhere.
-    grid, tab_state = data, "whole-page"
-    for tab in _walk(data, "tabRenderer"):
-        url = (tab.get("endpoint", {}).get("commandMetadata", {}).get("webCommandMetadata", {}).get("url") or "")
-        if not (url.endswith("/videos") or tab.get("title") == "Videos"):
-            continue
-        if tab.get("selected") and tab.get("content"):
-            grid, tab_state = tab["content"], "videos-tab"
-        else:
-            params = tab.get("endpoint", {}).get("browseEndpoint", {}).get("params")
-            if params:
+    grid = None  # the node we both parse items from and take the paging token from
+    tab = _videos_tab(data)
+    if tab and tab.get("selected") and tab.get("content"):
+        grid, dbg["tab"] = tab["content"], "videos-tab"
+    elif tab and pages > 1:
+        # Only worth an extra request when we intend to page.
+        params = tab.get("endpoint", {}).get("browseEndpoint", {}).get("params")
+        if params:
+            try:
                 grid = http_post_json(endpoint, {"context": ctx, "browseId": channel_id, "params": params})
-                tab_state = "videos-tab-browsed"
-        break
-    out = _parse_video_items(grid)
-    if not out and grid is not data:
-        out, tab_state = _parse_video_items(data), tab_state + "+fallback"
+                dbg["tab"] = "videos-tab-browsed"
+            except Exception as e:  # noqa: BLE001
+                dbg["tab_error"] = str(e)[:200]
+    out = _parse_video_items(grid) if grid is not None else []
+    pageable = bool(out)
+    if not out:
+        # Whole-page fallback: fine for "latest uploads", never used for paging.
+        out = _parse_video_items(data)
+        dbg["tab"] = dbg.get("tab", "none") + "+whole-page"
     if not out:
         raise ValueError("no videos found on page")
     seen = {v["id"] for v in out}
 
-    def grid_token(node):
-        for cir in _walk(node, "continuationItemRenderer"):
-            t = _continuation(cir)
-            if t:
-                return t
-        return None
-
-    token = grid_token(grid)
-    dbg = {"cid": channel_id, "first_page": len(out), "token": bool(token), "client": version, "tab": tab_state}
-    if not token and len(ARCHIVE_DEBUG) < 4:
-        i = page.find("continuation")
-        dbg["page_snippet"] = page[max(0, i - 300): i + 300] if i >= 0 else "no 'continuation' in page"
+    token = _continuation(grid) if pageable else None
+    dbg.update(first_page=len(out), token=bool(token))
+    if pageable and not token and len(ARCHIVE_DEBUG) < 4:
+        items = next(iter(_walk(grid, "contents")), None)
+        dbg["grid_tail_keys"] = [list(x)[:3] for x in items[-3:]] if isinstance(items, list) else repr(type(items))
     fetched = 1
-    while token and fetched < pages:
+    while token and fetched < pages and len(out) < MAX_PER_CHANNEL:
         time.sleep(0.4)  # be gentle
         try:
             resp = http_post_json(endpoint, {"context": ctx, "continuation": token})
@@ -417,21 +456,18 @@ def scrape_videos_tab(channel_id: str, pages: int = 1, info: dict | None = None)
         fetched += 1
         if not items:
             dbg["empty_response_keys"] = list(resp)[:10]
-            dbg["empty_response_sample"] = json.dumps(resp)[:600]
             break
         seen.update(v["id"] for v in items)
         out.extend(items)
-        token = grid_token(resp)
-    dbg["pages"] = fetched
-    dbg["videos"] = len(out)
+        token = _continuation(resp)
+    dbg.update(pages=fetched, videos=len(out))
     if len(ARCHIVE_DEBUG) < 6:
         ARCHIVE_DEBUG.append(dbg)
     if info is not None:
-        # Complete = we really reached the end of the list (or the cap), not a parsing dead end.
-        info["complete"] = (len(out) >= MAX_PER_CHANNEL or
-                            (token is None and "post_error" not in dbg and "empty_response_keys" not in dbg
-                             and (fetched > 1 or len(out) < 30)))
-    return name, out
+        # Complete = the list really ended (or we hit the cap), not a dead end.
+        clean = not any(k in dbg for k in ("post_error", "empty_response_keys", "tab_error"))
+        info["complete"] = pageable and clean and (len(out) >= MAX_PER_CHANNEL or token is None)
+    return name, out[:MAX_PER_CHANNEL]
 
 
 def snippet(desc: str) -> str:
@@ -531,12 +567,24 @@ def main() -> int:
                                   "topic": c["topic"], "cid": c.get("cid")}
 
     feeds: dict[str, tuple[str, list[dict]]] = {}
-    backfill: dict[str, str] = load_json(BACKFILL_JSON, {})
+    # backfill.json: {channel key: {"cid": ..., "cap": cap used, "n": videos fetched}}
+    # (legacy entries were a bare channel-id string, fetched under a cap of 300).
+    have = collections.Counter(v.get("ch") for v in library.values())
+    backfill: dict[str, dict] = {k: (v if isinstance(v, dict) else {"cid": v, "cap": 300, "n": 300 if have.get(k, 0) >= 270 else have.get(k, 0)})
+                                 for k, v in load_json(BACKFILL_JSON, {}).items()}
+
+    def needs_archive(c) -> bool:
+        b = backfill.get(c["key"])
+        if not b or b.get("cid") != c["cid"]:
+            return True
+        # Re-fetch channels that were cut off by a smaller cap than today's.
+        return b.get("cap", 0) < MAX_PER_CHANNEL and b.get("n", 0) >= b.get("cap", 0)
+
     archive_pages = max(1, -(-MAX_PER_CHANNEL // 30))  # ~30 videos per page
     report["archived"] = []
     if not args.offline:
         live = [c for c in chans if c.get("cid")]
-        todo_archive = {c["key"] for c in live if backfill.get(c["key"]) != c["cid"]}
+        todo_archive = {c["key"] for c in live if needs_archive(c)}
         if args.max_archives is not None:
             todo_archive = set(sorted(todo_archive)[: args.max_archives])
 
@@ -556,7 +604,7 @@ def main() -> int:
         with cf.ThreadPoolExecutor(args.workers) as ex:
             for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
                 if archived:
-                    backfill[key] = c_["cid"]
+                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1])}
                     report["archived"].append(f"{key}: {len(res[1])}")
                     print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):
@@ -616,6 +664,7 @@ def main() -> int:
             "p": (library.get(e["id"], {}).get("p") if e.get("approx_date") and library.get(e["id"], {}).get("p")
                   else e["published"][:10]),
             "d": snippet(e["desc"]),
+            **({"vc": e["view_count"]} if e.get("view_count") else {}),
             **({"cb": 1} if is_clickbait(e["title"]) else {}),
         }
         if not is_clickbait(e["title"]):
