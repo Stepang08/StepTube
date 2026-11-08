@@ -1,75 +1,101 @@
 {
  "resolved": [],
  "unresolved": [],
- "feed_errors": [
-  "Young&&Yandex: rss: HTTP Error 404: Not Found; rss: HTTP Error 404: Not Found; page: no ytInitialData",
-  "statquest: rss: HTTP Error 404: Not Found; rss: HTTP Error 404: Not Found; page: no ytInitialData"
- ],
+ "feed_errors": [],
  "dropped": {
-  "short": 18,
-  "live": 31,
-  "filtered": 2
+  "short": 239,
+  "live": 21,
+  "filtered": 5
  },
- "new": 35,
+ "new": 10829,
  "archived": [
-  "\u041b\u044e\u0442\u0430\u044f \u0444\u0438\u0437\u0438\u043a\u0430: 65"
+  "YannicKilcher: 467",
+  "TwoMinutePapers: 1000",
+  "ritvikmath: 517",
+  "Deep Learning School: 294",
+  "Young&&Yandex: 1000",
+  "GoogleDeepMind: 385",
+  "BrightSideofMaths: 1000",
+  "TheMathSorcerer: 1000",
+  "MichaelPennMath: 1000",
+  "Thinking In Math: 378",
+  "letsthinkcritically: 327",
+  "\u0540\u0561\u0574\u0561\u056c\u057d\u0561\u0580\u0561\u0576\u0561\u056f\u0561\u0576 \u0574\u0561\u0569\u0565\u0574\u0561\u057f\u056b\u056f\u0561: 433",
+  "\u041c\u0430\u0442\u043a\u0443\u043b\u044c\u0442-\u043f\u0440\u0438\u0432\u0435\u0442! :: \u0410\u043b\u0435\u043a\u0441\u0435\u0439 \u0421\u0430\u0432\u0432\u0430\u0442\u0435\u0435\u0432: 727",
+  "\u0422-\u041e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435: 490",
+  "\u0411\u043e\u0440\u0438\u0441 \u0422\u0440\u0443\u0448\u0438\u043d: 690",
+  "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u0430\u0440\u043d\u0430\u044f \u041c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430: 334",
+  "numberphile: 823",
+  "TechWithTim: 1000",
+  "freecodecamp: 1000",
+  "IBMTechnology: 1000",
+  "Computerphile: 929",
+  "SebastianLague: 297",
+  "veritasium: 453",
+  "tibees: 286",
+  "pbsspacetime: 448",
+  "ycombinator: 673",
+  "Asianometry: 719",
+  "Harvard Business Review: 383",
+  "Learn English With TV Series: 690",
+  "\u0540\u0561\u0575\u0580 \u0544\u056b\u0584\u0561\u0575\u0565\u056c Hayr Miqayel: 1000"
  ],
- "total": 15981,
+ "total": 26810,
  "pub_samples": [],
  "archive_debug": [
   {
-   "cid": "UCfsH7DO5n7N5Mup_oxwKMDQ",
-   "first_page": 30,
-   "token": true,
+   "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
    "client": "2.20261105.05.01",
    "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
+   "first_page": 30,
+   "token": true,
+   "pages": 10,
+   "videos": 294
   },
   {
-   "cid": "UCR2uRTQ53V_egXKFflMMaaw",
-   "first_page": 30,
-   "token": true,
+   "cid": "UCP7jMXSY2xbc3KCAE0MHQ-A",
    "client": "2.20261105.05.01",
    "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
-  },
-  {
-   "cid": "UCUcpVoi5KkJmnE3bvEhHR0Q",
    "first_page": 30,
    "token": true,
-   "client": "2.20261105.05.01",
-   "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
+   "pages": 13,
+   "videos": 385
   },
   {
    "cid": "UCZHmQk67mSJgfCCTn7xBfew",
-   "first_page": 30,
-   "token": true,
    "client": "2.20261105.05.01",
    "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
+   "first_page": 30,
+   "token": true,
+   "pages": 16,
+   "videos": 467
   },
   {
-   "cid": "UConVfxXodg78Tzh5nNu85Ew",
-   "first_page": 30,
-   "token": true,
+   "cid": "UCUcpVoi5KkJmnE3bvEhHR0Q",
    "client": "2.20261105.05.01",
    "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
+   "first_page": 30,
+   "token": true,
+   "pages": 18,
+   "videos": 517
   },
   {
-   "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
-   "first_page": 30,
-   "token": true,
+   "cid": "UCT-QRRiYoza5rRDCKNdYdhg",
    "client": "2.20261105.05.01",
    "tab": "videos-tab",
-   "pages": 1,
-   "videos": 30
+   "first_page": 30,
+   "token": true,
+   "pages": 11,
+   "videos": 327
+  },
+  {
+   "cid": "UC5uV1LcSkHL5zCxKBikdTEg",
+   "client": "2.20261105.05.01",
+   "tab": "videos-tab",
+   "first_page": 30,
+   "token": true,
+   "pages": 13,
+   "videos": 378
   }
  ]
 }

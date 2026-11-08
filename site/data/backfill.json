@@ -1,104 +1,517 @@
 {
- "3blue1brown": "UCYO_jab_esuFRV4b17AJtAw",
- "AcquiredFM": "UCyFqFYfTW2VoIQKylJ04Rtw",
- "AndrejKarpathy": "UCXUPKJO5MZQN11PqgIvyuvQ",
- "ArtemKirsanov": "UCR2uRTQ53V_egXKFflMMaaw",
- "Asianometry": "UC1LpsuAUaKoMzzJSEt5WImw",
- "BenEater": "UCS0N5baNlQWJCUrhCEo8WlA",
- "Boppana Math": "UCN9CBC4dh9tdAgAKCQOzrXg",
- "BrightSideofMaths": "UCdwo4k1RQHTcq_-WS7Cazqg",
- "Computerphile": "UC9-y-6csu5WGm29I7JiwpnA",
- "CoreDumpped": "UCGKEMK3s-ZPbjVOIuAV8clQ",
- "Creative Math Problems": "UCfVApS9lD-I3A0QTsm1XoPw",
- "Dedekind cuts": "UCVrSVkLq5HHVYbwgA9Nt8HQ",
- "Deep Learning School": "UCFTNoZYjkg-3LZTHrHfV1nQ",
- "DigiTec": "UCJxIyj5KsFsxYXyOhd16wuw",
- "Dima Shvetsov": "UCTQCppqdK0tVeNEckLi6-RA",
- "Dr. Ebrahimian": "UCb0meJAASHH4nzJAbgiGBsw",
- "DwarkeshPatel": "UCXl4i9dYBrFOabk0xGmbkRA",
- "Ellie Sleightholm": "UCylqgu2ojsCxojFpQogowOA",
- "Errichto Algorithms": "UCBr_Fu6q9iHYQCh13jmpbrg",
- "GG Maths": "UCZWoiVVe1Zby5j1s5H9eI4A",
- "GoogleDeepMind": "UCP7jMXSY2xbc3KCAE0MHQ-A",
- "Hamiltonian": "UCp9Rg04-sACrSSl9kVbTE9g",
- "Harvard Business Review": "UCWo4IA01TXzBeGJJKWHOG9g",
- "IBMTechnology": "UCKWaEZ-_VweaEx1j62do_vQ",
- "Jan Rauch": "UCcTRcPDtfOF7VCGrrpUkylQ",
- "Koreez Contest": "UCXSN90LK5Z8eac9dM_1f_Cg",
- "Logic Unlocked": "UC2a7KIx9FNRhw0apeIOOkcw",
- "MLinside": "UCfsH7DO5n7N5Mup_oxwKMDQ",
- "Math from Alpha to Omega": "UC0B2PS3DGRaC8ARxgvMqR3g",
- "MathOlymp | Олимпиадная математика": "UCBVxM7-bXOXU9lVrCLivapQ",
- "Mathin": "UCvNjqNktxdfe44dZL1aap3w",
- "Mathologer": "UC1_uAIS3r8Vu6JjXWvastJg",
- "Maths OlympiadTrainer": "UC6qPsTzhBHA6LlvuQ2stSVg",
- "Matvey Merzlikin": "UCMXeKJu_RDw9J2-RPKrJL3A",
- "Metric - Python, Մաթեմատիկա, Մեքենայական ուսուցում": "UC5BavugdnUkti3Es7-deZDg",
- "Michael Greenberg": "UC3mhbGC7kQgzkXT9fceNOwA",
- "MichaelPennMath": "UC6jM0RFkr4eSkzT5Gx0HOAw",
- "Mohamed Omar": "UCSoVyBb75Mf9o_eZGuKa2HQ",
- "Mr. Math": "UC_hl3Y2jHHOKXuo4k5sVARA",
- "Mu Prime Math": "UCo8T0D8my1Hz5KoHCRYOAnQ",
- "Nice Math Problems": "UCL1MZd6c_e7DPEFo88z3EBg",
- "Odysseas": "UCQjBsscIa_mgEnSvWpm_9vw",
- "Olympiad Geometry": "UCrN-KzbGWHz6Y48dIfJTRRg",
- "Olympiad animations": "UC7m1pOqARAZfkS7AP9OnaRA",
- "OptionalProblem": "UChIFVu0mJZiI931hd2hZniA",
- "Patchouli": "UCecG6l0ZO7INzT-CQhvePoA",
- "PhysMathFriends": "UCNHJWy9MJ2YQ2Dne9OP9VCw",
- "Primus Mathematica": "UCpT6PKii9-v3Gev-N0z5Fwg",
- "QuantaScienceChannel": "UCTpmmkp1E4nmZqWPS-dl5bg",
- "RedPig": "UCBoH0u68QUCdGs9Ber_z1mQ",
- "Riemann": "UCMf3MweZ4M6poZ3mCf1SNIQ",
- "Rock Talk": "UCRFYsr9Soy70DOxyqIuuJiw",
- "Sean's AI Stories": "UCx-OfB7xsTN_GnoplitHfXg",
- "SebastianLague": "UCmtyQOKKmrMVaKuRXz02jbQ",
- "Shefs of Problem Solving": "UCGnDWH8_ClXegQkWnbzDnzA",
- "Sterudy": "UCnP12DrX8lF9liqudV8hsCA",
- "Tech Creators Lab": "UCRmSZlMJKqwzg-lSl6hlSDg",
- "TechWithTim": "UC4JX40jDee_tINbkjycV4Sg",
- "TheMathSorcerer": "UCr7lmzIk63PZnBw3bezl-Mg",
- "Think Twice": "UCl_j3znImX5RzV_ocDwYAlQ",
- "Thinking In Math": "UC5uV1LcSkHL5zCxKBikdTEg",
- "TwoMinutePapers": "UCbfYPyITQ-7l4upoX8nvctg",
- "Upsampled": "UC3_ngL2eLA2o0TtFlG4WQ1g",
- "Welch Labs": "UConVfxXodg78Tzh5nNu85Ew",
- "Wild Mathing": "UCj0Od_id0gPbmwZ65U8xwrw",
- "YannicKilcher": "UCZHmQk67mSJgfCCTn7xBfew",
- "Young&&Yandex": "UCYtojgaSgXZWIIrYHbIgZ_Q",
- "anthropic-ai": "UCrDwWp7EBBv4NwvScIpBDOA",
- "freecodecamp": "UC8butISFwT-Wl7EV0hUK0BQ",
- "jonhoo": "UC_iD0xppBwwsrM9DegC5cQQ",
- "letsthinkcritically": "UCT-QRRiYoza5rRDCKNdYdhg",
- "little fermat": "UC3TFJRjKrW6yCCLJcgRhFBg",
- "mattpocockuk": "UCswG6FSbgZjbWtdf_hMLaow",
- "numberphile": "UCoxcjq-8xIDTYp3uz647V5A",
- "pbsspacetime": "UC7_gcs09iThXybpVgjHZ_7g",
- "ritvikmath": "UCUcpVoi5KkJmnE3bvEhHR0Q",
- "stanfordonline": "UCBa5G_ESCn8Yd4vw5U-gIcg",
- "statquest": "UCtYLUTtgS3k1Fg4y5tAhLbw",
- "tibees": "UC52kszkc08-acFOuogFl5jw",
- "umarjamilai": "UCtAcpQcYerN8xxZJYTfWBMw",
- "veritasium": "UCHnyfMqiRRG1u-2MsSQLbXA",
- "ycombinator": "UCcefcZRL2oaA_uBNeo5UOWg",
- "Альфа-частица": "UC2Ii5sVVBztUpSn_ul-d5eQ",
- "Андрей Кушнир": "UCSB2cZogAtsDcwBIr0oHMhQ",
- "Борис Трушин": "UCo2JwjPSEc9U8ZJ_KQi6rDQ",
- "Видеозаписи МЦНМО": "UCtUJwoYzwI1XP2FIkQaQygA",
- "Виктор Прасолов": "UCAfUJDJGmnMxM2tiU-LZoFw",
- "Глеб Орел - Олимпиадный Препод по Физике": "UCx_E5DQIZJo3SSxDhmjD25g",
- "Дабромат | Олимпиадная математика": "UC_dRAIjytb-g10UCvBf_2cg",
- "Дмитрий Белов. Олимпиадная математика": "UCw5rmyPmaroYt2xCKy6Pi5w",
- "Лютая физика": "UCPEnobVMlQ20f1KPV3RZ4oA",
- "МТ кружки": "UCodqqRyYt-liwuNXEV4L_0g",
- "Математика | Alles": "UCJxyiaxeHvLkRRJmtyidywQ",
- "Маткульт-привет! :: Алексей Савватеев": "UCWk8OxsylgmZ_VgY7jC9pjQ",
- "Онлайн Уроки": "UCBNsaEaA4ddwc6GK6uFiMDQ",
- "Т-Образование": "UCw2ORfEOUoEe-MNgCCm0aoQ",
- "ФИЗМАТОВЕЦ": "UCcCrptM0EWMECJC3jH3yHxA",
- "Физтех-лицей онлайн": "UCEPZ7gyAqGRuVGBAxerg0VA",
- "Фулл и точка": "UCFmbny7qvlsHO9ARmczOPCg",
- "Элементарная Математика": "UC9mZMNP_0WtTE5ByDYFupOQ",
- "Համալսարանական մաթեմատիկա": "UCMFONp28jEDHXDBWJyRVYcA",
- "Հայր Միքայել Hayr Miqayel": "UCvIOGcM59FMwsNIbYFQogBA"
+ "3blue1brown": {
+  "cid": "UCYO_jab_esuFRV4b17AJtAw",
+  "cap": 300,
+  "n": 153
+ },
+ "AcquiredFM": {
+  "cid": "UCyFqFYfTW2VoIQKylJ04Rtw",
+  "cap": 300,
+  "n": 96
+ },
+ "AndrejKarpathy": {
+  "cid": "UCXUPKJO5MZQN11PqgIvyuvQ",
+  "cap": 300,
+  "n": 17
+ },
+ "ArtemKirsanov": {
+  "cid": "UCR2uRTQ53V_egXKFflMMaaw",
+  "cap": 300,
+  "n": 51
+ },
+ "Asianometry": {
+  "cid": "UC1LpsuAUaKoMzzJSEt5WImw",
+  "cap": 1000,
+  "n": 719
+ },
+ "BenEater": {
+  "cid": "UCS0N5baNlQWJCUrhCEo8WlA",
+  "cap": 300,
+  "n": 135
+ },
+ "Boppana Math": {
+  "cid": "UCN9CBC4dh9tdAgAKCQOzrXg",
+  "cap": 300,
+  "n": 12
+ },
+ "BrightSideofMaths": {
+  "cid": "UCdwo4k1RQHTcq_-WS7Cazqg",
+  "cap": 1000,
+  "n": 1000
+ },
+ "Computerphile": {
+  "cid": "UC9-y-6csu5WGm29I7JiwpnA",
+  "cap": 1000,
+  "n": 929
+ },
+ "CoreDumpped": {
+  "cid": "UCGKEMK3s-ZPbjVOIuAV8clQ",
+  "cap": 300,
+  "n": 51
+ },
+ "Creative Math Problems": {
+  "cid": "UCfVApS9lD-I3A0QTsm1XoPw",
+  "cap": 300,
+  "n": 22
+ },
+ "Dedekind cuts": {
+  "cid": "UCVrSVkLq5HHVYbwgA9Nt8HQ",
+  "cap": 300,
+  "n": 184
+ },
+ "Deep Learning School": {
+  "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
+  "cap": 1000,
+  "n": 294
+ },
+ "DigiTec": {
+  "cid": "UCJxIyj5KsFsxYXyOhd16wuw",
+  "cap": 300,
+  "n": 131
+ },
+ "Dima Shvetsov": {
+  "cid": "UCTQCppqdK0tVeNEckLi6-RA",
+  "cap": 300,
+  "n": 75
+ },
+ "Dr. Ebrahimian": {
+  "cid": "UCb0meJAASHH4nzJAbgiGBsw",
+  "cap": 300,
+  "n": 266
+ },
+ "DwarkeshPatel": {
+  "cid": "UCXl4i9dYBrFOabk0xGmbkRA",
+  "cap": 300,
+  "n": 215
+ },
+ "Ellie Sleightholm": {
+  "cid": "UCylqgu2ojsCxojFpQogowOA",
+  "cap": 300,
+  "n": 121
+ },
+ "Errichto Algorithms": {
+  "cid": "UCBr_Fu6q9iHYQCh13jmpbrg",
+  "cap": 300,
+  "n": 121
+ },
+ "GG Maths": {
+  "cid": "UCZWoiVVe1Zby5j1s5H9eI4A",
+  "cap": 300,
+  "n": 65
+ },
+ "GoogleDeepMind": {
+  "cid": "UCP7jMXSY2xbc3KCAE0MHQ-A",
+  "cap": 1000,
+  "n": 385
+ },
+ "Hamiltonian": {
+  "cid": "UCp9Rg04-sACrSSl9kVbTE9g",
+  "cap": 300,
+  "n": 5
+ },
+ "Harvard Business Review": {
+  "cid": "UCWo4IA01TXzBeGJJKWHOG9g",
+  "cap": 1000,
+  "n": 383
+ },
+ "IBMTechnology": {
+  "cid": "UCKWaEZ-_VweaEx1j62do_vQ",
+  "cap": 1000,
+  "n": 1000
+ },
+ "Jan Rauch": {
+  "cid": "UCcTRcPDtfOF7VCGrrpUkylQ",
+  "cap": 300,
+  "n": 213
+ },
+ "Koreez Contest": {
+  "cid": "UCXSN90LK5Z8eac9dM_1f_Cg",
+  "cap": 300,
+  "n": 47
+ },
+ "Learn English With TV Series": {
+  "cid": "UCKgpamMlm872zkGDcBJHYDg",
+  "cap": 1000,
+  "n": 690
+ },
+ "Logic Unlocked": {
+  "cid": "UC2a7KIx9FNRhw0apeIOOkcw",
+  "cap": 300,
+  "n": 102
+ },
+ "MLinside": {
+  "cid": "UCfsH7DO5n7N5Mup_oxwKMDQ",
+  "cap": 300,
+  "n": 163
+ },
+ "Math from Alpha to Omega": {
+  "cid": "UC0B2PS3DGRaC8ARxgvMqR3g",
+  "cap": 300,
+  "n": 25
+ },
+ "MathOlymp | Олимпиадная математика": {
+  "cid": "UCBVxM7-bXOXU9lVrCLivapQ",
+  "cap": 300,
+  "n": 128
+ },
+ "Mathin": {
+  "cid": "UCvNjqNktxdfe44dZL1aap3w",
+  "cap": 300,
+  "n": 51
+ },
+ "Mathologer": {
+  "cid": "UC1_uAIS3r8Vu6JjXWvastJg",
+  "cap": 300,
+  "n": 113
+ },
+ "Maths OlympiadTrainer": {
+  "cid": "UC6qPsTzhBHA6LlvuQ2stSVg",
+  "cap": 300,
+  "n": 117
+ },
+ "Matvey Merzlikin": {
+  "cid": "UCMXeKJu_RDw9J2-RPKrJL3A",
+  "cap": 300,
+  "n": 13
+ },
+ "Metric - Python, Մաթեմատիկա, Մեքենայական ուսուցում": {
+  "cid": "UC5BavugdnUkti3Es7-deZDg",
+  "cap": 300,
+  "n": 247
+ },
+ "Michael Greenberg": {
+  "cid": "UC3mhbGC7kQgzkXT9fceNOwA",
+  "cap": 300,
+  "n": 56
+ },
+ "MichaelPennMath": {
+  "cid": "UC6jM0RFkr4eSkzT5Gx0HOAw",
+  "cap": 1000,
+  "n": 1000
+ },
+ "Mohamed Omar": {
+  "cid": "UCSoVyBb75Mf9o_eZGuKa2HQ",
+  "cap": 300,
+  "n": 197
+ },
+ "Mr. Math": {
+  "cid": "UC_hl3Y2jHHOKXuo4k5sVARA",
+  "cap": 300,
+  "n": 15
+ },
+ "Mu Prime Math": {
+  "cid": "UCo8T0D8my1Hz5KoHCRYOAnQ",
+  "cap": 300,
+  "n": 248
+ },
+ "Nice Math Problems": {
+  "cid": "UCL1MZd6c_e7DPEFo88z3EBg",
+  "cap": 300,
+  "n": 45
+ },
+ "Odysseas": {
+  "cid": "UCQjBsscIa_mgEnSvWpm_9vw",
+  "cap": 300,
+  "n": 116
+ },
+ "Olympiad Geometry": {
+  "cid": "UCrN-KzbGWHz6Y48dIfJTRRg",
+  "cap": 300,
+  "n": 56
+ },
+ "Olympiad animations": {
+  "cid": "UC7m1pOqARAZfkS7AP9OnaRA",
+  "cap": 300,
+  "n": 9
+ },
+ "OptionalProblem": {
+  "cid": "UChIFVu0mJZiI931hd2hZniA",
+  "cap": 300,
+  "n": 107
+ },
+ "Patchouli": {
+  "cid": "UCecG6l0ZO7INzT-CQhvePoA",
+  "cap": 300,
+  "n": 71
+ },
+ "PhysMathFriends": {
+  "cid": "UCNHJWy9MJ2YQ2Dne9OP9VCw",
+  "cap": 300,
+  "n": 5
+ },
+ "Primus Mathematica": {
+  "cid": "UCpT6PKii9-v3Gev-N0z5Fwg",
+  "cap": 300,
+  "n": 33
+ },
+ "QuantaScienceChannel": {
+  "cid": "UCTpmmkp1E4nmZqWPS-dl5bg",
+  "cap": 300,
+  "n": 159
+ },
+ "RedPig": {
+  "cid": "UCBoH0u68QUCdGs9Ber_z1mQ",
+  "cap": 300,
+  "n": 63
+ },
+ "Riemann": {
+  "cid": "UCMf3MweZ4M6poZ3mCf1SNIQ",
+  "cap": 300,
+  "n": 14
+ },
+ "Rock Talk": {
+  "cid": "UCRFYsr9Soy70DOxyqIuuJiw",
+  "cap": 300,
+  "n": 6
+ },
+ "Sean's AI Stories": {
+  "cid": "UCx-OfB7xsTN_GnoplitHfXg",
+  "cap": 300,
+  "n": 101
+ },
+ "SebastianLague": {
+  "cid": "UCmtyQOKKmrMVaKuRXz02jbQ",
+  "cap": 1000,
+  "n": 297
+ },
+ "Shefs of Problem Solving": {
+  "cid": "UCGnDWH8_ClXegQkWnbzDnzA",
+  "cap": 300,
+  "n": 300
+ },
+ "Sterudy": {
+  "cid": "UCnP12DrX8lF9liqudV8hsCA",
+  "cap": 300,
+  "n": 7
+ },
+ "Tech Creators Lab": {
+  "cid": "UCRmSZlMJKqwzg-lSl6hlSDg",
+  "cap": 300,
+  "n": 13
+ },
+ "TechWithTim": {
+  "cid": "UC4JX40jDee_tINbkjycV4Sg",
+  "cap": 1000,
+  "n": 1000
+ },
+ "TheMathSorcerer": {
+  "cid": "UCr7lmzIk63PZnBw3bezl-Mg",
+  "cap": 1000,
+  "n": 1000
+ },
+ "Think Twice": {
+  "cid": "UCl_j3znImX5RzV_ocDwYAlQ",
+  "cap": 300,
+  "n": 196
+ },
+ "Thinking In Math": {
+  "cid": "UC5uV1LcSkHL5zCxKBikdTEg",
+  "cap": 1000,
+  "n": 378
+ },
+ "TwoMinutePapers": {
+  "cid": "UCbfYPyITQ-7l4upoX8nvctg",
+  "cap": 1000,
+  "n": 1000
+ },
+ "Upsampled": {
+  "cid": "UC3_ngL2eLA2o0TtFlG4WQ1g",
+  "cap": 300,
+  "n": 2
+ },
+ "Welch Labs": {
+  "cid": "UConVfxXodg78Tzh5nNu85Ew",
+  "cap": 300,
+  "n": 80
+ },
+ "Wild Mathing": {
+  "cid": "UCj0Od_id0gPbmwZ65U8xwrw",
+  "cap": 300,
+  "n": 141
+ },
+ "YannicKilcher": {
+  "cid": "UCZHmQk67mSJgfCCTn7xBfew",
+  "cap": 1000,
+  "n": 467
+ },
+ "Young&&Yandex": {
+  "cid": "UCYtojgaSgXZWIIrYHbIgZ_Q",
+  "cap": 1000,
+  "n": 1000
+ },
+ "anthropic-ai": {
+  "cid": "UCrDwWp7EBBv4NwvScIpBDOA",
+  "cap": 300,
+  "n": 147
+ },
+ "freecodecamp": {
+  "cid": "UC8butISFwT-Wl7EV0hUK0BQ",
+  "cap": 1000,
+  "n": 1000
+ },
+ "jonhoo": {
+  "cid": "UC_iD0xppBwwsrM9DegC5cQQ",
+  "cap": 300,
+  "n": 109
+ },
+ "letsthinkcritically": {
+  "cid": "UCT-QRRiYoza5rRDCKNdYdhg",
+  "cap": 1000,
+  "n": 327
+ },
+ "little fermat": {
+  "cid": "UC3TFJRjKrW6yCCLJcgRhFBg",
+  "cap": 300,
+  "n": 111
+ },
+ "mattpocockuk": {
+  "cid": "UCswG6FSbgZjbWtdf_hMLaow",
+  "cap": 300,
+  "n": 144
+ },
+ "numberphile": {
+  "cid": "UCoxcjq-8xIDTYp3uz647V5A",
+  "cap": 1000,
+  "n": 823
+ },
+ "pbsspacetime": {
+  "cid": "UC7_gcs09iThXybpVgjHZ_7g",
+  "cap": 1000,
+  "n": 448
+ },
+ "ritvikmath": {
+  "cid": "UCUcpVoi5KkJmnE3bvEhHR0Q",
+  "cap": 1000,
+  "n": 517
+ },
+ "stanfordonline": {
+  "cid": "UCBa5G_ESCn8Yd4vw5U-gIcg",
+  "cap": 300,
+  "n": 266
+ },
+ "statquest": {
+  "cid": "UCtYLUTtgS3k1Fg4y5tAhLbw",
+  "cap": 300,
+  "n": 264
+ },
+ "tibees": {
+  "cid": "UC52kszkc08-acFOuogFl5jw",
+  "cap": 1000,
+  "n": 286
+ },
+ "umarjamilai": {
+  "cid": "UCtAcpQcYerN8xxZJYTfWBMw",
+  "cap": 300,
+  "n": 25
+ },
+ "veritasium": {
+  "cid": "UCHnyfMqiRRG1u-2MsSQLbXA",
+  "cap": 1000,
+  "n": 453
+ },
+ "ycombinator": {
+  "cid": "UCcefcZRL2oaA_uBNeo5UOWg",
+  "cap": 1000,
+  "n": 673
+ },
+ "Альфа-частица": {
+  "cid": "UC2Ii5sVVBztUpSn_ul-d5eQ",
+  "cap": 300,
+  "n": 18
+ },
+ "Андрей Кушнир": {
+  "cid": "UCSB2cZogAtsDcwBIr0oHMhQ",
+  "cap": 300,
+  "n": 120
+ },
+ "Борис Трушин": {
+  "cid": "UCo2JwjPSEc9U8ZJ_KQi6rDQ",
+  "cap": 1000,
+  "n": 690
+ },
+ "Видеозаписи МЦНМО": {
+  "cid": "UCtUJwoYzwI1XP2FIkQaQygA",
+  "cap": 300,
+  "n": 89
+ },
+ "Виктор Прасолов": {
+  "cid": "UCAfUJDJGmnMxM2tiU-LZoFw",
+  "cap": 300,
+  "n": 18
+ },
+ "Глеб Орел - Олимпиадный Препод по Физике": {
+  "cid": "UCx_E5DQIZJo3SSxDhmjD25g",
+  "cap": 300,
+  "n": 186
+ },
+ "Дабромат | Олимпиадная математика": {
+  "cid": "UC_dRAIjytb-g10UCvBf_2cg",
+  "cap": 300,
+  "n": 14
+ },
+ "Дмитрий Белов. Олимпиадная математика": {
+  "cid": "UCw5rmyPmaroYt2xCKy6Pi5w",
+  "cap": 300,
+  "n": 193
+ },
+ "Лютая физика": {
+  "cid": "UCPEnobVMlQ20f1KPV3RZ4oA",
+  "cap": 300,
+  "n": 65
+ },
+ "МТ кружки": {
+  "cid": "UCodqqRyYt-liwuNXEV4L_0g",
+  "cap": 300,
+  "n": 14
+ },
+ "Математика | Alles": {
+  "cid": "UCJxyiaxeHvLkRRJmtyidywQ",
+  "cap": 300,
+  "n": 175
+ },
+ "Маткульт-привет! :: Алексей Савватеев": {
+  "cid": "UCWk8OxsylgmZ_VgY7jC9pjQ",
+  "cap": 1000,
+  "n": 727
+ },
+ "Онлайн Уроки": {
+  "cid": "UCBNsaEaA4ddwc6GK6uFiMDQ",
+  "cap": 300,
+  "n": 37
+ },
+ "Т-Образование": {
+  "cid": "UCw2ORfEOUoEe-MNgCCm0aoQ",
+  "cap": 1000,
+  "n": 490
+ },
+ "ФИЗМАТОВЕЦ": {
+  "cid": "UCcCrptM0EWMECJC3jH3yHxA",
+  "cap": 300,
+  "n": 24
+ },
+ "Физтех-лицей онлайн": {
+  "cid": "UCEPZ7gyAqGRuVGBAxerg0VA",
+  "cap": 300,
+  "n": 6
+ },
+ "Фулл и точка": {
+  "cid": "UCFmbny7qvlsHO9ARmczOPCg",
+  "cap": 300,
+  "n": 5
+ },
+ "Элементарная Математика": {
+  "cid": "UC9mZMNP_0WtTE5ByDYFupOQ",
+  "cap": 1000,
+  "n": 334
+ },
+ "Համալսարանական մաթեմատիկա": {
+  "cid": "UCMFONp28jEDHXDBWJyRVYcA",
+  "cap": 1000,
+  "n": 433
+ },
+ "Հայր Միքայել Hayr Miqayel": {
+  "cid": "UCvIOGcM59FMwsNIbYFQogBA",
+  "cap": 1000,
+  "n": 1000
+ }
 }
