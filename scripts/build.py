@@ -180,15 +180,16 @@ KEEP_UPPER = {"AI", "ML", "LLM", "LLMs", "GPT", "GPU", "CPU", "TPU", "API", "MIT
               "USAMO", "AIME", "AMC", "APMO", "INMO", "ISL", "ICPC", "CSES", "EGMO", "BMO", "PDE", "ODE"}
 
 
-def caps_ratio(title: str) -> float:
-    words = [w for w in re.findall(r"[A-Za-z]{3,}", title)]
+def caps_ratio(title: str, latin_only: bool = False) -> float:
+    words = re.findall(r"[A-Za-z]{3,}" if latin_only else r"[A-Za-zА-Яа-яЁё]{3,}", title)
     if not words:
         return 0.0
     return sum(1 for w in words if w.isupper() and w not in KEEP_UPPER) / len(words)
 
 
 def is_clickbait(title: str) -> bool:
-    return bool(CLICKBAIT.search(title)) or caps_ratio(title) >= 0.5 or "!!" in title or "?!" in title
+    # Caps only count for Latin titles: some Russian lecturers title in capitals by style.
+    return bool(CLICKBAIT.search(title)) or caps_ratio(title, latin_only=True) >= 0.5 or "!!" in title or "?!" in title
 
 
 def calm_title(title: str) -> str:
@@ -208,7 +209,7 @@ def calm_title(title: str) -> str:
         keep = lambda w: re.split(r"[-/]", w.strip("()[]:,.!?\"'"))[0] in KEEP_UPPER or bool(re.search(r"\d", w))
         t = " ".join(w if keep(w) else w.lower() for w in words)
         t = t[:1].upper() + t[1:]
-    t = re.sub(r"\b[A-Z][A-Z']{3,}\b", fix, t)
+    t = re.sub(r"\b[A-ZА-ЯЁ][A-ZА-ЯЁ']{3,}\b", fix, t)
     return re.sub(r"\s{2,}", " ", t).strip(" -|·")
 
 
@@ -263,8 +264,8 @@ _REL = re.compile(r"(\d+)\s*(seconds?|secs?|s|minutes?|mins?|mo|months?|m|hours?
                   r"days?|d|weeks?|wks?|w|years?|yrs?|y)\b\.?\s*ago", re.I)
 
 
-_REL_RU = re.compile(r"(\d+)\s*(секунд\w*|сек\.?|минут\w*|мин\.?|час\w*|ч\.|дн\w*|день|"
-                     r"недел\w*|нед\.?|месяц\w*|мес\.?|год\w*|лет)\s*назад", re.I)
+_REL_RU = re.compile(r"(\d+)\s*(секунд\w*|сек|минут\w*|мин|час\w*|ч|дн\w*|день|"
+                     r"недел\w*|нед|месяц\w*|мес|год\w*|лет)\.?\s*назад", re.I)
 _RU_DAYS = (("сек", 0), ("мин", 0), ("ч", 0), ("д", 1), ("нед", 7), ("мес", 30), ("год", 365), ("лет", 365))
 
 
