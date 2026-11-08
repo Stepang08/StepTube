@@ -50,7 +50,7 @@ NS = {
 
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
-CC_VERSION = 1           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
+CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
 # --------------------------------------------------------------------------
@@ -166,7 +166,9 @@ CLICKBAIT = re.compile(
     r"you won'?t believe|shocking|insane|mind[- ]?blow|gone wrong|must watch|"
     r"destroy(s|ed)\b|\bexposed\b|\bwtf\b|\bomg\b|this changes everything|"
     r"nobody (is )?talking about|(will|is going to) shock|before it'?s too late|"
-    r"\bdon'?t (buy|watch)\b|\bend of\b.*\?|\bis (dead|over)\b",
+    r"\bdon'?t (buy|watch)\b|\bend of\b.*\?|\bis (dead|over)\b|just (dropped|killed|changed)|"
+    r"everyone (is |should |needs to )?(switching|know|use)|game[- ]?changer|you'?re (using|doing) .{0,30} wrong|"
+    r"\b(rip|killer)\b|\w\.\.\s*$",
     re.I,
 )
 LIVE = re.compile(r"\b(live ?stream|livestream|live now|premiere|stream vod|"
@@ -196,6 +198,7 @@ def is_clickbait(title: str) -> bool:
 def calm_title(title: str) -> str:
     t = unicodedata.normalize("NFKC", html.unescape(title))
     t = EMOJI.sub("", t)
+    t = re.sub(r"(\s#[\w\u0400-\u04ff]+)+\s*$", "", t)  # trailing hashtags
     t = re.sub(r"([!?])\1+", r"\1", t)
     t = re.sub(r"\?!|!\?", "?", t)
 
@@ -562,8 +565,12 @@ _NOT_EN = {"para", "con", "como", "usar", "el", "los", "las", "una", "uno", "del
            "des", "est", "une", "dans", "ein", "eine", "wie", "sur", "pra", "seu", "sua"}
 
 
-def video_lang(title: str, desc: str = "") -> str | None:
-    """'ru', 'en' or None (other language)."""
+def video_lang(title: str, desc: str = "", channel: str = "") -> str | None:
+    """'ru', 'en' or None (other language). The channel name counts too:
+    YouTube auto-translates titles, so a Japanese video can arrive with an
+    English title, but its channel name gives it away."""
+    if _NON_LATIN_OTHER.search(channel or ""):
+        return None
     text = f"{title} {desc}"
     if re.search(r"[\u0400-\u04ff]", title):
         return "ru"
@@ -604,7 +611,7 @@ def claude_code_videos(cfg: dict, deep: bool) -> tuple[list[dict], dict]:
                 drop("short/no-duration"); continue
             if LIVE.search(v["title"]) or not v.get("views"):
                 drop("live"); continue
-            lang = video_lang(v["title"], v.get("desc", ""))
+            lang = video_lang(v["title"], v.get("desc", ""), v.get("channel", ""))
             if lang not in ("en", "ru"):
                 drop("language"); continue
             found[v["id"]] = {**v, "lang": lang}
@@ -921,6 +928,8 @@ def main() -> int:
     keep_keys = {c["key"] for c in chans}
     by_ch: dict[str, list[dict]] = {}
     for v in library.values():
+        if v.get("cc") and not v.get("ch") and _NON_LATIN_OTHER.search(v.get("chn", "")):
+            continue  # search-found video from a channel in another language
         if v.get("ev") or v.get("ch") in keep_keys or (v.get("cc") and not v.get("ch")):
             by_ch.setdefault(v.get("ch") or ("_ev" if v.get("ev") else "_cc"), []).append(v)
     videos = []
