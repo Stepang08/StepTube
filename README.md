@@ -89,6 +89,29 @@ Clickbait is hidden like everywhere else. These videos come from any channel, so
 
 The Action runs **every hour** (`17 * * * *`). GitHub sometimes starts scheduled runs a few minutes late. View counts are rounded and the timestamp is kept when nothing changed, so a quiet hour makes no commit.
 
+## Courses, resume, filters
+
+- **Courses tab.** Lecture series are detected from numbered titles ("Lecture 7", "Занятие 12", "Ботай со мной #149", "[03] …"). Each course plays in order and shows a progress bar and a **Continue** button. The watch page shows "Part 3 of 24" and the next part.
+- **Resume.** Long videos reopen where you stopped, and the New page starts with **Continue watching**. A video counts as watched at 95%. Your playback speed is remembered.
+- **Length and language filters** on every list: up to 15 min / 15–60 min / over 1 hour, and English / Русский / Հայերեն.
+- **Mathematics sub-tabs:** Olympiad, University and Popular math. A channel is filed with `sub:` in `channels.yml`.
+
+## Sync across devices
+
+Settings → **Sync across devices**. Create a GitHub token with only the `gist` permission, paste it on each device, and likes, history, Watch later, notes, resume positions and settings stay the same everywhere. The data lives in a private Gist on your own account. Changes merge three ways, so removing something on one device isn't undone by another.
+
+## Making updates truly hourly
+
+GitHub's own scheduler skips many runs. To start the update on the dot, let a free scheduler call GitHub:
+
+1. Create a fine-grained token at github.com/settings/personal-access-tokens: repository **StepTube** only, permission **Actions: Read and write**.
+2. At cron-job.org create a job that runs every hour:
+   - URL: `https://api.github.com/repos/Stepang08/StepTube/actions/workflows/update.yml/dispatches`
+   - Method: `POST`, body: `{"ref":"main"}`
+   - Headers: `Authorization: Bearer <your token>`, `Accept: application/vnd.github+json`, `Content-Type: application/json`
+
+A reply of `204` means the update started.
+
 ## Personal features (stored in your browser only)
 
 Watch later, likes, history, watched marks, per-video **notes** (searchable),

@@ -10,8 +10,9 @@
 
   // ---------------------------------------------------------------- state
   const defaults = () => ({
-    later: [], liked: [], history: [], watched: {}, notes: {}, muted: [], notInterested: [], recs: null,
-    settings: { thumbs: "muted", clickbait: false, theme: "auto", budget: 60, sort: "new", smart: true, searchSort: "rel" },
+    later: [], liked: [], history: [], watched: {}, notes: {}, muted: [], notInterested: [], recs: null, pos: {},
+    settings: { thumbs: "muted", clickbait: false, theme: "auto", budget: 60, sort: "new", smart: true, searchSort: "rel",
+                len: "any", lang: "all", subs: {}, rate: 1 },
     lastVisit: null, budget: { day: "", sec: 0 },
   });
   let S = defaults();
@@ -19,7 +20,41 @@
     const raw = localStorage.getItem(KEY);
     if (raw) { const o = JSON.parse(raw); S = { ...S, ...o, settings: { ...S.settings, ...(o.settings || {}) } }; }
   } catch (_) { /* private mode etc. */ }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} };
+  let dirty = false;  // something changed since the last sync
+  const rawSave = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} };
+  const save = () => { dirty = true; rawSave(); };
+
+  // ---------------------------------------------------------------- sync (private Gist)
+  const SYNC_KEY = "steptube:sync";
+  let SY = { token: "", gistId: "", base: null, last: 0, err: "" };
+  try { SY = { ...SY, ...(JSON.parse(localStorage.getItem(SYNC_KEY)) || {}) }; } catch (_) {}
+  const saveSY = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SY)); } catch (_) {} };
+  const syncData = () => JSON.parse(JSON.stringify({ later: S.later, liked: S.liked, muted: S.muted, notInterested: S.notInterested,
+    watched: S.watched, notes: S.notes, pos: S.pos, settings: S.settings, history: S.history, budget: S.budget }));
+  let syncing = false;
+  async function syncNow(force = false) {
+    if (!SY.token || syncing || !window.StepSync) return;
+    syncing = true;
+    try {
+      if (!SY.gistId) { SY.gistId = await StepSync.findOrCreate(SY.token); saveSY(); }
+      const remote = await StepSync.pull(SY.token, SY.gistId);
+      const local = syncData(); dirty = false;      // no awaits between this snapshot and applying the merge
+      // First sync on this device: treat untouched default settings as "unchanged", so the Gist's win.
+      const merged = StepSync.merge3(SY.base || { settings: defaults().settings }, local, remote || {});
+      const changedHere = JSON.stringify(merged) !== JSON.stringify(local);
+      Object.assign(S, merged); S.settings = { ...defaults().settings, ...merged.settings };
+      rawSave();
+      if (!remote || force || JSON.stringify(merged) !== JSON.stringify(remote)) await StepSync.push(SY.token, SY.gistId, merged);
+      SY.base = merged; SY.last = Date.now(); SY.err = ""; saveSY();
+      if (changedHere && !location.hash.startsWith("#/v/")) { applySettings(); render(true); }
+    } catch (e) {
+      SY.err = e.message === "not-found" ? "The sync Gist was deleted. Disconnect and connect again." : String(e.message || e);
+      if (e.message === "not-found") SY.gistId = "";
+      saveSY();
+    } finally { syncing = false; }
+  }
+  setInterval(() => { if (dirty && document.visibilityState === "visible") syncNow(); }, 60000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" ? dirty : true) syncNow(); });
 
   // Remember the previous visit so "New" can mean "new since last time".
   const prevVisit = S.lastVisit;
@@ -27,6 +62,7 @@
 
   let DB = { topics: [], channels: [], videos: [] };
   let byId = new Map(), chByKey = new Map();
+  let COURSES = [], courseByKey = new Map(), courseOf = new Map();
   let shown = PAGE, sel = -1, lastRoute = "", player = null, tick = null;
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -53,14 +89,18 @@
     byId = new Map(DB.videos.map((v) => [v.id, v]));
     chByKey = new Map(DB.channels.map((c) => [c.key, c]));
     window.StepSearch?.build(DB, chName);
+    COURSES = window.StepCourses ? StepCourses.build(DB.videos, chName) : [];
+    courseByKey = new Map(COURSES.map((c) => [c.key, c]));
+    courseOf = new Map(); for (const c of COURSES) c.ids.forEach((id, i) => courseOf.set(id, [c, i]));
     $("#tabs").innerHTML =
       `<a href="#/" data-tab="">New</a><a href="#/foryou" data-tab="foryou">For you</a>` +
       DB.topics.filter((t) => DB.videos.some((v) => v.tp === t.key)).map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
-      `<a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
+      `<a href="#/courses" data-tab="courses">Courses</a><a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
     const when = DB.generated ? new Date(DB.generated) : null;
     $("#meta").textContent = `${DB.videos.length} videos · ${DB.channels.length} channels` +
       (when ? ` · updated ${when.toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : "");
     route();
+    syncNow();
   }
 
   const chName = (v) => chByKey.get(v.ch)?.name || v.chn || v.ch || "";
@@ -87,6 +127,27 @@
     let out = q.toLowerCase();
     for (const [from, to] of corrected) out = out.replace(from, to);
     return out;
+  }
+
+  const langOf = (v) => v.lang || (/[\u0530-\u058f]/.test(v.t) ? "hy" : /[\u0400-\u04ff]/.test(v.t) ? "ru" : "en");
+  function fmtDur(sec) {
+    sec = Math.round(sec); const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s2 = sec % 60;
+    return h ? `${h}:${String(m).padStart(2, "0")}:${String(s2).padStart(2, "0")}` : `${m}:${String(s2).padStart(2, "0")}`;
+  }
+  function passFilters(v) {
+    const len = S.settings.len, lang = S.settings.lang;
+    if (len && len !== "any") {
+      if (!v.s) return false;
+      const m = v.s / 60;
+      if (len === "short" ? m > 15 : len === "mid" ? (m <= 15 || m > 60) : m <= 60) return false;
+    }
+    return !lang || lang === "all" || langOf(v) === lang;
+  }
+  function filterControls() {
+    const o = (cur, k, n) => `<option value="${k}"${cur === k ? " selected" : ""}>${n}</option>`;
+    const len = S.settings.len || "any", lang = S.settings.lang || "all";
+    return `<label>Length <select id="flen">${o(len, "any", "Any")}${o(len, "short", "Up to 15 min")}${o(len, "mid", "15–60 min")}${o(len, "long", "Over 1 hour")}</select></label>
+      <label>Language <select id="flang">${o(lang, "all", "All")}${o(lang, "en", "English")}${o(lang, "ru", "Русский")}${o(lang, "hy", "Հայերեն")}</select></label>`;
   }
 
   // Most viewed first; videos without a count go last; ties newest first.
@@ -118,7 +179,7 @@
       <a class="thumb" href="#/v/${v.id}" tabindex="-1" aria-hidden="true"><img loading="lazy" decoding="async" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"></a>
       <div class="info">
         <h3 class="title"><a href="#/v/${v.id}">${esc(v.t)}</a></h3>
-        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${showViews && v.vc ? `<span class="dot">·</span>${fmtViews(v.vc)}` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
+        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.s ? `<span class="dot">·</span>${fmtDur(v.s)}` : ""}${showViews && v.vc ? `<span class="dot">·</span>${fmtViews(v.vc)}` : ""}${S.pos[v.id] && !seen ? `<span class="tag">resume at ${fmtDur(S.pos[v.id].t)}</span>` : ""}${v.ev ? `<span class="tag">classic</span>` : ""}${S.notes[v.id] ? `<span class="tag">note</span>` : ""}</div>
         ${v.d ? `<p class="desc">${esc(v.d)}</p>` : ""}
       </div>
       <div class="acts">
@@ -138,22 +199,31 @@
     return esc(chName(v));
   }
 
-  function listView({ title, sub = "", list, empty, note = "", sortable = true, endText, tools = "", byViews: viewsSorted = false }) {
+  function listView({ title, sub = "", list, empty, note = "", pre = null, sortable = true, endText, tools = "", byViews: viewsSorted = false, filterable = true }) {
     showViews = viewsSorted || (sortable && S.settings.sort === "views");
     const sortSel = tools || (sortable ? `<label class="tools">Sort
       <select id="sort">${[["new", "Newest"], ["old", "Oldest"], ["views", "Most viewed"], ["shuffle", "Today's shuffle"]]
         .map(([k, n]) => `<option value="${k}"${S.settings.sort === k ? " selected" : ""}>${n}</option>`).join("")}</select></label>` : "");
+    const total = list.length;
+    if (filterable) list = list.filter(passFilters);
+    const filtered = filterable && ((S.settings.len || "any") !== "any" || (S.settings.lang || "all") !== "all");
     const items = sortable ? sortList(list, S.settings.sort) : list;
     const page = items.slice(0, shown);
+    const controls = sortSel || filterable ? `<div class="tools">${sortSel}${filterable ? filterControls() : ""}</div>` : "";
     main.innerHTML = `
-      <div class="head"><div><h1>${esc(title)}</h1>${sub ? `<div class="sub">${sub}</div>` : ""}</div>${sortSel}</div>
+      <div class="head"><div><h1>${esc(title)}</h1>${sub ? `<div class="sub">${sub}</div>` : ""}</div>${controls}</div>
       ${note ? `<div class="note">${note}</div>` : ""}
-      ${items.length ? `<ul class="list">${page.map(card).join("")}</ul>` : `<p class="end">${empty}</p>`}
+      ${pre ? pre() : ""}
+      ${filtered ? `<div class="filt">Filters on: showing ${items.length} of ${total}. <button class="link" id="fclear">Clear filters</button></div>` : ""}
+      ${items.length ? `<ul class="list">${page.map(card).join("")}</ul>` : `<p class="end">${filtered && total ? "Nothing matches these filters." : empty}</p>`}
       ${items.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, items.length - shown)} more <span style="color:var(--text-3)">(${items.length - shown} left)</span></button></div>`
         : items.length ? `<p class="end">${endText || "That's everything here."}</p>` : ""}`;
     $("#sort")?.addEventListener("change", (e) => { S.settings.sort = e.target.value; save(); shown = PAGE; render(); });
+    $("#flen")?.addEventListener("change", (e) => { S.settings.len = e.target.value; save(); shown = PAGE; render(true); });
+    $("#flang")?.addEventListener("change", (e) => { S.settings.lang = e.target.value; save(); shown = PAGE; render(true); });
+    $("#fclear")?.addEventListener("click", () => { S.settings.len = "any"; S.settings.lang = "all"; save(); shown = PAGE; render(true); });
     $("#more")?.addEventListener("click", () => { shown += PAGE; render(true); });
-    sel = Math.min(sel, page.length - 1);
+    sel = Math.min(sel, main.querySelectorAll(".card").length - 1);
     markSel();
   }
 
@@ -173,7 +243,10 @@
       const sub = prevVisit
         ? (fresh ? `${fresh} posted since your last visit.` : "Nothing new since your last visit.")
         : "Unwatched videos from your channels, last three weeks.";
-      listView({ title: "New", sub, list, sortable: true, note: budgetNote(),
+      const cont = Object.entries(S.pos).filter(([id, p]) => byId.has(id) && !S.watched[id] && p.t > 30)
+        .sort((x, y) => y[1].at - x[1].at).slice(0, 3);
+      const pre = cont.length ? () => `<h2 class="sec">Continue watching</h2><ul class="list">${cont.map(([id], i) => card(byId.get(id), i)).join("")}</ul><h2 class="sec">New</h2>` : null;
+      listView({ title: "New", sub, list, sortable: true, note: budgetNote(), pre,
         empty: "You're all caught up. Go outside, or check the <a href='#/classics'>classics</a>.",
         endText: "You're caught up." });
     },
@@ -182,29 +255,63 @@
       if (!t) return views.notFound();
       let list = DB.videos.filter((v) => v.tp === key && visible(v));
       if (key === "claude") {
-        const lang = S.settings.ccLang || "all";
-        const all = list;
-        if (lang !== "all") list = list.filter((v) => v.lang === lang);
-        const n = (l) => all.filter((v) => v.lang === l).length;
         const ccSort = S.settings.ccSort === "views" ? "views" : "new";
-        const tools = `<span class="tools"><label>Sort <select id="ccsort">
+        const tools = `<label>Sort <select id="ccsort">
           <option value="new"${ccSort === "new" ? " selected" : ""}>Newest</option>
-          <option value="views"${ccSort === "views" ? " selected" : ""}>Most viewed</option></select></label>
-          <label>Language <select id="cclang">
-          <option value="all"${lang === "all" ? " selected" : ""}>All (${all.length})</option>
-          <option value="en"${lang === "en" ? " selected" : ""}>English (${n("en")})</option>
-          <option value="ru"${lang === "ru" ? " selected" : ""}>Русский (${n("ru")})</option></select></label></span>`;
+          <option value="views"${ccSort === "views" ? " selected" : ""}>Most viewed</option></select></label>`;
         listView({ title: t.name, tools, sortable: false, byViews: ccSort === "views",
           sub: `${list.length} videos about Claude Code, from any channel · found by YouTube search every hour. Shorts, live streams and clickbait are filtered out.`,
           list: sortList(list, ccSort), empty: "Nothing yet. The hourly search fills this in." });
         $("#ccsort").addEventListener("change", (e) => { S.settings.ccSort = e.target.value; save(); shown = PAGE; render(true); });
-        $("#cclang").addEventListener("change", (e) => { S.settings.ccLang = e.target.value; save(); shown = PAGE; render(true); });
         return;
+      }
+      let pre = null;
+      if (t.subs) {
+        const cur = (S.settings.subs || {})[key] || "all";
+        const count = (k) => list.filter((v) => chByKey.get(v.ch)?.sub === k).length;
+        const all = list;
+        if (cur !== "all") list = list.filter((v) => chByKey.get(v.ch)?.sub === cur);
+        pre = () => `<div class="chips">${[["all", `All (${all.length})`], ...Object.entries(t.subs).map(([k, n]) => [k, `${n} (${all.filter((v) => chByKey.get(v.ch)?.sub === k).length})`])]
+          .map(([k, n]) => `<button class="btn" data-sub="${k}" aria-pressed="${cur === k}">${esc(n)}</button>`).join("")}</div>`;
       }
       const note = key === "review"
         ? "These channels are on probation and don't appear on the New page. Watch a few, then move each to a real topic in <code>channels.yml</code> or delete its line. <a href='#/channels'>Channel list</a>."
         : budgetNote();
-      listView({ title: t.name, sub: `${list.length} videos`, list, empty: "Nothing here yet.", note });
+      listView({ title: t.name, sub: `${list.length} videos`, list, empty: "Nothing here yet.", note, pre });
+      main.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => {
+        S.settings.subs = { ...(S.settings.subs || {}), [key]: b.dataset.sub }; save(); shown = PAGE; render(true);
+      }));
+    },
+    courses() {
+      const info = (c) => {
+        const done = c.ids.filter((id) => S.watched[id]).length;
+        const last = Math.max(0, ...c.ids.map((id) => S.watched[id] || (S.pos[id] && S.pos[id].at) || 0));
+        return { c, done, last, next: c.ids.find((id) => !S.watched[id]) };
+      };
+      const lang = S.settings.lang || "all";
+      let rows = COURSES.filter((c) => !S.muted.includes(c.ch) && (lang === "all" || langOf(byId.get(c.ids[0])) === lang)).map(info);
+      rows.sort((a, b) => (b.last > 0 && b.done < b.c.ids.length) - (a.last > 0 && a.done < a.c.ids.length) || b.last - a.last || b.c.ids.length - a.c.ids.length);
+      const o = (k, n) => `<option value="${k}"${lang === k ? " selected" : ""}>${n}</option>`;
+      const started = rows.filter((r) => r.last > 0 && r.done < r.c.ids.length).length;
+      main.innerHTML = `<div class="head"><div><h1>Courses</h1><div class="sub">${rows.length} lecture series found in your library by their numbering${started ? ` · ${started} in progress` : ""}. Videos play in order, and your progress is tracked.</div></div>
+        <div class="tools"><label>Language <select id="flang">${o("all", "All")}${o("en", "English")}${o("ru", "Русский")}${o("hy", "Հայերեն")}</select></label></div></div>
+        ${rows.length ? `<ul class="list">${rows.slice(0, shown).map(({ c, done, next, last }) => `<li class="course">
+          <div class="info"><h3 class="title"><a href="#/course/${encodeURIComponent(c.key)}">${esc(c.title)}</a></h3>
+            <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length} videos${done ? `<span class="dot">·</span>${done} watched` : ""}</div>
+            <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${c.ids.length}" aria-valuenow="${done}"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div></div>
+          <div class="acts">${next ? `<a class="btn" href="#/v/${next}">${done || last ? "Continue" : "Start"}</a>` : `<span class="tag">finished</span>`}</div></li>`).join("")}</ul>` : `<p class="end">No courses match.</p>`}
+        ${rows.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, rows.length - shown)} more <span style="color:var(--text-3)">(${rows.length - shown} left)</span></button></div>` : rows.length ? `<p class="end">That's every course.</p>` : ""}`;
+      $("#flang").addEventListener("change", (e) => { S.settings.lang = e.target.value; save(); shown = PAGE; render(true); });
+      $("#more")?.addEventListener("click", () => { shown += PAGE; render(true); });
+    },
+    course(key) {
+      const c = courseByKey.get(key);
+      if (!c) return views.notFound();
+      const done = c.ids.filter((id) => S.watched[id]).length, next = c.ids.find((id) => !S.watched[id]);
+      listView({ title: c.title, sortable: false, filterable: false, list: c.ids.map((id) => byId.get(id)),
+        sub: `${esc(c.chn)} · ${c.ids.length} videos in order · ${done} watched${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
+        pre: () => `<div class="bar wide"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div>`,
+        empty: "Empty course.", endText: "End of the course." });
     },
     async foryou() {
       const day = today();
@@ -238,15 +345,15 @@
       listView({ title: "Classics", sub: "Pinned forever, from <code>classics.yml</code>.", list: DB.videos.filter((v) => v.ev), empty: "Add evergreen videos to classics.yml." });
     },
     later() {
-      listView({ title: "Watch later", sub: "Your queue, oldest first.", sortable: false, list: S.later.map((id) => byId.get(id)).filter(Boolean), empty: "Queue is empty. Press <kbd>w</kbd> on anything you'd like to come back to." });
+      listView({ title: "Watch later", filterable: false, sub: "Your queue, oldest first.", sortable: false, list: S.later.map((id) => byId.get(id)).filter(Boolean), empty: "Queue is empty. Press <kbd>w</kbd> on anything you'd like to come back to." });
     },
     liked() {
-      listView({ title: "Liked", sortable: false, list: S.liked.slice().reverse().map((id) => byId.get(id)).filter(Boolean), empty: "Nothing liked yet." });
+      listView({ title: "Liked", filterable: false, sortable: false, list: S.liked.slice().reverse().map((id) => byId.get(id)).filter(Boolean), empty: "Nothing liked yet." });
     },
     history() {
       const seenIds = new Set(), list = [];
       for (const h of S.history.slice().reverse()) if (!seenIds.has(h.id) && byId.get(h.id)) { seenIds.add(h.id); list.push(byId.get(h.id)); }
-      listView({ title: "History", sub: list.length ? `<button class="link" id="clearH">Clear history</button>` : "", sortable: false, list, empty: "No history yet." });
+      listView({ title: "History", filterable: false, sub: list.length ? `<button class="link" id="clearH">Clear history</button>` : "", sortable: false, list, empty: "No history yet." });
       $("#clearH")?.addEventListener("click", () => { if (confirm("Clear watch history?")) { S.history = []; save(); render(); } });
     },
     search(q) {
@@ -301,12 +408,26 @@
           <div class="ctl">${opt("clickbait", false, S.settings.clickbait, "Hide")}${opt("clickbait", true, S.settings.clickbait, "Show")}</div></div>
         <div class="set"><h3>Daily budget</h3><p>Minutes of playback per day before a gentle reminder. 0 = off. Today: ${used} min.</p>
           <div class="ctl"><input type="number" min="0" step="5" id="budget" value="${S.settings.budget}" aria-label="Daily minutes"></div></div>
+        <div class="set"><h3>Sync across devices</h3>
+          <p>${SY.token
+            ? (SY.err ? `Sync problem: ${esc(SY.err)}` : `On. ${SY.last ? `Last synced ${new Date(SY.last).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.` : "Syncing…"} Likes, history, Watch later, notes, resume positions and settings are kept in a private GitHub Gist.`)
+            : `Keeps likes, history, Watch later, notes and resume positions the same on your phone and computer, in a private GitHub Gist. <a href="https://github.com/settings/tokens/new?scopes=gist&description=StepTube%20sync" target="_blank" rel="noopener">Create a token with only the “gist” permission ↗</a>, paste it here, and do the same on each device.`}</p>
+          <div class="ctl">${SY.token
+            ? `<button class="btn" id="syncnow">Sync now</button><button class="btn" id="syncoff">Disconnect</button>`
+            : `<input type="password" id="synctok" placeholder="GitHub token" autocomplete="off" aria-label="GitHub token"><button class="btn" id="syncon">Connect</button>`}</div></div>
         <div class="set"><h3>Your data</h3><p>Likes, history, queue, notes and settings live only in this browser. Back them up or move them to another device.</p>
           <div class="ctl"><button class="btn" id="exp">Export</button><label class="btn">Import<input type="file" id="imp" accept="application/json" hidden></label><button class="btn" id="wipe">Reset</button></div></div>`;
       main.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", () => {
         let v = b.dataset.val; if (v === "true") v = true; else if (v === "false") v = false;
         S.settings[b.dataset.set] = v; save(); applySettings(); render(true);
       }));
+      $("#syncon")?.addEventListener("click", async () => {
+        const tok = $("#synctok").value.trim(); if (!tok) return;
+        SY = { token: tok, gistId: "", base: null, last: 0, err: "" }; saveSY();
+        await syncNow(true); render(true);
+      });
+      $("#syncnow")?.addEventListener("click", async () => { await syncNow(true); render(true); });
+      $("#syncoff")?.addEventListener("click", () => { if (confirm("Stop syncing on this device? Your data stays here and in the Gist.")) { SY = { token: "", gistId: "", base: null, last: 0, err: "" }; saveSY(); render(true); } });
       $("#budget").addEventListener("change", (e) => { S.settings.budget = Math.max(0, parseInt(e.target.value, 10) || 0); save(); });
       $("#exp").addEventListener("click", () => {
         const a = document.createElement("a");
@@ -324,15 +445,21 @@
       const v = byId.get(id) || { id, t: "Video", ch: "", p: "" };
       const later = S.later.includes(id), liked = S.liked.includes(id), seen = !!S.watched[id];
       const nextLater = S.later.filter((x) => x !== id).map((x) => byId.get(x)).find(Boolean);
+      const [crs, ci] = courseOf.get(id) || [null, -1];
+      const nextInCourse = crs && crs.ids[ci + 1] ? byId.get(crs.ids[ci + 1]) : null;
+      const posKeys = Object.keys(S.pos);
+      if (posKeys.length > 300) posKeys.sort((x, y) => S.pos[x].at - S.pos[y].at).slice(0, posKeys.length - 300).forEach((k) => delete S.pos[k]);
       main.innerHTML = `<article class="watch">
         <div class="player"><div id="yt"></div>
           <div class="done" id="done"><div><p>Finished. Good time to pause.</p><div class="row">
             <a class="btn primary" href="#/">Back to library</a>
+            ${nextInCourse ? `<a class="btn" href="#/v/${nextInCourse.id}">Next in course</a>` : ""}
             ${nextLater ? `<a class="btn" href="#/v/${nextLater.id}">Next in Watch later</a>` : ""}
             <button class="btn" id="replay">Replay</button></div></div></div>
         </div>
         <h1>${esc(v.t)}</h1>
-        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}</div>
+        <div class="byline">${chLink(v)}${v.p ? `<span class="dot">·</span>${fmtDate(v.p)}` : ""}${v.s ? `<span class="dot">·</span>${fmtDur(v.s)}` : ""}</div>
+        ${crs ? `<div class="byline crs">Part ${ci + 1} of ${crs.ids.length} in <a href="#/course/${encodeURIComponent(crs.key)}">${esc(crs.title)}</a>${nextInCourse ? `<span class="dot">·</span>next: <a href="#/v/${nextInCourse.id}">${esc(nextInCourse.t)}</a>` : ""}</div>` : ""}
         <div class="row">
           <button class="btn" data-act="later" aria-pressed="${later}">${later ? "◆ In Watch later" : "◇ Watch later"}</button>
           <button class="btn" data-act="like" aria-pressed="${liked}">${liked ? "♥ Liked" : "♡ Like"}</button>
@@ -376,24 +503,42 @@
     }
     player = new YT.Player("yt", {
       host: "https://www.youtube-nocookie.com", videoId: id,
-      playerVars: { rel: 0, modestbranding: 1, iv_load_policy: 3, playsinline: 1, autoplay: 0 },
+      playerVars: { rel: 0, modestbranding: 1, iv_load_policy: 3, playsinline: 1, autoplay: 0, ...resumeAt(id) },
       events: {
+        onReady: (e) => { const r = S.settings.rate; if (r && r !== 1) try { e.target.setPlaybackRate(r); } catch (_) {} },
+        onPlaybackRateChange: (e) => { S.settings.rate = e.data; save(); },
         onStateChange: (e) => {
           clearInterval(tick); tick = null;
           if (e.data === YT.PlayerState.PLAYING) {
             tick = setInterval(() => {
               if (S.budget.day !== today()) S.budget = { day: today(), sec: 0 };
-              S.budget.sec += 5; save(); updateBudgetLine();
+              S.budget.sec += 5; recordPos(id); save(); updateBudgetLine();
             }, 5000);
           }
+          if (e.data === YT.PlayerState.PAUSED) { recordPos(id); save(); }
           if (e.data === YT.PlayerState.ENDED) {
-            S.watched[id] = Date.now(); save();
+            S.watched[id] = Date.now(); delete S.pos[id]; save();
             $("#done")?.classList.add("show");
             const b = main.querySelector('.row [data-act="seen"]'); if (b) { b.setAttribute("aria-pressed", "true"); b.textContent = "✓ Watched"; }
           }
         },
       },
     });
+  }
+  // Resume: start a few seconds before where you stopped (not for the first/last half minute).
+  function resumeAt(id) {
+    const p = S.pos[id];
+    return p && p.t > 30 && (!p.d || p.t < p.d - 30) ? { start: Math.max(0, Math.floor(p.t) - 3) } : {};
+  }
+  function recordPos(id) {
+    let t = 0, d = 0;
+    try { t = player.getCurrentTime(); d = player.getDuration(); } catch (_) { return; }
+    if (!(t > 0)) return;
+    if (d && t / d > 0.95) {          // close enough to the end: count it as watched
+      if (!S.watched[id]) { S.watched[id] = Date.now(); rerenderWatchButtons(id); }
+      delete S.pos[id]; return;
+    }
+    S.pos[id] = { t: Math.round(t), d: Math.round(d || 0), at: Date.now() };
   }
   function destroyPlayer() { clearInterval(tick); tick = null; try { player?.destroy?.(); } catch (_) {} player = null; }
   function updateBudgetLine() {
@@ -411,7 +556,7 @@
     }
     if (act === "later") S.later = S.later.includes(id) ? S.later.filter((x) => x !== id) : [...S.later, id];
     if (act === "like") S.liked = S.liked.includes(id) ? S.liked.filter((x) => x !== id) : [...S.liked, id];
-    if (act === "seen") { if (S.watched[id]) delete S.watched[id]; else S.watched[id] = Date.now(); }
+    if (act === "seen") { if (S.watched[id]) delete S.watched[id]; else { S.watched[id] = Date.now(); delete S.pos[id]; } }
     save();
   }
   main.addEventListener("click", (e) => {
@@ -443,10 +588,11 @@
     else if (a === "c") views.channel(b);
     else if (a === "v") views.watch(b);
     else if (a === "s") views.search(b);
-    else if (views[a] && !["topic", "channel", "watch", "search", "notFound"].includes(a)) views[a]();
+    else if (a === "course") views.course(b);
+    else if (views[a] && !["topic", "channel", "watch", "search", "course", "notFound"].includes(a)) views[a]();
     else views.notFound();
     if (keep) window.scrollTo(0, y);
-    const tab = a === "t" ? b : !a ? "" : a;
+    const tab = a === "t" ? b : !a ? "" : a === "course" ? "courses" : a;
     document.querySelectorAll("#tabs a").forEach((x) => x.toggleAttribute("aria-current", x.dataset.tab === tab && a !== "v" && a !== "s"));
     document.querySelectorAll(".me a").forEach((x) => x.toggleAttribute("aria-current", x.dataset.nav === a));
     document.title = a === "v" ? `${byId.get(b)?.t || "Video"} · StepTube` : "StepTube";
@@ -485,7 +631,7 @@
     const cs = cards();
     if (gPending) {
       gPending = false;
-      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/", f: "#/foryou" }[e.key];
+      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/", f: "#/foryou", u: "#/courses" }[e.key];
       if (m) { location.hash = m; e.preventDefault(); }
       return;
     }

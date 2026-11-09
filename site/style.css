@@ -211,3 +211,18 @@ dialog form button { border: 1px solid var(--line); background: var(--bg-3); bor
   .set { grid-template-columns: 1fr; }
   .set .ctl { grid-row: auto; grid-column: 1; justify-content: start; }
 }
+
+/* ---------- filters, sub-tabs, courses ---------- */
+.tools label { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.head .tools { justify-content: flex-end; }
+.filt { color: var(--text-3); font-size: 13.5px; margin: 0 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.chips .btn { padding: 5px 12px; }
+.course { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 12px; margin: 0 -12px; border-radius: var(--radius); }
+.course:hover { background: var(--bg-2); }
+.bar { height: 4px; border-radius: 2px; background: var(--bg-3); margin-top: 8px; overflow: hidden; max-width: 420px; }
+.bar.wide { max-width: none; margin: 0 0 14px; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.byline.crs { margin-top: 4px; }
+.set input[type=password] { width: 200px; max-width: 100%; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; }
+@media (max-width: 640px) { .head .tools { justify-content: flex-start; } }

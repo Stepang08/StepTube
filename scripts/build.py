@@ -890,6 +890,10 @@ def main() -> int:
                 report["dropped"]["short"] += 1
                 library.pop(e["id"], None)
                 continue
+            if e.get("seconds") and e["seconds"] <= 60:   # a Short posted as a regular video
+                report["dropped"]["short"] += 1
+                library.pop(e["id"], None)
+                continue
             if LIVE.search(e["title"]) or e["views"] == 0:
                 # 0 views == upcoming premiere / scheduled stream placeholder.
                 report["dropped"]["live"] += 1
@@ -972,6 +976,8 @@ def main() -> int:
     for v in library.values():
         if v.get("cc") and not v.get("ch") and _NON_LATIN_OTHER.search(v.get("chn", "")):
             continue  # search-found video from a channel in another language
+        if v.get("s") and v["s"] <= 60 and not v.get("ev"):
+            continue  # Short-length clip stored before durations were known
         if v.get("ev") or v.get("ch") in keep_keys or (v.get("cc") and not v.get("ch")):
             by_ch.setdefault(v.get("ch") or ("_ev" if v.get("ev") else "_cc"), []).append(v)
     videos = []
