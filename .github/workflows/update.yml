@@ -2,6 +2,7 @@ name: Update StepTube
 
 on:
   schedule:
+    - cron: "47 * * * *"     # second hourly slot: GitHub often skips scheduled runs, so two chances per hour
     - cron: "17 * * * *"     # hourly, at :17 (GitHub may start scheduled runs a few minutes late)
   workflow_dispatch:          # "Run workflow" button in the Actions tab
   push:

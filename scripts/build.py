@@ -51,7 +51,8 @@ NS = {
 TITLES_VERSION = 3       # bump to re-fetch non-English channels' original titles
 MAX_PER_CHANNEL = 1000
 VIEWS_VERSION = 5        # bump to re-fetch channels whose stored videos lack view counts
-CC_VERSION = 2           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
+DUR_VERSION = 1          # bump to re-fetch channels whose stored videos lack durations
+CC_VERSION = 3           # bump to re-run the deep Claude Code backfill  # library cap per channel (oldest dropped first)
 DESC_CHARS = 280
 
 # --------------------------------------------------------------------------
@@ -394,9 +395,11 @@ def _parse_video_items(node) -> list[dict]:
         parts = [p.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for p in (p or [])]
         pub = next((p for p in parts if "ago" in p or "назад" in p), "")
         views = lockup_views(meta)
+        secs = next((d for d in (parse_duration(b.get("text", "")) for b in _walk(lv.get("contentImage", {}), "thumbnailBadgeViewModel")
+                                 if isinstance(b, dict)) if d), None)
         out.append({"id": vid, "title": title, "published": rel_to_iso(pub),
                     "href": f"https://www.youtube.com/watch?v={vid}", "views": 1 if pub else 0,
-                    "view_count": views, "desc": "", "approx_date": True})
+                    "view_count": views, "desc": "", "approx_date": True, "seconds": secs})
     return out
 
 
@@ -763,7 +766,7 @@ def main() -> int:
     channel_meta: dict[str, dict] = {}
     for c in chans:
         channel_meta[c["key"]] = {"key": c["key"], "name": prev_ch.get(c["key"], {}).get("name", c["key"]),
-                                  "topic": c["topic"], "cid": c.get("cid")}
+                                  "topic": c["topic"], "cid": c.get("cid"), "sub": c.get("sub")}
 
     feeds: dict[str, tuple[str, list[dict]]] = {}
     # backfill.json: {channel key: {"cid": ..., "cap": cap used, "n": videos fetched}}
@@ -775,12 +778,17 @@ def main() -> int:
     tot_ch = collections.Counter(v.get("ch") for v in library.values())
     vc_ch = collections.Counter(v.get("ch") for v in library.values() if v.get("vc"))
     vc_cover = {k: vc_ch[k] / n for k, n in tot_ch.items() if n}
+    dur_ch = collections.Counter(v.get("ch") for v in library.values() if v.get("s"))
+    dur_cover = {k: dur_ch[k] / n for k, n in tot_ch.items() if n}
 
     def needs_archive(c) -> bool:
         b = backfill.get(c["key"])
         if not b or b.get("cid") != c["cid"] or b.get("hl", "en") != c["hl"]:
             return True
         if c["hl"] != "en" and b.get("tv", 1) < TITLES_VERSION:  # fetched before titles were fixed
+            return True
+        # Archived before durations were recorded: fetch once more to fill them in.
+        if b.get("dv", 0) < DUR_VERSION and dur_cover.get(c["key"], 0) < 0.5:
             return True
         # Archived before view counts were recorded: fetch once more to fill them in.
         if b.get("vv", 0) < VIEWS_VERSION and vc_cover.get(c["key"], 0) < 0.5:
@@ -812,7 +820,7 @@ def main() -> int:
         with cf.ThreadPoolExecutor(args.workers) as ex:
             for c_, (key, res, archived) in zip(live, ex.map(grab, live)):
                 if archived:
-                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"], "tv": TITLES_VERSION, "vv": VIEWS_VERSION}
+                    backfill[key] = {"cid": c_["cid"], "cap": MAX_PER_CHANNEL, "n": len(res[1]), "hl": c_["hl"], "tv": TITLES_VERSION, "vv": VIEWS_VERSION, "dv": DUR_VERSION}
                     report["archived"].append(f"{key}: {len(res[1])}")
                     print(f"  archived {key}: {len(res[1])} videos")
                 if isinstance(res, Exception):
@@ -912,6 +920,7 @@ def main() -> int:
                   else e["published"][:10]),
             "d": snippet(e["desc"]),
             **({"vc": round_sig(e["view_count"])} if e.get("view_count") else {}),
+            **({"s": e["seconds"]} if e.get("seconds") else {}),
             **({"cb": 1} if is_clickbait(e["title"]) else {}),
         }
         if not is_clickbait(e["title"]):
@@ -931,6 +940,8 @@ def main() -> int:
                          d=snippet(e.get("desc") or "") or cur.get("d", ""))
             if e.get("view_count"):
                 entry["vc"] = round_sig(e["view_count"])
+            if e.get("seconds"):
+                entry["s"] = e["seconds"]
             if is_clickbait(e["title"]):
                 entry["cb"] = 1
             else:
@@ -986,8 +997,10 @@ def main() -> int:
     used = {v.get("ch") for v in videos}
     out = {
         "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "topics": [{"key": k, "name": n} for k, n in topics.items()],
+        "topics": [{"key": k, "name": n, **({"subs": cfg["subtopics"][k]} if k in (cfg.get("subtopics") or {}) else {})}
+                   for k, n in topics.items()],
         "channels": [{"key": m["key"], "name": m["name"], "topic": m["topic"], "cid": m.get("cid"),
+                      **({"sub": m["sub"]} if m.get("sub") else {}),
                       **({"av": 1} if m.get("cid") and (AVATAR_DIR / f"{m['cid']}.jpg").exists() else {})}
                      for m in channel_meta.values() if m["key"] in used],
         "videos": videos,
