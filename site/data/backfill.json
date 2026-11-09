@@ -5,7 +5,8 @@
   "n": 153,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "AcquiredFM": {
   "cid": "UCyFqFYfTW2VoIQKylJ04Rtw",
@@ -13,7 +14,8 @@
   "n": 96,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "AndrejKarpathy": {
   "cid": "UCXUPKJO5MZQN11PqgIvyuvQ",
@@ -21,7 +23,8 @@
   "n": 17,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "ArtemKirsanov": {
   "cid": "UCR2uRTQ53V_egXKFflMMaaw",
@@ -29,12 +32,17 @@
   "n": 51,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Asianometry": {
   "cid": "UC1LpsuAUaKoMzzJSEt5WImw",
   "cap": 1000,
-  "n": 719
+  "n": 720,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "BenEater": {
   "cid": "UCS0N5baNlQWJCUrhCEo8WlA",
@@ -42,7 +50,8 @@
   "n": 135,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Boppana Math": {
   "cid": "UCN9CBC4dh9tdAgAKCQOzrXg",
@@ -50,17 +59,26 @@
   "n": 12,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "BrightSideofMaths": {
   "cid": "UCdwo4k1RQHTcq_-WS7Cazqg",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Computerphile": {
   "cid": "UC9-y-6csu5WGm29I7JiwpnA",
   "cap": 1000,
-  "n": 929
+  "n": 929,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "CoreDumpped": {
   "cid": "UCGKEMK3s-ZPbjVOIuAV8clQ",
@@ -68,7 +86,8 @@
   "n": 51,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Creative Math Problems": {
   "cid": "UCfVApS9lD-I3A0QTsm1XoPw",
@@ -76,7 +95,8 @@
   "n": 22,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Dedekind cuts": {
   "cid": "UCVrSVkLq5HHVYbwgA9Nt8HQ",
@@ -84,14 +104,17 @@
   "n": 185,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Deep Learning School": {
   "cid": "UCFTNoZYjkg-3LZTHrHfV1nQ",
   "cap": 1000,
   "n": 294,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "DigiTec": {
   "cid": "UCJxIyj5KsFsxYXyOhd16wuw",
@@ -99,14 +122,17 @@
   "n": 131,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Dima Shvetsov": {
   "cid": "UCTQCppqdK0tVeNEckLi6-RA",
   "cap": 1000,
   "n": 75,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Dr. Ebrahimian": {
   "cid": "UCb0meJAASHH4nzJAbgiGBsw",
@@ -114,7 +140,8 @@
   "n": 266,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "DwarkeshPatel": {
   "cid": "UCXl4i9dYBrFOabk0xGmbkRA",
@@ -122,7 +149,8 @@
   "n": 215,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Ellie Sleightholm": {
   "cid": "UCylqgu2ojsCxojFpQogowOA",
@@ -130,7 +158,8 @@
   "n": 121,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Errichto Algorithms": {
   "cid": "UCBr_Fu6q9iHYQCh13jmpbrg",
@@ -138,7 +167,8 @@
   "n": 121,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "GG Maths": {
   "cid": "UCZWoiVVe1Zby5j1s5H9eI4A",
@@ -146,12 +176,17 @@
   "n": 65,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "GoogleDeepMind": {
   "cid": "UCP7jMXSY2xbc3KCAE0MHQ-A",
   "cap": 1000,
-  "n": 385
+  "n": 385,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Hamiltonian": {
   "cid": "UCp9Rg04-sACrSSl9kVbTE9g",
@@ -159,24 +194,35 @@
   "n": 5,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Harvard Business Review": {
   "cid": "UCWo4IA01TXzBeGJJKWHOG9g",
   "cap": 1000,
-  "n": 383
+  "n": 383,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "IBMTechnology": {
   "cid": "UCKWaEZ-_VweaEx1j62do_vQ",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Jan Rauch": {
   "cid": "UCcTRcPDtfOF7VCGrrpUkylQ",
   "cap": 1000,
   "n": 213,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Koreez Contest": {
   "cid": "UCXSN90LK5Z8eac9dM_1f_Cg",
@@ -184,12 +230,17 @@
   "n": 47,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Learn English With TV Series": {
   "cid": "UCKgpamMlm872zkGDcBJHYDg",
   "cap": 1000,
-  "n": 690
+  "n": 690,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Logic Unlocked": {
   "cid": "UC2a7KIx9FNRhw0apeIOOkcw",
@@ -197,14 +248,17 @@
   "n": 102,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "MLinside": {
   "cid": "UCfsH7DO5n7N5Mup_oxwKMDQ",
   "cap": 1000,
   "n": 164,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Math from Alpha to Omega": {
   "cid": "UC0B2PS3DGRaC8ARxgvMqR3g",
@@ -212,14 +266,17 @@
   "n": 25,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "MathOlymp | Олимпиадная математика": {
   "cid": "UCBVxM7-bXOXU9lVrCLivapQ",
   "cap": 1000,
   "n": 128,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Mathin": {
   "cid": "UCvNjqNktxdfe44dZL1aap3w",
@@ -227,7 +284,8 @@
   "n": 51,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Mathologer": {
   "cid": "UC1_uAIS3r8Vu6JjXWvastJg",
@@ -235,7 +293,8 @@
   "n": 113,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Maths OlympiadTrainer": {
   "cid": "UC6qPsTzhBHA6LlvuQ2stSVg",
@@ -243,7 +302,8 @@
   "n": 117,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Matvey Merzlikin": {
   "cid": "UCMXeKJu_RDw9J2-RPKrJL3A",
@@ -251,7 +311,8 @@
   "n": 13,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Metric - Python, Մաթեմատիկա, Մեքենայական ուսուցում": {
   "cid": "UC5BavugdnUkti3Es7-deZDg",
@@ -259,7 +320,8 @@
   "n": 247,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Michael Greenberg": {
   "cid": "UC3mhbGC7kQgzkXT9fceNOwA",
@@ -267,12 +329,17 @@
   "n": 359,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "MichaelPennMath": {
   "cid": "UC6jM0RFkr4eSkzT5Gx0HOAw",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Mohamed Omar": {
   "cid": "UCSoVyBb75Mf9o_eZGuKa2HQ",
@@ -280,7 +347,8 @@
   "n": 197,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Mr. Math": {
   "cid": "UC_hl3Y2jHHOKXuo4k5sVARA",
@@ -293,7 +361,8 @@
   "n": 248,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Nice Math Problems": {
   "cid": "UCL1MZd6c_e7DPEFo88z3EBg",
@@ -301,7 +370,8 @@
   "n": 45,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Odysseas": {
   "cid": "UCQjBsscIa_mgEnSvWpm_9vw",
@@ -309,7 +379,8 @@
   "n": 116,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Olympiad Geometry": {
   "cid": "UCrN-KzbGWHz6Y48dIfJTRRg",
@@ -317,7 +388,8 @@
   "n": 56,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Olympiad animations": {
   "cid": "UC7m1pOqARAZfkS7AP9OnaRA",
@@ -325,7 +397,8 @@
   "n": 10,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "OptionalProblem": {
   "cid": "UChIFVu0mJZiI931hd2hZniA",
@@ -333,7 +406,8 @@
   "n": 107,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Patchouli": {
   "cid": "UCecG6l0ZO7INzT-CQhvePoA",
@@ -346,7 +420,8 @@
   "n": 5,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Primus Mathematica": {
   "cid": "UCpT6PKii9-v3Gev-N0z5Fwg",
@@ -354,7 +429,8 @@
   "n": 33,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "QuantaScienceChannel": {
   "cid": "UCTpmmkp1E4nmZqWPS-dl5bg",
@@ -362,7 +438,8 @@
   "n": 159,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "RedPig": {
   "cid": "UCBoH0u68QUCdGs9Ber_z1mQ",
@@ -370,7 +447,8 @@
   "n": 63,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Riemann": {
   "cid": "UCMf3MweZ4M6poZ3mCf1SNIQ",
@@ -388,17 +466,26 @@
   "n": 101,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "SebastianLague": {
   "cid": "UCmtyQOKKmrMVaKuRXz02jbQ",
   "cap": 1000,
-  "n": 297
+  "n": 297,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Shefs of Problem Solving": {
   "cid": "UCGnDWH8_ClXegQkWnbzDnzA",
   "cap": 1000,
-  "n": 344
+  "n": 344,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Sterudy": {
   "cid": "UCnP12DrX8lF9liqudV8hsCA",
@@ -406,7 +493,8 @@
   "n": 7,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Tech Creators Lab": {
   "cid": "UCRmSZlMJKqwzg-lSl6hlSDg",
@@ -414,17 +502,26 @@
   "n": 13,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "TechWithTim": {
   "cid": "UC4JX40jDee_tINbkjycV4Sg",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "TheMathSorcerer": {
   "cid": "UCr7lmzIk63PZnBw3bezl-Mg",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Think Twice": {
   "cid": "UCl_j3znImX5RzV_ocDwYAlQ",
@@ -437,17 +534,26 @@
   "n": 33,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Thinking In Math": {
   "cid": "UC5uV1LcSkHL5zCxKBikdTEg",
   "cap": 1000,
-  "n": 378
+  "n": 378,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "TwoMinutePapers": {
   "cid": "UCbfYPyITQ-7l4upoX8nvctg",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Upsampled": {
   "cid": "UC3_ngL2eLA2o0TtFlG4WQ1g",
@@ -455,7 +561,8 @@
   "n": 2,
   "hl": "en",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Welch Labs": {
   "cid": "UConVfxXodg78Tzh5nNu85Ew",
@@ -463,7 +570,8 @@
   "n": 80,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "Wild Mathing": {
   "cid": "UCj0Od_id0gPbmwZ65U8xwrw",
@@ -471,19 +579,26 @@
   "n": 141,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "YannicKilcher": {
   "cid": "UCZHmQk67mSJgfCCTn7xBfew",
   "cap": 1000,
-  "n": 467
+  "n": 467,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Young&&Yandex": {
   "cid": "UCYtojgaSgXZWIIrYHbIgZ_Q",
   "cap": 1000,
   "n": 1000,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "__claude_code__": {
   "v": 2
@@ -494,12 +609,17 @@
   "n": 147,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "freecodecamp": {
   "cid": "UC8butISFwT-Wl7EV0hUK0BQ",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "jonhoo": {
   "cid": "UC_iD0xppBwwsrM9DegC5cQQ",
@@ -507,12 +627,17 @@
   "n": 109,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "letsthinkcritically": {
   "cid": "UCT-QRRiYoza5rRDCKNdYdhg",
   "cap": 1000,
-  "n": 327
+  "n": 327,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "little fermat": {
   "cid": "UC3TFJRjKrW6yCCLJcgRhFBg",
@@ -520,7 +645,8 @@
   "n": 111,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "mattpocockuk": {
   "cid": "UCswG6FSbgZjbWtdf_hMLaow",
@@ -528,22 +654,35 @@
   "n": 144,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "numberphile": {
   "cid": "UCoxcjq-8xIDTYp3uz647V5A",
   "cap": 1000,
-  "n": 823
+  "n": 824,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "pbsspacetime": {
   "cid": "UC7_gcs09iThXybpVgjHZ_7g",
   "cap": 1000,
-  "n": 448
+  "n": 448,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "ritvikmath": {
   "cid": "UCUcpVoi5KkJmnE3bvEhHR0Q",
   "cap": 1000,
-  "n": 517
+  "n": 517,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "stanfordonline": {
   "cid": "UCBa5G_ESCn8Yd4vw5U-gIcg",
@@ -551,7 +690,8 @@
   "n": 1000,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "statquest": {
   "cid": "UCtYLUTtgS3k1Fg4y5tAhLbw",
@@ -559,12 +699,17 @@
   "n": 264,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "tibees": {
   "cid": "UC52kszkc08-acFOuogFl5jw",
   "cap": 1000,
-  "n": 286
+  "n": 286,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "umarjamilai": {
   "cid": "UCtAcpQcYerN8xxZJYTfWBMw",
@@ -572,17 +717,26 @@
   "n": 25,
   "hl": "en",
   "tv": 3,
-  "vv": 1
+  "vv": 5,
+  "dv": 1
  },
  "veritasium": {
   "cid": "UCHnyfMqiRRG1u-2MsSQLbXA",
   "cap": 1000,
-  "n": 453
+  "n": 453,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "ycombinator": {
   "cid": "UCcefcZRL2oaA_uBNeo5UOWg",
   "cap": 1000,
-  "n": 673
+  "n": 674,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Альфа-частица": {
   "cid": "UC2Ii5sVVBztUpSn_ul-d5eQ",
@@ -590,7 +744,8 @@
   "n": 18,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Андрей Кушнир": {
   "cid": "UCSB2cZogAtsDcwBIr0oHMhQ",
@@ -602,14 +757,18 @@
   "cap": 1000,
   "n": 690,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Видеозаписи МЦНМО": {
   "cid": "UCtUJwoYzwI1XP2FIkQaQygA",
   "cap": 1000,
   "n": 89,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Виктор Прасолов": {
   "cid": "UCAfUJDJGmnMxM2tiU-LZoFw",
@@ -617,14 +776,17 @@
   "n": 18,
   "hl": "ru",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Глеб Орел - Олимпиадный Препод по Физике": {
   "cid": "UCx_E5DQIZJo3SSxDhmjD25g",
   "cap": 1000,
   "n": 186,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Дабромат | Олимпиадная математика": {
   "cid": "UC_dRAIjytb-g10UCvBf_2cg",
@@ -632,21 +794,26 @@
   "n": 14,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Дмитрий Белов. Олимпиадная математика": {
   "cid": "UCw5rmyPmaroYt2xCKy6Pi5w",
   "cap": 1000,
   "n": 193,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Лютая физика": {
   "cid": "UCPEnobVMlQ20f1KPV3RZ4oA",
   "cap": 1000,
   "n": 65,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "МТ кружки": {
   "cid": "UCodqqRyYt-liwuNXEV4L_0g",
@@ -658,14 +825,18 @@
   "cap": 1000,
   "n": 175,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Маткульт-привет! :: Алексей Савватеев": {
   "cid": "UCWk8OxsylgmZ_VgY7jC9pjQ",
   "cap": 1000,
   "n": 727,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Онлайн Уроки": {
   "cid": "UCBNsaEaA4ddwc6GK6uFiMDQ",
@@ -679,7 +850,9 @@
   "cap": 1000,
   "n": 490,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "ФИЗМАТОВЕЦ": {
   "cid": "UCcCrptM0EWMECJC3jH3yHxA",
@@ -687,7 +860,8 @@
   "n": 24,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Физтех-лицей онлайн": {
   "cid": "UCEPZ7gyAqGRuVGBAxerg0VA",
@@ -695,7 +869,8 @@
   "n": 6,
   "hl": "ru",
   "tv": 3,
-  "vv": 5
+  "vv": 5,
+  "dv": 1
  },
  "Фулл и точка": {
   "cid": "UCFmbny7qvlsHO9ARmczOPCg",
@@ -703,23 +878,34 @@
   "n": 5,
   "hl": "ru",
   "tv": 3,
-  "vv": 4
+  "vv": 5,
+  "dv": 1
  },
  "Элементарная Математика": {
   "cid": "UC9mZMNP_0WtTE5ByDYFupOQ",
   "cap": 1000,
   "n": 334,
   "hl": "ru",
-  "tv": 3
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Համալսարանական մաթեմատիկա": {
   "cid": "UCMFONp28jEDHXDBWJyRVYcA",
   "cap": 1000,
-  "n": 433
+  "n": 433,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  },
  "Հայր Միքայել Hayr Miqayel": {
   "cid": "UCvIOGcM59FMwsNIbYFQogBA",
   "cap": 1000,
-  "n": 1000
+  "n": 1000,
+  "hl": "en",
+  "tv": 3,
+  "vv": 5,
+  "dv": 1
  }
 }
