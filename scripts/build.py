@@ -726,7 +726,7 @@ def load_json(p: Path, default):
 
 PLAYLISTS_JSON = DATA / "playlists.json"
 PL_DEBUG: list = []
-PL_VERSION = 4   # bump when playlist parsing changes, to re-fetch every playlist
+PL_VERSION = 5   # bump when playlist parsing changes, to re-fetch every playlist
 _PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
 _NUMBERED = re.compile(
     r"(?:(?<!\w)(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|day|week|"
@@ -824,10 +824,17 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
         time.sleep(0.3)
         try:
             resp = http_post_json(endpoint, {"context": ctx, "continuation": token}, hl=hl)
-        except Exception:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
+            if len(PL_DEBUG) < 10:
+                PL_DEBUG.append("post")
+                print(f"  [playlist next page failed] {e}")
             break
         items = [x for x in parse(resp) if x["id"] not in seen]
         if not items:
+            if parse is _parse_playlist_rows and len(PL_DEBUG) < 10:
+                PL_DEBUG.append("empty")
+                raw = json.dumps(resp, ensure_ascii=False)
+                print(f"  [playlist next page empty] keys={list(resp)[:8]} sample=" + raw[:1500] + " ... " + raw[-1200:])
             break
         seen.update(x["id"] for x in items)
         out.extend(items)
