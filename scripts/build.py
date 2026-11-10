@@ -712,10 +712,12 @@ def load_json(p: Path, default):
 
 PLAYLISTS_JSON = DATA / "playlists.json"
 PL_DEBUG: list = []
-PL_VERSION = 2   # bump when playlist parsing changes, to re-fetch every playlist
+PL_VERSION = 3   # bump when playlist parsing changes, to re-fetch every playlist
 _PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
-_NUMBERED = re.compile(r"(?:^|[\s\[(|:#№.,—–-])(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|"
-                       r"лекция|занятие|урок|семинар|часть|выпуск|серия|դաս)?\.?\s*(?:#|№)?\s*\d{1,3}(?![\d%])", re.I)
+_NUMBERED = re.compile(
+    r"(?:(?<!\w)(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|day|week|"
+    r"problem|exercise|лекция|занятие|урок|семинар|часть|выпуск|серия|день|неделя|задача|задание|դաս)\.?\s*(?:#|№)?\s*\d{1,3}(?!\d)"
+    r"|[#№]\s?\d{1,3}(?!\d)|^\s*\[?\d{1,3}[.)\]]\s)", re.I)
 _UNAVAILABLE = re.compile(r"^\[(private|deleted|unavailable)[^\]]*\]$|^\[(частное|удал[её]нное)[^\]]*\]$", re.I)
 
 
@@ -794,6 +796,11 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
     out = parse(first)
     seen = {x["id"] for x in out}
     token = _continuation(first)
+    if not token and parse is _parse_playlist_rows:
+        # Newer playlist pages nest the list differently; on a playlist page the
+        # only continuation is the list's own, so take it wherever it sits.
+        token = next((c.get("token") for cir in _walk(first, "continuationItemRenderer")
+                      for c in _walk(cir, "continuationCommand") if isinstance(c, dict) and c.get("token")), None)
     while token and len(out) < max_items:
         time.sleep(0.3)
         try:
@@ -806,6 +813,9 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
         seen.update(x["id"] for x in items)
         out.extend(items)
         token = _continuation(resp)
+        if not token and parse is _parse_playlist_rows:
+            token = next((c.get("token") for cir in _walk(resp, "continuationItemRenderer")
+                          for c in _walk(cir, "continuationCommand") if isinstance(c, dict) and c.get("token")), None)
     return out[:max_items]
 
 
@@ -832,15 +842,18 @@ def fetch_playlist_items(pid: str, hl: str, max_items: int) -> list[dict]:
     return out
 
 
-def is_course_like(title: str, items: list[dict], cfg: dict) -> bool:
+def is_course_like(title: str, items: list[dict], cfg: dict, channel_name: str = "") -> bool:
     if len(items) < int(cfg.get("min_videos", 3)):
         return False
     if all((v.get("seconds") or 999) <= 60 for v in items):
         return False                                   # Shorts-only playlist
     if sum(1 for v in items if LIVE.search(v["title"])) > len(items) / 2:
         return False                                   # mostly live streams
+    if channel_name and _norm(title) == _norm(channel_name):
+        return False                                   # catch-all "all my uploads" playlist
     words = cfg.get("keywords") or []
-    if any(w.lower() in title.lower() for w in words):
+    # English keywords match whole words ("class" not "classic"); others are stems ("лекци" -> лекция/лекции).
+    if any(re.search(r"(?<!\w)" + re.escape(w) + (r"s?(?!\w)" if w.isascii() else ""), title, re.I) for w in words):
         return True
     numbered = sum(1 for v in items if _NUMBERED.search(v["title"]))
     return numbered >= len(items) / 2
@@ -900,7 +913,7 @@ def update_playlists(cfg: dict, chans: list[dict], library: dict, workers: int, 
                     stats["lists_fetched"] += 1
                     state["pl"][card["id"]] = {"count": card.get("count"), "at": now}
                     title = calm_title(card["title"])
-                    if is_course_like(title, items, pcfg):
+                    if is_course_like(title, items, pcfg, c.get("name") or c["key"]):
                         keep[card["id"]] = {"id": card["id"], "t": title, "ch": c["key"], "ids": [v["id"] for v in items]}
                         for v in items:
                             if v["id"] not in library:
