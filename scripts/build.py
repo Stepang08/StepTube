@@ -419,6 +419,19 @@ def lockup_views(meta) -> int | None:
     return None
 
 
+def _cont_token(node) -> str | None:
+    """First continuationCommand token anywhere under node, including the newer
+    nesting continuationCommand -> innertubeCommand -> continuationCommand."""
+    for c in _walk(node, "continuationCommand"):
+        if isinstance(c, dict):
+            if c.get("token"):
+                return c["token"]
+            inner = _cont_token(c)
+            if inner:
+                return inner
+    return None
+
+
 def _continuation(node) -> str | None:
     """The paging token of a video list: the continuationItemRenderer that is
     the *last entry* of the grid (richGridRenderer.contents / gridRenderer.items)
@@ -430,10 +443,11 @@ def _continuation(node) -> str | None:
              [g.get("contents") for g in _walk(node, "playlistVideoListRenderer")] +
              list(_walk(node, "continuationItems")))
     for lst in lists:
-        if isinstance(lst, list) and lst and "continuationItemRenderer" in lst[-1]:
-            for c in _walk(lst[-1], "continuationCommand"):
-                if isinstance(c, dict) and c.get("token"):
-                    return c["token"]
+        if isinstance(lst, list) and lst and isinstance(lst[-1], dict) and (
+                "continuationItemRenderer" in lst[-1] or "continuationItemViewModel" in lst[-1]):
+            tok = _cont_token(lst[-1])
+            if tok:
+                return tok
     return None
 
 
@@ -712,7 +726,7 @@ def load_json(p: Path, default):
 
 PLAYLISTS_JSON = DATA / "playlists.json"
 PL_DEBUG: list = []
-PL_VERSION = 3   # bump when playlist parsing changes, to re-fetch every playlist
+PL_VERSION = 4   # bump when playlist parsing changes, to re-fetch every playlist
 _PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
 _NUMBERED = re.compile(
     r"(?:(?<!\w)(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|day|week|"
@@ -799,8 +813,8 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
     if not token and parse is _parse_playlist_rows:
         # Newer playlist pages nest the list differently; on a playlist page the
         # only continuation is the list's own, so take it wherever it sits.
-        token = next((c.get("token") for cir in _walk(first, "continuationItemRenderer")
-                      for c in _walk(cir, "continuationCommand") if isinstance(c, dict) and c.get("token")), None)
+        token = next((t for key in ("continuationItemRenderer", "continuationItemViewModel") for cir in _walk(first, key)
+                      for t in [_cont_token(cir)] if t), None)
     if not token and parse is _parse_playlist_rows and len(out) >= 100 and len(PL_DEBUG) < 8:
         PL_DEBUG.append("cont")
         raw = json.dumps(first, ensure_ascii=False)
@@ -819,8 +833,8 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
         out.extend(items)
         token = _continuation(resp)
         if not token and parse is _parse_playlist_rows:
-            token = next((c.get("token") for cir in _walk(resp, "continuationItemRenderer")
-                          for c in _walk(cir, "continuationCommand") if isinstance(c, dict) and c.get("token")), None)
+            token = next((t for key in ("continuationItemRenderer", "continuationItemViewModel") for cir in _walk(resp, key)
+                          for t in [_cont_token(cir)] if t), None)
     return out[:max_items]
 
 
