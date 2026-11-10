@@ -427,6 +427,7 @@ def _continuation(node) -> str | None:
     lists = ([g.get("contents") for g in _walk(node, "richGridRenderer")] +
              [g.get("items") for g in _walk(node, "gridRenderer")] +
              [g.get("contents") for g in _walk(node, "sectionListRenderer")] +
+             [g.get("contents") for g in _walk(node, "playlistVideoListRenderer")] +
              list(_walk(node, "continuationItems")))
     for lst in lists:
         if isinstance(lst, list) and lst and "continuationItemRenderer" in lst[-1]:
@@ -703,6 +704,205 @@ def load_json(p: Path, default):
         return json.loads(p.read_text())
     except Exception:
         return default
+
+
+# --------------------------------------------------------------------------
+# Channel playlists (course-like ones only)
+# --------------------------------------------------------------------------
+
+PLAYLISTS_JSON = DATA / "playlists.json"
+PL_DEBUG: list = []
+_PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
+_NUMBERED = re.compile(r"(?:^|[\s\[(|:#№.,—–-])(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|"
+                       r"лекция|занятие|урок|семинар|часть|выпуск|серия|դաս)?\.?\s*(?:#|№)?\s*\d{1,3}(?![\d%])", re.I)
+_UNAVAILABLE = re.compile(r"^\[(private|deleted|unavailable)[^\]]*\]$|^\[(частное|удал[её]нное)[^\]]*\]$", re.I)
+
+
+def _pl_count(text: str) -> int | None:
+    m = _PL_COUNT.search(text or "")
+    if not m:
+        return None
+    try:
+        return int(re.sub(r"[\s,. ]", "", m.group(1)))
+    except ValueError:
+        return None
+
+
+def _parse_playlist_cards(node) -> list[dict]:
+    """Playlists on a channel's Playlists tab (both page layouts)."""
+    out, seen = [], set()
+    for lv in _walk(node, "lockupViewModel"):
+        if lv.get("contentType") != "LOCKUP_CONTENT_TYPE_PLAYLIST":
+            continue
+        pid = lv.get("contentId")
+        if not pid or pid in seen:
+            continue
+        seen.add(pid)
+        title = lv.get("metadata", {}).get("lockupMetadataViewModel", {}).get("title", {}).get("content", "")
+        badges = [b.get("text", "") for b in _walk(lv.get("contentImage", {}), "thumbnailBadgeViewModel") if isinstance(b, dict)]
+        count = next((c for c in (_pl_count(t) for t in badges) if c is not None), None)
+        out.append({"id": pid, "title": title, "count": count})
+    for g in _walk(node, "gridPlaylistRenderer"):
+        pid = g.get("playlistId")
+        if not pid or pid in seen:
+            continue
+        seen.add(pid)
+        count = _pl_count(_txt(g.get("videoCountText"))) or _pl_count(_txt(g.get("videoCountShortText")))
+        out.append({"id": pid, "title": _txt(g.get("title")), "count": count})
+    return out
+
+
+def _parse_playlist_rows(node) -> list[dict]:
+    out = []
+    for r in _walk(node, "playlistVideoRenderer"):
+        vid = r.get("videoId")
+        title = _txt(r.get("title"))
+        if not vid or _UNAVAILABLE.match(title.strip()) or r.get("isPlayable") is False:
+            continue
+        secs = r.get("lengthSeconds")
+        out.append({"id": vid, "title": title,
+                    "seconds": int(secs) if str(secs or "").isdigit() else parse_duration(_txt(r.get("lengthText"))),
+                    "channel": _txt(r.get("shortBylineText"))})
+    return out
+
+
+def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> list[dict]:
+    """Parse a page's items, then follow its list continuation until max_items."""
+    m = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', page)
+    k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
+    endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
+    ctx = {"client": {"clientName": "WEB", "clientVersion": m.group(1) if m else "2.20251101.00.00", "hl": hl, "gl": "US"}}
+    out = parse(first)
+    seen = {x["id"] for x in out}
+    token = _continuation(first)
+    while token and len(out) < max_items:
+        time.sleep(0.3)
+        try:
+            resp = http_post_json(endpoint, {"context": ctx, "continuation": token}, hl=hl)
+        except Exception:  # noqa: BLE001
+            break
+        items = [x for x in parse(resp) if x["id"] not in seen]
+        if not items:
+            break
+        seen.update(x["id"] for x in items)
+        out.extend(items)
+        token = _continuation(resp)
+    return out[:max_items]
+
+
+def fetch_channel_playlists(cid: str, hl: str, max_lists: int) -> list[dict]:
+    page = http_get(f"https://www.youtube.com/channel/{cid}/playlists?view=1&sort=lad&hl={hl}&gl=US", hl=hl)
+    data = _initial_data(page)
+    out = _browse_pages(page, data, _parse_playlist_cards, hl, max_lists)
+    if not out and len(PL_DEBUG) < 3 and "playlist" in page.lower():
+        PL_DEBUG.append(cid)
+        tab = next((t for t in _walk(data, "tabRenderer") if t.get("selected")), None)
+        print(f"  [no playlists parsed] {cid}: " + json.dumps(tab or {}, ensure_ascii=False)[:2500])
+    return out
+
+
+def fetch_playlist_items(pid: str, hl: str, max_items: int) -> list[dict]:
+    page = http_get(f"https://www.youtube.com/playlist?list={pid}&hl={hl}&gl=US", hl=hl)
+    data = _initial_data(page)
+    out = _browse_pages(page, data, _parse_playlist_rows, hl, max_items)
+    if not out and len(PL_DEBUG) < 6:
+        PL_DEBUG.append(pid)
+        raw = next(iter(_walk(data, "playlistVideoListRenderer")), None) or \
+            next(iter(_walk(data, "lockupViewModel")), None) or {"keys": list(data)[:12]}
+        print(f"  [no playlist items parsed] {pid}: " + json.dumps(raw, ensure_ascii=False)[:2500])
+    return out
+
+
+def is_course_like(title: str, items: list[dict], cfg: dict) -> bool:
+    if len(items) < int(cfg.get("min_videos", 3)):
+        return False
+    if all((v.get("seconds") or 999) <= 60 for v in items):
+        return False                                   # Shorts-only playlist
+    if sum(1 for v in items if LIVE.search(v["title"])) > len(items) / 2:
+        return False                                   # mostly live streams
+    words = cfg.get("keywords") or []
+    if any(w.lower() in title.lower() for w in words):
+        return True
+    numbered = sum(1 for v in items if _NUMBERED.search(v["title"]))
+    return numbered >= len(items) / 2
+
+
+def update_playlists(cfg: dict, chans: list[dict], library: dict, workers: int, offline: bool) -> dict:
+    """Refresh course-like playlists of your channels into site/data/playlists.json.
+    Gentle: a channel's playlist list at most daily, a playlist's items only when
+    its count changes (or weekly), and at most `per_run` channels per run."""
+    pcfg = cfg.get("playlists") or {}
+    prev = load_json(PLAYLISTS_JSON, {})
+    state = prev.get("state") or {"ch": {}, "pl": {}}
+    state.setdefault("ch", {}); state.setdefault("pl", {})
+    keep: dict[str, dict] = {p["id"]: p for p in prev.get("playlists", [])}
+    extra: dict[str, dict] = dict(prev.get("extra") or {})
+    stats = {"channels_checked": 0, "lists_seen": 0, "lists_fetched": 0, "kept": 0, "skipped": 0, "errors": []}
+    now = time.time()
+    day, week = 86400, 7 * 86400
+    keys = {c["key"] for c in chans if c.get("cid")}
+    keep = {k: p for k, p in keep.items() if p["ch"] in keys}          # channel removed -> its playlists go
+    if not offline and pcfg.get("enabled", True):
+        due = sorted((c for c in chans if c.get("cid") and now - state["ch"].get(c["key"], 0) > day),
+                     key=lambda c: state["ch"].get(c["key"], 0))[: int(pcfg.get("per_run", 25))]
+
+        def one(c):
+            res = {"key": c["key"], "lists": [], "err": None}
+            try:
+                cards = fetch_channel_playlists(c["cid"], c["hl"], int(pcfg.get("max_per_channel", 60)))
+                for card in cards:
+                    st = state["pl"].get(card["id"], {})
+                    fresh = (card.get("count") is not None and card["count"] == st.get("count")
+                             and now - st.get("at", 0) < week)
+                    if fresh:
+                        res["lists"].append((card, None))
+                        continue
+                    items = fetch_playlist_items(card["id"], c["hl"], int(pcfg.get("max_items", 300)))
+                    res["lists"].append((card, items))
+            except Exception as e:  # noqa: BLE001
+                res["err"] = f"{c['key']}: {e}"
+            return c, res
+
+        with cf.ThreadPoolExecutor(min(workers, 6)) as ex:
+            for c, res in ex.map(one, due):
+                stats["channels_checked"] += 1
+                if res["err"]:
+                    stats["errors"].append(res["err"][:200])
+                    continue
+                state["ch"][c["key"]] = now
+                seen_ids = set()
+                for card, items in res["lists"]:
+                    stats["lists_seen"] += 1
+                    seen_ids.add(card["id"])
+                    if items is None:
+                        continue                                   # unchanged since last fetch
+                    stats["lists_fetched"] += 1
+                    state["pl"][card["id"]] = {"count": card.get("count"), "at": now}
+                    title = calm_title(card["title"])
+                    if is_course_like(title, items, pcfg):
+                        keep[card["id"]] = {"id": card["id"], "t": title, "ch": c["key"], "ids": [v["id"] for v in items]}
+                        for v in items:
+                            if v["id"] not in library:
+                                extra[v["id"]] = {"t": calm_title(v["title"]), "chn": v.get("channel") or "",
+                                                  **({"s": v["seconds"]} if v.get("seconds") else {})}
+                        stats["kept"] += 1
+                    else:
+                        keep.pop(card["id"], None)
+                        stats["skipped"] += 1
+                # playlists the channel deleted
+                for pid in [p for p, x in keep.items() if x["ch"] == c["key"] and p not in seen_ids]:
+                    keep.pop(pid)
+    used = {i for p in keep.values() for i in p["ids"]}
+    extra = {k: v for k, v in extra.items() if k in used and k not in library}
+    for p in keep.values():
+        p["n"] = len(p["ids"])
+    out = {"playlists": sorted(keep.values(), key=lambda p: (p["ch"], p["t"])), "extra": extra, "state": state}
+    if json.dumps(out, sort_keys=True) != json.dumps({k: prev.get(k) for k in out}, sort_keys=True):
+        PLAYLISTS_JSON.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
+    stats["total"] = len(keep)
+    print(f"  playlists: {stats['total']} course-like kept (checked {stats['channels_checked']} channels, "
+          f"fetched {stats['lists_fetched']} of {stats['lists_seen']} lists, skipped {stats['skipped']})")
+    return stats
 
 
 def main() -> int:
@@ -1020,6 +1220,7 @@ def main() -> int:
     IDS_JSON.write_text(json.dumps(dict(sorted(ids_cache.items())), indent=1))
     if not args.offline:
         BACKFILL_JSON.write_text(json.dumps(dict(sorted(backfill.items())), indent=1, ensure_ascii=False))
+    report["playlists"] = update_playlists(cfg, chans, {v["id"]: v for v in videos}, args.workers, args.offline)
     report["total"] = len(videos)
     report["pub_samples"] = PUB_SAMPLES
     report["archive_debug"] = ARCHIVE_DEBUG

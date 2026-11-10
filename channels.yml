@@ -32,6 +32,19 @@ subtopics:
     university: "University"
     popular: "Popular math"
 
+# Playlists tab: the channels' own YouTube playlists, course-like ones only.
+# Kept when a playlist has >= min_videos playable videos, isn't all Shorts or
+# mostly live streams, and either its title has one of these words or at least
+# half of its videos have numbered titles ("Lecture 3", "Занятие 12", ...).
+playlists:
+  min_videos: 3
+  per_run: 25          # channels checked per hourly run; each channel at most once a day
+  max_per_channel: 60  # newest-updated playlists per channel
+  max_items: 300
+  keywords: [lecture, course, lesson, tutorial, series, part, season, chapter, module, seminar,
+             class, from scratch, explained, bootcamp, лекци, курс, урок, занят, семинар, цикл,
+             разбор, подготовк, олимпиад, դաս, դասընթաց]
+
 # Claude Code tab: videos from ANY channel, found by YouTube search every hour.
 # Kept only if the title mentions Claude Code, it's not a Short (>= min_minutes),
 # not a live/premiere, and it's in English or Russian. Clickbait is hidden.

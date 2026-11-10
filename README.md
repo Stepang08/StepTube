@@ -112,6 +112,17 @@ GitHub's own scheduler skips many runs. To start the update on the dot, let a fr
 
 A reply of `204` means the update started.
 
+## Playlists
+
+The **Playlists** tab shows your channels' own YouTube playlists, course-like ones only:
+- **Kept:** at least 3 videos, and either a course word in the title (lecture, course, урок, курс, դաս…) or mostly numbered video titles.
+- **Skipped:** Shorts-only playlists and playlists that are mostly live streams.
+- **Order and progress:** videos play in the creator's order, with a progress bar and Continue.
+- **Guessed series:** series detected from numbered titles stay listed too, unless a real playlist already covers them.
+- **Elsewhere:** channel pages show a Playlists row, and the watch page shows "Part 3 of 24 in ‹playlist›" with Next.
+
+The build refreshes a channel's playlist list at most once a day, about 25 channels per run, and re-reads a playlist only when its video count changes. Tune it in `channels.yml` under `playlists:`.
+
 ## Personal features (stored in your browser only)
 
 Watch later, likes, history, watched marks, per-video **notes** (searchable),

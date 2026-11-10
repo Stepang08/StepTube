@@ -226,3 +226,11 @@ dialog form button { border: 1px solid var(--line); background: var(--bg-3); bor
 .byline.crs { margin-top: 4px; }
 .set input[type=password] { width: 200px; max-width: 100%; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; }
 @media (max-width: 640px) { .head .tools { justify-content: flex-start; } }
+
+/* ---------- channel playlists row ---------- */
+.plrow { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 0 0 18px; }
+.plcard { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); }
+.plcard:hover { background: var(--bg-3); }
+.plcard b { font: 500 15.5px/1.3 var(--font-read); }
+.plcard span { color: var(--text-3); font-size: 13px; }
+.plcard .progress { max-width: none; margin-top: 4px; }

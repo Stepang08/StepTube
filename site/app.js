@@ -89,13 +89,23 @@
     byId = new Map(DB.videos.map((v) => [v.id, v]));
     chByKey = new Map(DB.channels.map((c) => [c.key, c]));
     window.StepSearch?.build(DB, chName);
-    COURSES = window.StepCourses ? StepCourses.build(DB.videos, chName) : [];
+    // Channels' own YouTube playlists (optional file), then series guessed from numbered titles.
+    let PL = { playlists: [], extra: {} };
+    try { const r = await fetch("data/playlists.json", { cache: "no-cache" }); if (r.ok) PL = await r.json(); } catch (_) {}
+    for (const [id, x] of Object.entries(PL.extra || {})) if (!byId.has(id)) byId.set(id, { id, t: x.t, chn: x.chn, s: x.s, ch: "", p: "", xtra: 1 });
+    const lists = (PL.playlists || []).map((p) => ({ key: `pl:${p.id}`, title: p.t, ch: p.ch, chn: chByKey.get(p.ch)?.name || p.ch,
+      ids: p.ids.filter((id) => byId.has(id)), src: "playlist", pid: p.id })).filter((c) => c.ids.length);
+    const inList = new Set(lists.flatMap((c) => c.ids));
+    const guessed = (window.StepCourses ? StepCourses.build(DB.videos, chName) : [])
+      .filter((c) => c.ids.filter((id) => inList.has(id)).length < 0.6 * c.ids.length).map((c) => ({ ...c, src: "series" }));
+    COURSES = [...lists, ...guessed];
     courseByKey = new Map(COURSES.map((c) => [c.key, c]));
-    courseOf = new Map(); for (const c of COURSES) c.ids.forEach((id, i) => courseOf.set(id, [c, i]));
+    courseOf = new Map();
+    for (const c of COURSES) c.ids.forEach((id, i) => { if (!courseOf.has(id)) courseOf.set(id, [c, i]); });
     $("#tabs").innerHTML =
       `<a href="#/" data-tab="">New</a><a href="#/foryou" data-tab="foryou">For you</a>` +
       DB.topics.filter((t) => DB.videos.some((v) => v.tp === t.key)).map((t) => `<a href="#/t/${t.key}" data-tab="${t.key}">${esc(t.name)}</a>`).join("") +
-      `<a href="#/courses" data-tab="courses">Courses</a><a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
+      `<a href="#/playlists" data-tab="playlists">Playlists</a><a href="#/classics" data-tab="classics">Classics</a><a href="#/channels" data-tab="channels">Channels</a>`;
     const when = DB.generated ? new Date(DB.generated) : null;
     $("#meta").textContent = `${DB.videos.length} videos · ${DB.channels.length} channels` +
       (when ? ` · updated ${when.toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : "");
@@ -282,7 +292,8 @@
         S.settings.subs = { ...(S.settings.subs || {}), [key]: b.dataset.sub }; save(); shown = PAGE; render(true);
       }));
     },
-    courses() {
+    courses() { return views.playlists(); },
+    playlists() {
       const info = (c) => {
         const done = c.ids.filter((id) => S.watched[id]).length;
         const last = Math.max(0, ...c.ids.map((id) => S.watched[id] || (S.pos[id] && S.pos[id].at) || 0));
@@ -290,17 +301,19 @@
       };
       const lang = S.settings.lang || "all";
       let rows = COURSES.filter((c) => !S.muted.includes(c.ch) && (lang === "all" || langOf(byId.get(c.ids[0])) === lang)).map(info);
-      rows.sort((a, b) => (b.last > 0 && b.done < b.c.ids.length) - (a.last > 0 && a.done < a.c.ids.length) || b.last - a.last || b.c.ids.length - a.c.ids.length);
+      rows.sort((a, b) => (b.last > 0 && b.done < b.c.ids.length) - (a.last > 0 && a.done < a.c.ids.length) || b.last - a.last ||
+        (a.c.src === "playlist" ? 0 : 1) - (b.c.src === "playlist" ? 0 : 1) || b.c.ids.length - a.c.ids.length);
       const o = (k, n) => `<option value="${k}"${lang === k ? " selected" : ""}>${n}</option>`;
       const started = rows.filter((r) => r.last > 0 && r.done < r.c.ids.length).length;
-      main.innerHTML = `<div class="head"><div><h1>Courses</h1><div class="sub">${rows.length} lecture series found in your library by their numbering${started ? ` · ${started} in progress` : ""}. Videos play in order, and your progress is tracked.</div></div>
+      const nPl = rows.filter((r) => r.c.src === "playlist").length;
+      main.innerHTML = `<div class="head"><div><h1>Playlists</h1><div class="sub">${nPl} course-like playlists from your channels on YouTube, plus ${rows.length - nPl} series found by numbered titles${started ? ` · ${started} in progress` : ""}. Videos play in the creator's order, and your progress is tracked.</div></div>
         <div class="tools"><label>Language <select id="flang">${o("all", "All")}${o("en", "English")}${o("ru", "Русский")}${o("hy", "Հայերեն")}</select></label></div></div>
         ${rows.length ? `<ul class="list">${rows.slice(0, shown).map(({ c, done, next, last }) => `<li class="course">
           <div class="info"><h3 class="title"><a href="#/course/${encodeURIComponent(c.key)}">${esc(c.title)}</a></h3>
-            <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length} videos${done ? `<span class="dot">·</span>${done} watched` : ""}</div>
+            <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length} videos${done ? `<span class="dot">·</span>${done} watched` : ""}<span class="tag">${c.src === "playlist" ? "playlist" : "series"}</span></div>
             <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${c.ids.length}" aria-valuenow="${done}"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div></div>
-          <div class="acts">${next ? `<a class="btn" href="#/v/${next}">${done || last ? "Continue" : "Start"}</a>` : `<span class="tag">finished</span>`}</div></li>`).join("")}</ul>` : `<p class="end">No courses match.</p>`}
-        ${rows.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, rows.length - shown)} more <span style="color:var(--text-3)">(${rows.length - shown} left)</span></button></div>` : rows.length ? `<p class="end">That's every course.</p>` : ""}`;
+          <div class="acts">${next ? `<a class="btn" href="#/v/${next}">${done || last ? "Continue" : "Start"}</a>` : `<span class="tag">finished</span>`}</div></li>`).join("")}</ul>` : `<p class="end">No playlists match.</p>`}
+        ${rows.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, rows.length - shown)} more <span style="color:var(--text-3)">(${rows.length - shown} left)</span></button></div>` : rows.length ? `<p class="end">That's every playlist.</p>` : ""}`;
       $("#flang").addEventListener("change", (e) => { S.settings.lang = e.target.value; save(); shown = PAGE; render(true); });
       $("#more")?.addEventListener("click", () => { shown += PAGE; render(true); });
     },
@@ -309,7 +322,7 @@
       if (!c) return views.notFound();
       const done = c.ids.filter((id) => S.watched[id]).length, next = c.ids.find((id) => !S.watched[id]);
       listView({ title: c.title, sortable: false, filterable: false, list: c.ids.map((id) => byId.get(id)),
-        sub: `${esc(c.chn)} · ${c.ids.length} videos in order · ${done} watched${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
+        sub: `${esc(c.chn)} · ${c.ids.length} videos in order · ${done} watched${c.pid ? ` · <a href="https://www.youtube.com/playlist?list=${esc(c.pid)}" target="_blank" rel="noopener">playlist on YouTube ↗</a>` : ""}${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
         pre: () => `<div class="progress wide"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div>`,
         empty: "Empty course.", endText: "End of the course." });
     },
@@ -339,7 +352,13 @@
     channel(key) {
       const c = chByKey.get(key);
       const list = DB.videos.filter((v) => v.ch === key && (S.settings.clickbait || !v.cb));
-      listView({ title: c?.name || key, sub: `${list.length} videos · <a href="https://www.youtube.com/${c?.cid ? "channel/" + c.cid : "@" + encodeURIComponent(key)}" target="_blank" rel="noopener">on YouTube ↗</a>`, list, empty: "No videos stored for this channel yet." });
+      const pls = COURSES.filter((x) => x.ch === key && x.src === "playlist");
+      const pre = pls.length ? () => `<h2 class="sec">Playlists</h2><div class="plrow">${pls.map((p) => {
+        const done = p.ids.filter((id) => S.watched[id]).length;
+        return `<a class="plcard" href="#/course/${encodeURIComponent(p.key)}"><b>${esc(p.title)}</b><span>${p.ids.length} videos${done ? ` · ${done} watched` : ""}</span>
+          <span class="progress"><i style="width:${Math.round((100 * done) / p.ids.length)}%"></i></span></a>`;
+      }).join("")}</div><h2 class="sec">Videos</h2>` : null;
+      listView({ title: c?.name || key, pre, sub: `${list.length} videos${pls.length ? ` · ${pls.length} playlists` : ""} · <a href="https://www.youtube.com/${c?.cid ? "channel/" + c.cid : "@" + encodeURIComponent(key)}" target="_blank" rel="noopener">on YouTube ↗</a>`, list, empty: "No videos stored for this channel yet." });
     },
     classics() {
       listView({ title: "Classics", sub: "Pinned forever, from <code>classics.yml</code>.", list: DB.videos.filter((v) => v.ev), empty: "Add evergreen videos to classics.yml." });
@@ -453,7 +472,7 @@
         <div class="player"><div id="yt"></div>
           <div class="done" id="done"><div><p>Finished. Good time to pause.</p><div class="row">
             <a class="btn primary" href="#/">Back to library</a>
-            ${nextInCourse ? `<a class="btn" href="#/v/${nextInCourse.id}">Next in course</a>` : ""}
+            ${nextInCourse ? `<a class="btn" href="#/v/${nextInCourse.id}">Next in ${crs.src === "playlist" ? "playlist" : "series"}</a>` : ""}
             ${nextLater ? `<a class="btn" href="#/v/${nextLater.id}">Next in Watch later</a>` : ""}
             <button class="btn" id="replay">Replay</button></div></div></div>
         </div>
@@ -592,7 +611,7 @@
     else if (views[a] && !["topic", "channel", "watch", "search", "course", "notFound"].includes(a)) views[a]();
     else views.notFound();
     if (keep) window.scrollTo(0, y);
-    const tab = a === "t" ? b : !a ? "" : a === "course" ? "courses" : a;
+    const tab = a === "t" ? b : !a ? "" : (a === "course" || a === "courses") ? "playlists" : a;
     document.querySelectorAll("#tabs a").forEach((x) => x.toggleAttribute("aria-current", x.dataset.tab === tab && a !== "v" && a !== "s"));
     document.querySelectorAll(".me a").forEach((x) => x.toggleAttribute("aria-current", x.dataset.nav === a));
     document.title = a === "v" ? `${byId.get(b)?.t || "Video"} · StepTube` : "StepTube";
@@ -631,7 +650,7 @@
     const cs = cards();
     if (gPending) {
       gPending = false;
-      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/", f: "#/foryou", u: "#/courses" }[e.key];
+      const m = { l: "#/later", h: "#/history", c: "#/channels", s: "#/settings", k: "#/liked", n: "#/", f: "#/foryou", u: "#/playlists" }[e.key];
       if (m) { location.hash = m; e.preventDefault(); }
       return;
     }
