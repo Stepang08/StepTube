@@ -94,7 +94,7 @@
     try { const r = await fetch("data/playlists.json", { cache: "no-cache" }); if (r.ok) PL = await r.json(); } catch (_) {}
     for (const [id, x] of Object.entries(PL.extra || {})) if (!byId.has(id)) byId.set(id, { id, t: x.t, chn: x.chn, s: x.s, ch: "", p: "", xtra: 1 });
     const lists = (PL.playlists || []).map((p) => ({ key: `pl:${p.id}`, title: p.t, ch: p.ch, chn: chByKey.get(p.ch)?.name || p.ch,
-      ids: p.ids.filter((id) => byId.has(id)), src: "playlist", pid: p.id })).filter((c) => c.ids.length);
+      ids: p.ids.filter((id) => byId.has(id)), src: "playlist", pid: p.id, total: p.total || 0 })).filter((c) => c.ids.length);
     const inList = new Set(lists.flatMap((c) => c.ids));
     const guessed = (window.StepCourses ? StepCourses.build(DB.videos, chName) : [])
       .filter((c) => c.ids.filter((id) => inList.has(id)).length < 0.6 * c.ids.length).map((c) => ({ ...c, src: "series" }));
@@ -310,7 +310,7 @@
         <div class="tools"><label>Language <select id="flang">${o("all", "All")}${o("en", "English")}${o("ru", "Русский")}${o("hy", "Հայերեն")}</select></label></div></div>
         ${rows.length ? `<ul class="list">${rows.slice(0, shown).map(({ c, done, next, last }) => `<li class="course">
           <div class="info"><h3 class="title"><a href="#/course/${encodeURIComponent(c.key)}">${esc(c.title)}</a></h3>
-            <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length} videos${done ? `<span class="dot">·</span>${done} watched` : ""}<span class="tag">${c.src === "playlist" ? "playlist" : "series"}</span></div>
+            <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length}${c.total > c.ids.length ? ` of ${c.total}` : ""} videos${done ? `<span class="dot">·</span>${done} watched` : ""}<span class="tag">${c.src === "playlist" ? "playlist" : "series"}</span></div>
             <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${c.ids.length}" aria-valuenow="${done}"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div></div>
           <div class="acts">${next ? `<a class="btn" href="#/v/${next}">${done || last ? "Continue" : "Start"}</a>` : `<span class="tag">finished</span>`}</div></li>`).join("")}</ul>` : `<p class="end">No playlists match.</p>`}
         ${rows.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, rows.length - shown)} more <span style="color:var(--text-3)">(${rows.length - shown} left)</span></button></div>` : rows.length ? `<p class="end">That's every playlist.</p>` : ""}`;
@@ -322,7 +322,7 @@
       if (!c) return views.notFound();
       const done = c.ids.filter((id) => S.watched[id]).length, next = c.ids.find((id) => !S.watched[id]);
       listView({ title: c.title, sortable: false, filterable: false, list: c.ids.map((id) => byId.get(id)),
-        sub: `${esc(c.chn)} · ${c.ids.length} videos in order · ${done} watched${c.pid ? ` · <a href="https://www.youtube.com/playlist?list=${esc(c.pid)}" target="_blank" rel="noopener">playlist on YouTube ↗</a>` : ""}${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
+        sub: `${esc(c.chn)} · ${c.ids.length} videos in order${c.total > c.ids.length ? ` (first ${c.ids.length} of ${c.total})` : ""} · ${done} watched${c.pid ? ` · <a href="https://www.youtube.com/playlist?list=${esc(c.pid)}" target="_blank" rel="noopener">playlist on YouTube ↗</a>` : ""}${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
         pre: () => `<div class="progress wide"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div>`,
         empty: "Empty course.", endText: "End of the course." });
     },

@@ -957,7 +957,8 @@ def update_playlists(cfg: dict, chans: list[dict], library: dict, workers: int, 
                     state["pl"][card["id"]] = {"count": card.get("count"), "at": now}
                     title = calm_title(card["title"])
                     if is_course_like(title, items, pcfg, c.get("name") or c["key"]):
-                        keep[card["id"]] = {"id": card["id"], "t": title, "ch": c["key"], "ids": [v["id"] for v in items]}
+                        keep[card["id"]] = {"id": card["id"], "t": title, "ch": c["key"], "ids": [v["id"] for v in items],
+                                            **({"total": card["count"]} if (card.get("count") or 0) > len(items) else {})}
                         for v in items:
                             if v["id"] not in library:
                                 extra[v["id"]] = {"t": calm_title(v["title"]), "chn": v.get("channel") or "",
