@@ -712,6 +712,7 @@ def load_json(p: Path, default):
 
 PLAYLISTS_JSON = DATA / "playlists.json"
 PL_DEBUG: list = []
+PL_VERSION = 2   # bump when playlist parsing changes, to re-fetch every playlist
 _PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
 _NUMBERED = re.compile(r"(?:^|[\s\[(|:#№.,—–-])(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|"
                        r"лекция|занятие|урок|семинар|часть|выпуск|серия|դաս)?\.?\s*(?:#|№)?\s*\d{1,3}(?![\d%])", re.I)
@@ -753,16 +754,34 @@ def _parse_playlist_cards(node) -> list[dict]:
 
 
 def _parse_playlist_rows(node) -> list[dict]:
+    """Videos on a playlist page: older playlistVideoRenderer rows, or the newer
+    video lockups (same shape as on channel pages)."""
     out = []
+    seen = set()
     for r in _walk(node, "playlistVideoRenderer"):
         vid = r.get("videoId")
         title = _txt(r.get("title"))
         if not vid or _UNAVAILABLE.match(title.strip()) or r.get("isPlayable") is False:
             continue
         secs = r.get("lengthSeconds")
+        seen.add(vid)
         out.append({"id": vid, "title": title,
                     "seconds": int(secs) if str(secs or "").isdigit() else parse_duration(_txt(r.get("lengthText"))),
                     "channel": _txt(r.get("shortBylineText"))})
+    for lv in _walk(node, "lockupViewModel"):
+        if lv.get("contentType", "LOCKUP_CONTENT_TYPE_VIDEO") != "LOCKUP_CONTENT_TYPE_VIDEO":
+            continue
+        vid = lv.get("contentId")
+        meta = lv.get("metadata", {}).get("lockupMetadataViewModel", {})
+        title = meta.get("title", {}).get("content", "")
+        if not vid or vid in seen or _UNAVAILABLE.match(title.strip()):
+            continue
+        seen.add(vid)
+        secs = next((d for d in (parse_duration(b.get("text", "")) for b in _walk(lv.get("contentImage", {}), "thumbnailBadgeViewModel")
+                                 if isinstance(b, dict)) if d), None)
+        parts = [q.get("text", {}).get("content", "") for p in _walk(meta, "metadataParts") for q in (p or [])]
+        channel = next((t for t in parts if t and not re.search(r"\d", t)), "")
+        out.append({"id": vid, "title": title, "seconds": secs, "channel": channel})
     return out
 
 
@@ -834,6 +853,8 @@ def update_playlists(cfg: dict, chans: list[dict], library: dict, workers: int, 
     pcfg = cfg.get("playlists") or {}
     prev = load_json(PLAYLISTS_JSON, {})
     state = prev.get("state") or {"ch": {}, "pl": {}}
+    if state.get("v") != PL_VERSION:          # parser changed: fetch everything again
+        state = {"v": PL_VERSION, "ch": {}, "pl": {}}
     state.setdefault("ch", {}); state.setdefault("pl", {})
     keep: dict[str, dict] = {p["id"]: p for p in prev.get("playlists", [])}
     extra: dict[str, dict] = dict(prev.get("extra") or {})
