@@ -801,6 +801,11 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
         # only continuation is the list's own, so take it wherever it sits.
         token = next((c.get("token") for cir in _walk(first, "continuationItemRenderer")
                       for c in _walk(cir, "continuationCommand") if isinstance(c, dict) and c.get("token")), None)
+    if not token and parse is _parse_playlist_rows and len(out) >= 100 and len(PL_DEBUG) < 8:
+        PL_DEBUG.append("cont")
+        raw = json.dumps(first, ensure_ascii=False)
+        hits = [raw[max(0, m.start() - 400): m.start() + 300] for m in re.finditer(r"ontinuation", raw)][:4]
+        print(f"  [playlist 100+ without token] samples: " + " ||| ".join(hits)[:3000])
     while token and len(out) < max_items:
         time.sleep(0.3)
         try:
