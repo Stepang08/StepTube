@@ -298,7 +298,7 @@
         ${rows.length ? `<ul class="list">${rows.slice(0, shown).map(({ c, done, next, last }) => `<li class="course">
           <div class="info"><h3 class="title"><a href="#/course/${encodeURIComponent(c.key)}">${esc(c.title)}</a></h3>
             <div class="byline">${esc(c.chn)}<span class="dot">·</span>${c.ids.length} videos${done ? `<span class="dot">·</span>${done} watched` : ""}</div>
-            <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${c.ids.length}" aria-valuenow="${done}"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div></div>
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${c.ids.length}" aria-valuenow="${done}"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div></div>
           <div class="acts">${next ? `<a class="btn" href="#/v/${next}">${done || last ? "Continue" : "Start"}</a>` : `<span class="tag">finished</span>`}</div></li>`).join("")}</ul>` : `<p class="end">No courses match.</p>`}
         ${rows.length > shown ? `<div class="more"><button class="btn" id="more">Show ${Math.min(PAGE, rows.length - shown)} more <span style="color:var(--text-3)">(${rows.length - shown} left)</span></button></div>` : rows.length ? `<p class="end">That's every course.</p>` : ""}`;
       $("#flang").addEventListener("change", (e) => { S.settings.lang = e.target.value; save(); shown = PAGE; render(true); });
@@ -310,7 +310,7 @@
       const done = c.ids.filter((id) => S.watched[id]).length, next = c.ids.find((id) => !S.watched[id]);
       listView({ title: c.title, sortable: false, filterable: false, list: c.ids.map((id) => byId.get(id)),
         sub: `${esc(c.chn)} · ${c.ids.length} videos in order · ${done} watched${next ? ` · <a href="#/v/${next}">${done ? "Continue" : "Start"}: ${esc(byId.get(next).t)}</a>` : " · finished"}`,
-        pre: () => `<div class="bar wide"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div>`,
+        pre: () => `<div class="progress wide"><i style="width:${Math.round((100 * done) / c.ids.length)}%"></i></div>`,
         empty: "Empty course.", endText: "End of the course." });
     },
     async foryou() {
