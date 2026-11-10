@@ -451,13 +451,13 @@ def _continuation(node) -> str | None:
     return None
 
 
-def http_post_json(url: str, payload: dict, retries: int = 3, hl: str = "en") -> dict:
+def http_post_json(url: str, payload: dict, retries: int = 3, hl: str = "en", headers: dict | None = None) -> dict:
     body = json.dumps(payload).encode()
     last: Exception | None = None
     for i in range(retries):
         req = urllib.request.Request(url, data=body, method="POST", headers={
             "User-Agent": UA, "Cookie": COOKIE, "Content-Type": "application/json",
-            "Origin": "https://www.youtube.com", "Accept-Language": _accept_lang(hl)})
+            "Origin": "https://www.youtube.com", "Accept-Language": _accept_lang(hl), **(headers or {})})
         try:
             with urllib.request.urlopen(req, timeout=25) as r:
                 return json.loads(r.read().decode("utf-8", "replace"))
@@ -726,7 +726,7 @@ def load_json(p: Path, default):
 
 PLAYLISTS_JSON = DATA / "playlists.json"
 PL_DEBUG: list = []
-PL_VERSION = 5   # bump when playlist parsing changes, to re-fetch every playlist
+PL_VERSION = 6   # bump when playlist parsing changes, to re-fetch every playlist
 _PL_COUNT = re.compile(r"(\d[\d,.\s ]*)\s*(videos?|видео|lessons?|уроков|урока|урок|տեսանյութ)", re.I)
 _NUMBERED = re.compile(
     r"(?:(?<!\w)(?:lecture|lec|lesson|part|episode|ep|class|chapter|session|module|unit|day|week|"
@@ -807,6 +807,21 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
     k = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', page)
     endpoint = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false" + (f"&key={k.group(1)}" if k else "")
     ctx = {"client": {"clientName": "WEB", "clientVersion": m.group(1) if m else "2.20251101.00.00", "hl": hl, "gl": "US"}}
+    # Newer playlist pages answer the next-page request with nothing unless it
+    # carries the page's own visitor id (and the click-tracking params).
+    vd = re.search(r'"VISITOR_DATA":"([^"]+)"', page) or re.search(r'"visitorData":"([^"]+)"', page)
+    extra_headers = {}
+    if vd:
+        ctx["client"]["visitorData"] = vd.group(1)
+        extra_headers = {"X-Goog-Visitor-Id": vd.group(1), "X-Youtube-Client-Name": "1",
+                         "X-Youtube-Client-Version": ctx["client"]["clientVersion"],
+                         "Referer": "https://www.youtube.com/"}
+
+    def click_params(node):
+        return next((c.get("clickTrackingParams") for key in ("continuationItemViewModel", "continuationItemRenderer")
+                     for cir in _walk(node, key) for c in _walk(cir, "innertubeCommand") if isinstance(c, dict)
+                     and c.get("clickTrackingParams")), None)
+    ctp = click_params(first)
     out = parse(first)
     seen = {x["id"] for x in out}
     token = _continuation(first)
@@ -823,7 +838,8 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
     while token and len(out) < max_items:
         time.sleep(0.3)
         try:
-            resp = http_post_json(endpoint, {"context": ctx, "continuation": token}, hl=hl)
+            body = {"context": {**ctx, **({"clickTracking": {"clickTrackingParams": ctp}} if ctp else {})}, "continuation": token}
+            resp = http_post_json(endpoint, body, hl=hl, headers=extra_headers)
         except Exception as e:  # noqa: BLE001
             if len(PL_DEBUG) < 10:
                 PL_DEBUG.append("post")
@@ -839,6 +855,7 @@ def _browse_pages(page: str, first: dict, parse, hl: str, max_items: int) -> lis
         seen.update(x["id"] for x in items)
         out.extend(items)
         token = _continuation(resp)
+        ctp = click_params(resp) or ctp
         if not token and parse is _parse_playlist_rows:
             token = next((t for key in ("continuationItemRenderer", "continuationItemViewModel") for cir in _walk(resp, key)
                           for t in [_cont_token(cir)] if t), None)
